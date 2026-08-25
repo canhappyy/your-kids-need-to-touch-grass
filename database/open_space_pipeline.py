@@ -16,6 +16,15 @@ import numpy as np
 RAW_FILE = "open_space.geojson"  
 MIN_AREA_HA = 0.1  # size rule for green buffer/median strip testing 
  
+# Victoria's real extent, with a small buffer added for safety.
+# Source: Victorian Year Book 1884 (Victorian Government), which
+# states the actual extreme points: Wilsons Promontory at 39.13S
+# (south), the Murray River border at 34.03S (north), the South
+# Australian border at 140.97E (west), and Cape Howe at 149.98E
+# (east). A small buffer is added on each side, since this is a
+# sanity check, not an exact boundary line.
+VIC_LAT_MIN, VIC_LAT_MAX = -39.2, -33.9
+VIC_LON_MIN, VIC_LON_MAX = 140.9, 150.0
  
 
 # STEP 1: Load raw file and check it looks correct
@@ -184,6 +193,7 @@ print(f"[Step 11b] Gave {is_temp_placeholder.sum()} previously-unnamed records "
       f"a clean, ready-to-use name")
  
  
+
 # STEP 12: Quality checks before saving
 # VPA_ID is checked here for uniqueness (an internal safeguard), then
 # dropped from the saved file - the final output only needs the 4
@@ -207,8 +217,8 @@ if duplicate_count > 0:
     raise ValueError(f"STOP: {duplicate_count} exact duplicate rows found")
 print("[Step 12] Passed: no duplicate rows")
  
-lat_ok = output["latitude"].between(-39.5, -33.5).all()
-lon_ok = output["longitude"].between(140.5, 150.5).all()
+lat_ok = output["latitude"].between(VIC_LAT_MIN, VIC_LAT_MAX).all()
+lon_ok = output["longitude"].between(VIC_LON_MIN, VIC_LON_MAX).all()
 if not (lat_ok and lon_ok):
     raise ValueError("STOP: some coordinates fall outside Victoria")
 print("[Step 12] Passed: all coordinates inside Victoria")
