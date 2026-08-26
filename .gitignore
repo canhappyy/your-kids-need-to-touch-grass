@@ -1,0 +1,4 @@
+﻿
+# pipeline data - regenerate via pipeline scripts, don't commit
+pipeline/data/raw/
+pipeline/data/processed/
