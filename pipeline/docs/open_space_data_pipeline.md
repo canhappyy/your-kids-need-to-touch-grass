@@ -7,7 +7,7 @@ Objective: Epic 1 (Recommendation Engine), Epic 2 (Play Preferences), Epic 3 (Co
 
 Cleans the Victorian Government's Open Space dataset into a simple,
 ready-to-use file: `open_space_location_db.csv`, with columns
-`name, latitude, longitude, category`.
+`open_space_id, name, latitude, longitude, category`.
 
 ## How to run it
 
@@ -39,24 +39,21 @@ One file: `open_space_location_db.csv`
 
 | Column | Meaning |
 |---|---|
+| open_space_id | The Victorian Planning Authority's own identifier for this record (originally called VPA_ID). Renamed so it is clear which dataset this ID belongs to once other datasets are added. |
 | name | Place name (or a clean generated name like "Active Sport Facility - Bayside" if the government data had no name) |
 | latitude | GPS latitude |
 | longitude | GPS longitude |
 | category | One of: playground, wetland, bushland, nature, park, trail, active_sport |
 
-Note: the script also uses the government's VPA_ID internally, to
-check for duplicates and to keep generated names in a consistent
-order. VPA_ID itself is not saved in the final file, since the team
-agreed the output only needs these 4 columns.
 
 ## Data quality checks
 
-Before saving, the pipeline checks four things. If any check fails, the
+Before saving, the pipeline checks several things. If any check fails, the
 script stops instead of saving a bad file.
 
 - No missing values in any required column
 - No exact duplicate rows
-- Every VPA_ID is unique before it gets removed from the final file, so no two different real places were accidentally combined
+- open_space_id (checked as VPA_ID) is unique, so no two different real places were accidentally combined
 - All coordinates fall inside Victoria's real range
 - Every category is one of the 7 expected values
 
@@ -78,6 +75,15 @@ the Epic 3 (Content Library).
 
 ## Key decisions made
 
+**Coordinate bounds are sourced, not guessed.**
+The check for "is this inside Victoria" uses real extreme points, not
+an arbitrary range. Source: Victorian Year Book 1884 (Victorian
+Government), which records Victoria's actual extremities: Wilsons
+Promontory at 39.13S (south), the Murray River border at 34.03S
+(north), the South Australian border at 140.97E (west), and Cape
+Howe at 149.98E (east). A small buffer is added on each side for
+safety, since this is a sanity check, not an exact boundary line.
+
 **VPA_ID is used for tracing records, not FID.**
 The raw data has two ID-like fields. FID turned out to be a simple
 row counter (1, 2, 3, 4, and so on), most likely created automatically
@@ -86,6 +92,13 @@ re-exports the dataset with rows added, removed, or reordered, FID
 values would shift, even for the exact same real park. VPA_ID does
 not follow this pattern and is more likely to be the government's
 own persistent identifier for each record, so it was used instead.
+
+**Renamed to open_space_id in the final output.**
+VPA_ID is kept in the output, not removed, since the schema and ERD
+work need a stable reference back to each record. It is renamed to
+open_space_id in the last step, so it is clear which dataset this ID
+belongs to once other datasets are added, such as Sports & Rec
+Facilities and Playgrounds.
 
 **Category comes from the government's OS_CATEGOR field, not OS_CATEG_2.**
 The raw data has two category-like fields. They are not a clean parent-child
@@ -137,9 +150,4 @@ is ignored.
 - If the government updates the source file, this script can be
   re-run to produce a fresh output. There is no automatic trigger yet.
   A future iteration could add a scheduled check or a file-change alert.
-- A generated name like "Active Sport Facility - Bayside (2)" cannot
-  be told apart from a real government name just by looking at the
-  name alone. VPA_ID is used internally to keep this deterministic
-  and duplicate-free, but it is not saved in the final file, so this
-  distinction is not visible from the output alone. If this matters
-  later, VPA_ID could be added back as an extra column.
+
