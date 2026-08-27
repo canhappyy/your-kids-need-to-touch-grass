@@ -6,7 +6,7 @@ For full documentation, category meanings, and design decisions, see open_space_
  
 Source: Victorian Government Open Space dataset (https://discover.data.vic.gov.au/dataset/open-space)
  
-Output: open_space_location_db.csv (VPA_ID, name, latitude, longitude, category)
+Output: open_space_location_db.csv (open_space_id, name, latitude, longitude, category)
 """
  
 import geopandas as gpd
@@ -195,13 +195,13 @@ print(f"[Step 11b] Gave {is_temp_placeholder.sum()} previously-unnamed records "
  
 
 # STEP 12: Quality checks before saving
-# VPA_ID is checked here for uniqueness (an internal safeguard)
+# Check VPA_ID for uniqueness, then renamed to open_space_id
 # columns the team agreed on: VPA_ID, name, latitude, longitude, category.
 duplicate_vpa_id_count = merged["VPA_ID"].duplicated().sum()
 if duplicate_vpa_id_count > 0:
     raise ValueError(f"STOP: {duplicate_vpa_id_count} duplicate VPA_ID values found, "
                       f"each place should have a unique VPA_ID")
-print("[Step 12] Passed: every VPA_ID is unique (checked, not saved to output)")
+print("[Step 12] Passed: every VPA_ID is unique")
  
 final_columns = ["VPA_ID", "name", "latitude", "longitude", "category"]
 output = merged[final_columns].copy()
@@ -230,7 +230,8 @@ print("[Step 12] Passed: all categories are valid")
 
 # change VPA_ID to open_space_id for clarity in the output file
 output = output.rename(columns={"VPA_ID": "open_space_id"})
- 
+
+
 # STEP 13: Save output file
 output.to_csv("open_space_location_db.csv", index=False)
 print(f"\n[Step 13] Saved open_space_location_db.csv - {len(output)} rows")
