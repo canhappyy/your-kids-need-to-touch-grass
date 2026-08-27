@@ -7,7 +7,7 @@ This file just runs the pipeline.
 
 Source: Australian Postcodes (https://www.matthewproctor.com/australian_postcodes)
 
-Output: postcode_location_db.csv (postcode, latitude, longitude)
+Output: postcode_location_db.csv (postcode, latitude, longitude, suburbs)
 """
 
 import pandas as pd
