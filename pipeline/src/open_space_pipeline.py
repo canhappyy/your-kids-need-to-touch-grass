@@ -228,6 +228,9 @@ if bad_categories:
     raise ValueError(f"STOP: unexpected category values: {bad_categories}")
 print("[Step 12] Passed: all categories are valid")
 
+# change VPA_ID to a clean integer before saving
+output["VPA_ID"] = output["VPA_ID"].astype(int)
+
 # change VPA_ID to open_space_id for clarity in the output file
 output = output.rename(columns={"VPA_ID": "open_space_id"})
 
