@@ -30,7 +30,7 @@ CREATE TABLE POSTCODE (
     longitude DECIMAL(9, 6) NOT NULL,
     suburbs TEXT
 );
--- One row per Victorian postcode, used to turn a parent's typed
+-- One row per postcode, used to turn a user's typed
 -- postcode into a location.
  
 CREATE TABLE LOCATION_CATEGORY (

@@ -14,7 +14,7 @@ BEGIN;
  
 -- 3. ACTIVITY + ACTIVITY_VARIETY_TAG
 -- activities_db.csv has one extra column (variety_tags, e.g. "Nature|Exploration")
--- that isn't a column on activity at all - it's the activity_variety_tag
+-- that isn't a column on activity, it's the activity_variety_tag
 -- junction table. A staging table holds the raw row so it can be split:
 -- one insert goes to activity (without variety_tags), a second insert
 -- splits variety_tags on "|" into one row per tag.
