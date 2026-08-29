@@ -35,15 +35,28 @@ type HomeSearchValues = {
   minutes: number
 }
 
+const defaultHomeSearchValues: HomeSearchValues = {
+  location: "",
+  ageRange: [6, 10],
+  hours: 2,
+  minutes: 0,
+}
+
 type HomeSearchFormProps = {
+  initialValues?: HomeSearchValues
   onValidSubmit: (values: HomeSearchValues) => void
 }
 
-function HomeSearchForm({ onValidSubmit }: HomeSearchFormProps) {
-  const [location, setLocation] = useState("")
-  const [ageRange, setAgeRange] = useState<AgeRange>([6, 10])
-  const [hours, setHours] = useState(2)
-  const [minutes, setMinutes] = useState(0)
+function HomeSearchForm({
+  initialValues = defaultHomeSearchValues,
+  onValidSubmit,
+}: HomeSearchFormProps) {
+  const [location, setLocation] = useState(initialValues.location)
+  const [ageRange, setAgeRange] = useState<AgeRange>([
+    ...initialValues.ageRange,
+  ])
+  const [hours, setHours] = useState(initialValues.hours)
+  const [minutes, setMinutes] = useState(initialValues.minutes)
   const [locationError, setLocationError] = useState("")
   const [timeError, setTimeError] = useState("")
 
@@ -226,4 +239,8 @@ function HomeSearchForm({ onValidSubmit }: HomeSearchFormProps) {
   )
 }
 
-export { HomeSearchForm, type HomeSearchValues }
+export {
+  defaultHomeSearchValues,
+  HomeSearchForm,
+  type HomeSearchValues,
+}
