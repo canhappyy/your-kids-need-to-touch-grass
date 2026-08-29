@@ -21,6 +21,7 @@ type ApiErrorResponse = {
 export function ResultSection() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const locationMode = searchParams.get("locationMode") === "home" ? "home" : "nearby"
   const location = searchParams.get("location") || ""
   const ageMin = searchParams.get("ageMin") || "6"
   const ageMax = searchParams.get("ageMax") || "10"
@@ -34,13 +35,14 @@ export function ResultSection() {
 
   const buildSearchQuery = useCallback(() => {
     return new URLSearchParams({
-      location,
+      locationMode,
+      ...(locationMode === "nearby" ? { location } : {}),
       ageMin,
       ageMax,
       hours,
       minutes,
     })
-  }, [ageMax, ageMin, hours, location, minutes])
+  }, [ageMax, ageMin, hours, location, locationMode, minutes])
 
   const returnToSearchWithError = useCallback(
     (code: string) => {
@@ -61,7 +63,8 @@ export function ResultSection() {
     async (excludeMissionId?: string, signal?: AbortSignal) => {
       const durationMinutes = Number(hours) * 60 + Number(minutes)
       const params = new URLSearchParams({
-        location,
+        locationMode,
+        ...(locationMode === "nearby" ? { location } : {}),
         ageMin,
         ageMax,
         durationMinutes: String(durationMinutes),
@@ -99,11 +102,11 @@ export function ResultSection() {
 
       return (body as RecommendationResponse).recommendation
     },
-    [ageMax, ageMin, hours, location, minutes, returnToSearchWithError],
+    [ageMax, ageMin, hours, location, locationMode, minutes, returnToSearchWithError],
   )
 
   useEffect(() => {
-    if (!location) {
+    if (locationMode === "nearby" && !location) {
       router.replace("/")
       return
     }
@@ -130,9 +133,9 @@ export function ResultSection() {
     void loadInitialRecommendation()
 
     return () => controller.abort()
-  }, [location, requestRecommendation, router])
+  }, [location, locationMode, requestRecommendation, router])
 
-  if (!location) return null
+  if (locationMode === "nearby" && !location) return null
 
   if (error) {
     return (

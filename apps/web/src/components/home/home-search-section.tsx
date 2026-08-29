@@ -1,7 +1,11 @@
 "use client"
 
 import { useSearchParams, useRouter } from "next/navigation"
-import { HomeSearchForm, type HomeSearchValues } from "./home-search-form"
+import {
+  HomeSearchForm,
+  type HomeSearchValues,
+  type LocationMode,
+} from "./home-search-form"
 
 export function HomeSearchSection() {
   const router = useRouter()
@@ -15,6 +19,10 @@ export function HomeSearchSection() {
   }
 
   const initialValues: HomeSearchValues = {
+    locationMode:
+      searchParams.get("locationMode") === "home"
+        ? "home"
+        : ("nearby" as LocationMode),
     location: searchParams.get("location") || "",
     ageRange: [
       getNumberParam("ageMin", 6),
@@ -33,7 +41,10 @@ export function HomeSearchSection() {
 
   const handleSubmit = (values: HomeSearchValues) => {
     const params = new URLSearchParams()
-    params.set("location", values.location)
+    params.set("locationMode", values.locationMode)
+    if (values.locationMode === "nearby") {
+      params.set("location", values.location)
+    }
     params.set("ageMin", values.ageRange[0].toString())
     params.set("ageMax", values.ageRange[1].toString())
     params.set("hours", values.hours.toString())

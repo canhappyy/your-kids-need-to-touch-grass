@@ -28,7 +28,10 @@ const minuteOptions = Array.from({ length: 12 }, (_, index) => {
   }
 })
 
+type LocationMode = "nearby" | "home"
+
 type HomeSearchValues = {
+  locationMode: LocationMode
   location: string
   ageRange: AgeRange
   hours: number
@@ -36,6 +39,7 @@ type HomeSearchValues = {
 }
 
 const defaultHomeSearchValues: HomeSearchValues = {
+  locationMode: "nearby",
   location: "",
   ageRange: [6, 10],
   hours: 2,
@@ -53,6 +57,9 @@ function HomeSearchForm({
   initialLocationError = "",
   onValidSubmit,
 }: HomeSearchFormProps) {
+  const [locationMode, setLocationMode] = useState<LocationMode>(
+    initialValues.locationMode
+  )
   const [location, setLocation] = useState(initialValues.location)
   const [ageRange, setAgeRange] = useState<AgeRange>([
     ...initialValues.ageRange,
@@ -69,11 +76,15 @@ function HomeSearchForm({
     const isNumericLocation = /^\d+$/.test(trimmedLocation)
     let nextLocationError = ""
 
-    if (!trimmedLocation) {
+    if (locationMode === "nearby" && !trimmedLocation) {
       nextLocationError = "Enter a suburb or postcode."
-    } else if (trimmedLocation.length > 100) {
+    } else if (locationMode === "nearby" && trimmedLocation.length > 100) {
       nextLocationError = "Enter a location under 100 characters."
-    } else if (isNumericLocation && !/^\d{4}$/.test(trimmedLocation)) {
+    } else if (
+      locationMode === "nearby" &&
+      isNumericLocation &&
+      !/^\d{4}$/.test(trimmedLocation)
+    ) {
       nextLocationError = "Enter a 4-digit postcode."
     }
 
@@ -86,7 +97,8 @@ function HomeSearchForm({
     if (nextLocationError || nextTimeError) return
 
     onValidSubmit({
-      location: trimmedLocation,
+      locationMode,
+      location: locationMode === "nearby" ? trimmedLocation : "",
       ageRange,
       hours,
       minutes,
@@ -99,39 +111,70 @@ function HomeSearchForm({
       noValidate
       onSubmit={handleSubmit}
     >
-      <div>
-        <Label
-          className="mb-2 text-xs font-medium tracking-wide text-zinc-600 uppercase"
-          htmlFor="location"
-        >
-          Location
-        </Label>
-        <Input
-          aria-describedby={locationError ? "location-error" : undefined}
-          aria-invalid={Boolean(locationError)}
-          autoComplete="postal-code"
-          className="h-[52px] rounded-xl border-zinc-200 bg-zinc-50 px-4 text-base shadow-xs placeholder:text-zinc-500 focus-visible:border-emerald-600 focus-visible:ring-emerald-600/20 md:text-base"
-          id="location"
-          name="location"
-          onChange={(event) => {
-            setLocation(event.target.value)
-            if (locationError) setLocationError("")
-          }}
-          placeholder="Suburb or postcode, e.g. Clayton 3168"
-          required
-          type="text"
-          value={location}
-        />
-        {locationError && (
-          <p
-            className="mt-2 text-sm text-destructive"
-            id="location-error"
-            role="alert"
+      <fieldset>
+        <legend className="mb-2 text-xs font-medium tracking-wide text-zinc-600 uppercase">
+          Activity location
+        </legend>
+        <div className="grid grid-cols-2 gap-3">
+          {([
+            ["nearby", "Near me"],
+            ["home", "At home"],
+          ] as const).map(([value, label]) => (
+            <label className="cursor-pointer" key={value}>
+              <input
+                checked={locationMode === value}
+                className="peer sr-only"
+                name="locationMode"
+                onChange={() => {
+                  setLocationMode(value)
+                  setLocationError("")
+                }}
+                type="radio"
+                value={value}
+              />
+              <span className="flex h-[52px] items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 px-4 text-sm font-semibold text-zinc-700 shadow-xs transition-colors peer-checked:border-emerald-600 peer-checked:bg-emerald-50 peer-checked:text-emerald-800 peer-focus-visible:ring-2 peer-focus-visible:ring-emerald-600/30 peer-focus-visible:ring-offset-2 hover:bg-zinc-100">
+                {label}
+              </span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      {locationMode === "nearby" && (
+        <div className="mt-5">
+          <Label
+            className="mb-2 text-xs font-medium tracking-wide text-zinc-600 uppercase"
+            htmlFor="location"
           >
-            {locationError}
-          </p>
-        )}
-      </div>
+            Location
+          </Label>
+          <Input
+            aria-describedby={locationError ? "location-error" : undefined}
+            aria-invalid={Boolean(locationError)}
+            autoComplete="postal-code"
+            className="h-[52px] rounded-xl border-zinc-200 bg-zinc-50 px-4 text-base shadow-xs placeholder:text-zinc-500 focus-visible:border-emerald-600 focus-visible:ring-emerald-600/20 md:text-base"
+            id="location"
+            name="location"
+            onChange={(event) => {
+              setLocation(event.target.value)
+              if (locationError) setLocationError("")
+            }}
+            placeholder="Suburb or postcode, e.g. Clayton 3168"
+            required
+            type="text"
+            value={location}
+          />
+          {locationError && (
+            <p
+              className="mt-2 text-sm text-destructive"
+              id="location-error"
+              role="alert"
+            >
+              {locationError}
+            </p>
+          )}
+        </div>
+      )}
 
       <fieldset className="mt-8">
         <legend className="sr-only">Child&apos;s age range</legend>
@@ -236,7 +279,7 @@ function HomeSearchForm({
           My Kid Needs to Touch Grass
         </Button>
         <p className="mt-7 text-sm text-zinc-500">
-          Tap for a random activity idea near you
+          Tap for a random activity idea {locationMode === "home" ? "at home" : "near you"}
         </p>
       </div>
     </form>
@@ -246,5 +289,6 @@ function HomeSearchForm({
 export {
   defaultHomeSearchValues,
   HomeSearchForm,
+  type LocationMode,
   type HomeSearchValues,
 }
