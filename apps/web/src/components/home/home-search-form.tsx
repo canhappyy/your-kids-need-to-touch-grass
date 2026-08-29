@@ -28,7 +28,18 @@ const minuteOptions = Array.from({ length: 12 }, (_, index) => {
   }
 })
 
-function HomeSearchForm() {
+type HomeSearchValues = {
+  location: string
+  ageRange: AgeRange
+  hours: number
+  minutes: number
+}
+
+type HomeSearchFormProps = {
+  onValidSubmit?: (values: HomeSearchValues) => void
+}
+
+function HomeSearchForm({ onValidSubmit }: HomeSearchFormProps) {
   const [location, setLocation] = useState("")
   const [ageRange, setAgeRange] = useState<AgeRange>([6, 10])
   const [hours, setHours] = useState(2)
@@ -54,6 +65,15 @@ function HomeSearchForm() {
 
     setLocationError(nextLocationError)
     setTimeError(nextTimeError)
+
+    if (nextLocationError || nextTimeError) return
+
+    onValidSubmit?.({
+      location: trimmedLocation,
+      ageRange,
+      hours,
+      minutes,
+    })
   }
 
   return (
@@ -206,4 +226,4 @@ function HomeSearchForm() {
   )
 }
 
-export { HomeSearchForm }
+export { HomeSearchForm, type HomeSearchValues }
