@@ -197,6 +197,17 @@ export function ResultSection() {
               if (result !== undefined) {
                 setError("")
                 setRecommendation(result)
+                currentMissionId.current = result?.missionId ?? null
+
+                if (result && !selectedMissionId) {
+                  const params = buildSearchQuery()
+                  params.set("missionId", result.missionId)
+                  window.history.replaceState(
+                    null,
+                    "",
+                    `/result?${params.toString()}`
+                  )
+                }
               }
             } catch {
               setError("We couldn't load a mission. Please try again.")
@@ -250,6 +261,13 @@ export function ResultSection() {
           const result = await requestRecommendation({
             excludeMissionId: recommendation.missionId,
           })
+
+          if (
+            new URL(window.location.href).searchParams.get("missionId") !==
+            recommendation.missionId
+          ) {
+            return
+          }
 
           if (result !== undefined) {
             setError("")
