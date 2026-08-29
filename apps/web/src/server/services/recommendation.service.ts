@@ -6,13 +6,18 @@ import type {
 import type { ResolvedLocation } from "@/server/services/location.service";
 import type { MatchReason, Recommendation } from "@/types/recommendation";
 
-export type RecommendationInput = {
-  location: string;
+type RecommendationInputBase = {
   ageMin: number;
   ageMax: number;
   durationMinutes: number;
   excludeMissionId?: string;
 };
+
+export type RecommendationInput = RecommendationInputBase &
+  (
+    | { locationMode: "nearby"; location: string }
+    | { locationMode: "home"; location?: never }
+  );
 
 export type RecommendationRepository = {
   findLocationBased(
@@ -59,8 +64,7 @@ function formatDuration(durationMinutes: number): string {
 
 function buildReasons(
   input: RecommendationInput,
-  location: ResolvedLocation,
-  includeLocation: boolean,
+  location?: ResolvedLocation,
 ): MatchReason[] {
   const reasons: MatchReason[] = [
     { kind: "age", label: `Ages ${input.ageMin}-${input.ageMax}` },
@@ -70,7 +74,7 @@ function buildReasons(
     },
   ];
 
-  if (includeLocation) {
+  if (location) {
     reasons.push({ kind: "location", label: `Near ${location.label}` });
   }
 
@@ -82,6 +86,21 @@ export async function getRecommendation(
   dependencies?: RecommendationDependencies,
 ): Promise<Recommendation | null> {
   const deps = dependencies ?? (await loadDefaultDependencies());
+
+  if (input.locationMode === "home") {
+    const homeMission = await deps.repository.findFallback({
+      ageMin: input.ageMin,
+      ageMax: input.ageMax,
+      durationMinutes: input.durationMinutes,
+      excludeMissionId: input.excludeMissionId,
+      missionTypes: ["Home-Based"],
+    });
+
+    return homeMission
+      ? { ...homeMission, reasons: buildReasons(input) }
+      : null;
+  }
+
   const location = await deps.resolveLocation(input.location);
   const candidate = await deps.repository.findLocationBased({
     latitude: location.latitude,
@@ -98,7 +117,7 @@ export async function getRecommendation(
   if (candidate && !repeatsExcludedMission) {
     return {
       ...candidate,
-      reasons: buildReasons(input, location, true),
+      reasons: buildReasons(input, location),
     };
   }
 
@@ -107,19 +126,20 @@ export async function getRecommendation(
     ageMax: input.ageMax,
     durationMinutes: input.durationMinutes,
     excludeMissionId: input.excludeMissionId,
+    missionTypes: ["Home-Based", "Location-Agnostic"],
   });
 
   if (!fallback) {
     return candidate
       ? {
           ...candidate,
-          reasons: buildReasons(input, location, true),
+          reasons: buildReasons(input, location),
         }
       : null;
   }
 
   return {
     ...fallback,
-    reasons: buildReasons(input, location, false),
+    reasons: buildReasons(input),
   };
 }

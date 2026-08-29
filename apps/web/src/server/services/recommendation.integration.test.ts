@@ -6,6 +6,7 @@ import { resolveRecommendationLocation } from "@/server/services/location.servic
 import { getRecommendation } from "@/server/services/recommendation.service"
 
 const input = {
+  locationMode: "nearby" as const,
   location: "Clayton 3168",
   ageMin: 6,
   ageMax: 10,

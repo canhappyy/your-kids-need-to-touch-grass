@@ -50,10 +50,25 @@ describe("GET /api/recommendations", () => {
     await expect(response.json()).resolves.toEqual({ recommendation });
     expect(getRecommendation).toHaveBeenCalledWith({
       ...validQuery,
+      locationMode: "nearby",
       ageMin: 6,
       ageMax: 10,
       durationMinutes: 120,
       excludeMissionId: "MIS-002",
+    });
+  });
+
+  it("accepts home mode without a location", async () => {
+    const response = await GET(
+      request({ location: null, locationMode: "home" }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(getRecommendation).toHaveBeenCalledWith({
+      locationMode: "home",
+      ageMin: 6,
+      ageMax: 10,
+      durationMinutes: 120,
     });
   });
 
@@ -68,6 +83,7 @@ describe("GET /api/recommendations", () => {
     ["short duration", { durationMinutes: "0" }],
     ["long duration", { durationMinutes: "780" }],
     ["duration step", { durationMinutes: "12" }],
+    ["invalid location mode", { locationMode: "somewhere" }],
   ])("returns 400 for %s", async (_name, overrides) => {
     const response = await GET(request(overrides));
 

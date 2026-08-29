@@ -53,6 +53,7 @@ function parseInteger(value: string | null): number | null {
 export function parseRecommendationQuery(
   searchParams: URLSearchParams,
 ): RecommendationInput | null {
+  const locationMode = searchParams.get("locationMode") ?? "nearby";
   const location = searchParams.get("location")?.trim() ?? "";
   const ageMin = parseInteger(searchParams.get("ageMin"));
   const ageMax = parseInteger(searchParams.get("ageMax"));
@@ -61,8 +62,8 @@ export function parseRecommendationQuery(
     searchParams.get("excludeMissionId")?.trim() || undefined;
 
   if (
-    !location ||
-    location.length > 100 ||
+    (locationMode !== "nearby" && locationMode !== "home") ||
+    (locationMode === "nearby" && (!location || location.length > 100)) ||
     ageMin === null ||
     ageMax === null ||
     ageMin < 5 ||
@@ -76,13 +77,16 @@ export function parseRecommendationQuery(
     return null;
   }
 
-  return {
-    location,
+  const commonInput = {
     ageMin,
     ageMax,
     durationMinutes,
     ...(excludeMissionId ? { excludeMissionId } : {}),
   };
+
+  return locationMode === "home"
+    ? { ...commonInput, locationMode }
+    : { ...commonInput, locationMode, location };
 }
 
 export async function GET(request: Request) {

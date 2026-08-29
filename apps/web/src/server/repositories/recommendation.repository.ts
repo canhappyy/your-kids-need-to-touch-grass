@@ -27,7 +27,9 @@ export type RecommendationQuery = {
 export type FallbackRecommendationQuery = Omit<
   RecommendationQuery,
   "latitude" | "longitude"
->;
+> & {
+  missionTypes: Array<"Home-Based" | "Location-Agnostic">;
+};
 
 function mapLocationCandidate(
   row: Record<string, unknown>,
@@ -166,7 +168,7 @@ export async function findFallbackRecommendation(
       duration_minutes,
       mission_type
     FROM activity
-    WHERE mission_type IN ('Home-Based', 'Location-Agnostic')
+    WHERE mission_type = ANY($5::text[])
       AND duration_minutes <= $3
       AND (
         ($1 <= 7 AND $2 >= 5 AND age_5_7 = 'Y')
@@ -183,6 +185,7 @@ export async function findFallbackRecommendation(
       input.ageMax,
       input.durationMinutes,
       input.excludeMissionId ?? null,
+      input.missionTypes,
     ],
   );
 

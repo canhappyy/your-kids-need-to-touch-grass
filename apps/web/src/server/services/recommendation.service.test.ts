@@ -7,6 +7,7 @@ import {
 } from "@/server/services/recommendation.service";
 
 const input: RecommendationInput = {
+  locationMode: "nearby",
   location: "Clayton 3168",
   ageMin: 6,
   ageMax: 10,
@@ -100,6 +101,37 @@ describe("getRecommendation", () => {
     });
   });
 
+  it("selects only Home-Based missions without resolving a location", async () => {
+    const deps = dependencies(null, fallbackMission);
+    const result = await getRecommendation(
+      {
+        locationMode: "home",
+        ageMin: 6,
+        ageMax: 10,
+        durationMinutes: 45,
+      } as RecommendationInput,
+      deps,
+    );
+
+    expect(result).toMatchObject({
+      missionId: fallbackMission.missionId,
+      missionType: "Home-Based",
+      reasons: [
+        { kind: "age", label: "Ages 6-10" },
+        { kind: "time", label: "Fits within 45 minutes" },
+      ],
+    });
+    expect(deps.resolveLocation).not.toHaveBeenCalled();
+    expect(deps.repository.findLocationBased).not.toHaveBeenCalled();
+    expect(deps.repository.findFallback).toHaveBeenCalledWith({
+      ageMin: 6,
+      ageMax: 10,
+      durationMinutes: 45,
+      excludeMissionId: undefined,
+      missionTypes: ["Home-Based"],
+    });
+  });
+
   it("returns null when neither tier matches", async () => {
     await expect(
       getRecommendation(input, dependencies(null, null)),
@@ -117,6 +149,7 @@ describe("getRecommendation", () => {
       ageMax: 10,
       durationMinutes: 120,
       excludeMissionId: venueMission.missionId,
+      missionTypes: ["Home-Based", "Location-Agnostic"],
     });
   });
 });
