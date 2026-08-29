@@ -24,6 +24,13 @@ export function HomeSearchSection() {
     minutes: getNumberParam("minutes", 0),
   }
 
+  const locationErrorMessages: Record<string, string> = {
+    "not-found": "We couldn't find that location. Check it and try again.",
+    ambiguous: "Enter a postcode to choose the correct suburb.",
+    invalid: "Enter a valid four-digit postcode or suburb.",
+  }
+  const locationErrorCode = searchParams.get("locationError") || ""
+
   const handleSubmit = (values: HomeSearchValues) => {
     const params = new URLSearchParams()
     params.set("location", values.location)
@@ -46,6 +53,7 @@ export function HomeSearchSection() {
       </header>
 
       <HomeSearchForm
+        initialLocationError={locationErrorMessages[locationErrorCode]}
         initialValues={initialValues}
         onValidSubmit={handleSubmit}
       />

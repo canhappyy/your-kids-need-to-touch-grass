@@ -44,11 +44,13 @@ const defaultHomeSearchValues: HomeSearchValues = {
 
 type HomeSearchFormProps = {
   initialValues?: HomeSearchValues
+  initialLocationError?: string
   onValidSubmit: (values: HomeSearchValues) => void
 }
 
 function HomeSearchForm({
   initialValues = defaultHomeSearchValues,
+  initialLocationError = "",
   onValidSubmit,
 }: HomeSearchFormProps) {
   const [location, setLocation] = useState(initialValues.location)
@@ -57,7 +59,7 @@ function HomeSearchForm({
   ])
   const [hours, setHours] = useState(initialValues.hours)
   const [minutes, setMinutes] = useState(initialValues.minutes)
-  const [locationError, setLocationError] = useState("")
+  const [locationError, setLocationError] = useState(initialLocationError)
   const [timeError, setTimeError] = useState("")
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -69,6 +71,8 @@ function HomeSearchForm({
 
     if (!trimmedLocation) {
       nextLocationError = "Enter a suburb or postcode."
+    } else if (trimmedLocation.length > 100) {
+      nextLocationError = "Enter a location under 100 characters."
     } else if (isNumericLocation && !/^\d{4}$/.test(trimmedLocation)) {
       nextLocationError = "Enter a 4-digit postcode."
     }
