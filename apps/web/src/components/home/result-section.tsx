@@ -288,7 +288,12 @@ export function ResultSection() {
             }
           }
         } catch {
-          setError("We couldn't load a mission. Please try again.")
+          if (
+            new URL(window.location.href).searchParams.get("missionId") ===
+            recommendation.missionId
+          ) {
+            setError("We couldn't load a mission. Please try again.")
+          }
         } finally {
           setIsRetrying(false)
         }
