@@ -1,4 +1,5 @@
 import type {
+  FallbackRecommendationQuery,
   RecommendationCandidate,
   RecommendationQuery,
 } from "@/server/repositories/recommendation.repository";
@@ -16,6 +17,9 @@ export type RecommendationInput = {
 export type RecommendationRepository = {
   findLocationBased(
     input: RecommendationQuery,
+  ): Promise<RecommendationCandidate | null>;
+  findFallback(
+    input: FallbackRecommendationQuery,
   ): Promise<RecommendationCandidate | null>;
 };
 
@@ -35,6 +39,7 @@ async function loadDefaultDependencies(): Promise<RecommendationDependencies> {
     repository: {
       findLocationBased:
         recommendationRepository.findLocationBasedRecommendation,
+      findFallback: recommendationRepository.findFallbackRecommendation,
     },
   };
 }
@@ -55,15 +60,21 @@ function formatDuration(durationMinutes: number): string {
 function buildReasons(
   input: RecommendationInput,
   location: ResolvedLocation,
+  includeLocation: boolean,
 ): MatchReason[] {
-  return [
+  const reasons: MatchReason[] = [
     { kind: "age", label: `Ages ${input.ageMin}–${input.ageMax}` },
     {
       kind: "time",
       label: `Fits within ${formatDuration(input.durationMinutes)}`,
     },
-    { kind: "location", label: `Near ${location.label}` },
   ];
+
+  if (includeLocation) {
+    reasons.push({ kind: "location", label: `Near ${location.label}` });
+  }
+
+  return reasons;
 }
 
 export async function getRecommendation(
@@ -81,13 +92,27 @@ export async function getRecommendation(
     excludeMissionId: input.excludeMissionId,
   });
 
-  if (!candidate) {
+  if (candidate) {
+    return {
+      ...candidate,
+      reasons: buildReasons(input, location, true),
+    };
+  }
+
+  const fallback = await deps.repository.findFallback({
+    ageMin: input.ageMin,
+    ageMax: input.ageMax,
+    durationMinutes: input.durationMinutes,
+    excludeMissionId: input.excludeMissionId,
+  });
+
+  if (!fallback) {
     return null;
   }
 
   return {
-    ...candidate,
-    reasons: buildReasons(input, location),
+    ...fallback,
+    reasons: buildReasons(input, location, false),
   };
 }
 

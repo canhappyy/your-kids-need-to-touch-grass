@@ -31,13 +31,26 @@ const locationCandidate = {
   },
 };
 
+const fallbackCandidate = {
+  missionId: "MIS-101",
+  title: "Living Room Obstacle Course",
+  description: null,
+  equipmentNeeded: "Household items",
+  instructionText: "Build a safe course.",
+  durationMinutes: 30,
+  missionType: "Home-Based" as const,
+  venue: null,
+};
+
 function dependencies(
-  candidate = locationCandidate,
+  candidate: typeof locationCandidate | null = locationCandidate,
+  fallback: typeof fallbackCandidate | null = null,
 ): RecommendationDependencies {
   return {
     resolveLocation: vi.fn().mockResolvedValue(resolvedLocation),
     repository: {
       findLocationBased: vi.fn().mockResolvedValue(candidate),
+      findFallback: vi.fn().mockResolvedValue(fallback),
     },
   };
 }
@@ -91,7 +104,7 @@ describe("getRecommendation location-based selection", () => {
   });
 
   it("returns null when no location mission matches", async () => {
-    const deps = dependencies(null as never);
+    const deps = dependencies(null);
 
     await expect(
       getRecommendation(
@@ -104,5 +117,67 @@ describe("getRecommendation location-based selection", () => {
         deps,
       ),
     ).resolves.toBeNull();
+  });
+
+  it("does not query fallback missions when a venue mission matches", async () => {
+    const deps = dependencies();
+
+    await getRecommendation(
+      {
+        location: "3168",
+        ageMin: 6,
+        ageMax: 10,
+        durationMinutes: 120,
+      },
+      deps,
+    );
+
+    expect(deps.repository.findFallback).not.toHaveBeenCalled();
+  });
+});
+
+describe("getRecommendation fallback selection", () => {
+  it("returns a Home-Based mission without a location reason", async () => {
+    const deps = dependencies(null, fallbackCandidate);
+
+    const recommendation = await getRecommendation(
+      {
+        location: "3168",
+        ageMin: 6,
+        ageMax: 10,
+        durationMinutes: 45,
+      },
+      deps,
+    );
+
+    expect(recommendation).toEqual({
+      ...fallbackCandidate,
+      reasons: [
+        { kind: "age", label: "Ages 6–10" },
+        { kind: "time", label: "Fits within 45 minutes" },
+      ],
+    });
+  });
+
+  it("passes retry exclusion to fallback selection", async () => {
+    const deps = dependencies(null, fallbackCandidate);
+
+    await getRecommendation(
+      {
+        location: "3168",
+        ageMin: 6,
+        ageMax: 7,
+        durationMinutes: 30,
+        excludeMissionId: "MIS-101",
+      },
+      deps,
+    );
+
+    expect(deps.repository.findFallback).toHaveBeenCalledWith({
+      ageMin: 6,
+      ageMax: 7,
+      durationMinutes: 30,
+      excludeMissionId: "MIS-101",
+    });
   });
 });
