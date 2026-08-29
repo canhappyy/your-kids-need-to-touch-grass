@@ -208,7 +208,7 @@ export function ResultSection() {
         </Button>
         <Button
           className="mt-3 h-14 w-full rounded-full"
-          onClick={() => router.push(`/?${buildSearchQuery()}`)}
+          onClick={() => router.push("/")}
           type="button"
           variant="outline"
         >
@@ -242,6 +242,7 @@ export function ResultSection() {
   return (
     <ActivityResult
       isRetrying={isRetrying}
+      onBackToSearch={() => router.push("/")}
       onTryAnother={async () => {
         setIsRetrying(true)
 

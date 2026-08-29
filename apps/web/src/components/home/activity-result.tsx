@@ -9,6 +9,7 @@ import type { Recommendation } from "@/types/recommendation"
 type ActivityResultProps = {
   recommendation: Recommendation
   isRetrying?: boolean
+  onBackToSearch: () => void
   onTryAnother: () => void
 }
 
@@ -25,6 +26,7 @@ function formatDuration(durationMinutes: number) {
 function ActivityResult({
   recommendation,
   isRetrying = false,
+  onBackToSearch,
   onTryAnother,
 }: ActivityResultProps) {
   const locationLabel = recommendation.venue
@@ -124,6 +126,15 @@ function ActivityResult({
         >
           <Dices aria-hidden="true" />
           {isRetrying ? "Finding Another…" : "Try Another Activity"}
+        </Button>
+        <Button
+          className="h-16 w-full rounded-full border-zinc-300 bg-white px-6 text-lg font-bold text-zinc-900 hover:bg-zinc-50 focus-visible:border-emerald-700 focus-visible:ring-emerald-600/20"
+          onClick={onBackToSearch}
+          size="lg"
+          type="button"
+          variant="outline"
+        >
+          Back to Search
         </Button>
       </div>
     </section>
