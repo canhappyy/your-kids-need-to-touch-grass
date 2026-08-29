@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 
 import { ActivityResult } from "./activity-result"
@@ -18,6 +18,12 @@ type ApiErrorResponse = {
   }
 }
 
+type RecommendationRequest = {
+  excludeMissionId?: string
+  missionId?: string
+  signal?: AbortSignal
+}
+
 export function ResultSection() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -27,6 +33,8 @@ export function ResultSection() {
   const ageMax = searchParams.get("ageMax") || "10"
   const hours = searchParams.get("hours") || "2"
   const minutes = searchParams.get("minutes") || "0"
+  const selectedMissionId = searchParams.get("missionId") || undefined
+  const currentMissionId = useRef<string | null>(null)
   const [recommendation, setRecommendation] = useState<
     Recommendation | null | undefined
   >()
@@ -60,7 +68,11 @@ export function ResultSection() {
   )
 
   const requestRecommendation = useCallback(
-    async (excludeMissionId?: string, signal?: AbortSignal) => {
+    async ({
+      excludeMissionId,
+      missionId,
+      signal,
+    }: RecommendationRequest = {}) => {
       const durationMinutes = Number(hours) * 60 + Number(minutes)
       const params = new URLSearchParams({
         locationMode,
@@ -73,6 +85,7 @@ export function ResultSection() {
       if (excludeMissionId) {
         params.set("excludeMissionId", excludeMissionId)
       }
+      if (missionId) params.set("missionId", missionId)
 
       const response = await fetch(`/api/recommendations?${params}`, {
         cache: "no-store",
@@ -111,15 +124,37 @@ export function ResultSection() {
       return
     }
 
+    if (
+      selectedMissionId &&
+      currentMissionId.current === selectedMissionId
+    ) {
+      return
+    }
+
     const controller = new AbortController()
 
     async function loadInitialRecommendation() {
       try {
-        const result = await requestRecommendation(undefined, controller.signal)
+        if (selectedMissionId) setRecommendation(undefined)
+        const result = await requestRecommendation({
+          missionId: selectedMissionId,
+          signal: controller.signal,
+        })
 
         if (result !== undefined) {
           setError("")
           setRecommendation(result)
+          currentMissionId.current = result?.missionId ?? null
+
+          if (result && !selectedMissionId) {
+            const params = buildSearchQuery()
+            params.set("missionId", result.missionId)
+            window.history.replaceState(
+              null,
+              "",
+              `/result?${params.toString()}`
+            )
+          }
         }
       } catch (requestError) {
         if (requestError instanceof Error && requestError.name === "AbortError") {
@@ -133,7 +168,14 @@ export function ResultSection() {
     void loadInitialRecommendation()
 
     return () => controller.abort()
-  }, [location, locationMode, requestRecommendation, router])
+  }, [
+    buildSearchQuery,
+    location,
+    locationMode,
+    requestRecommendation,
+    router,
+    selectedMissionId,
+  ])
 
   if (locationMode === "nearby" && !location) return null
 
@@ -148,7 +190,9 @@ export function ResultSection() {
           className="mt-8 h-14 w-full rounded-full bg-emerald-600 text-base font-bold text-white hover:bg-emerald-700"
           onClick={async () => {
             try {
-              const result = await requestRecommendation()
+              const result = await requestRecommendation({
+                missionId: selectedMissionId,
+              })
 
               if (result !== undefined) {
                 setError("")
@@ -202,11 +246,27 @@ export function ResultSection() {
         setIsRetrying(true)
 
         try {
-          const result = await requestRecommendation(recommendation.missionId)
+          const result = await requestRecommendation({
+            excludeMissionId: recommendation.missionId,
+          })
 
           if (result !== undefined) {
             setError("")
             setRecommendation(result)
+
+            if (
+              result &&
+              result.missionId !== recommendation.missionId
+            ) {
+              currentMissionId.current = result.missionId
+              const params = buildSearchQuery()
+              params.set("missionId", result.missionId)
+              window.history.pushState(
+                null,
+                "",
+                `/result?${params.toString()}`
+              )
+            }
           }
         } catch {
           setError("We couldn't load a mission. Please try again.")
