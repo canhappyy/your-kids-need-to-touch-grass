@@ -1,0 +1,75 @@
+name: Web CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: web-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test, lint, and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/appdb
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install web dependencies
+        run: npm ci
+        working-directory: apps/web
+
+      - name: Copy test fixtures to processed data folder
+        run: cp database/test_fixtures/*.csv pipeline/data/processed/
+
+      - name: Start PostgreSQL
+        run: docker compose up -d
+
+      - name: Wait for PostgreSQL
+        shell: bash
+        run: |
+          for attempt in {1..30}; do
+            if count=$(docker compose exec -T postgres psql -U postgres -d appdb -t -A -c "SELECT COUNT(*) FROM activity_location_category;" 2>/dev/null) && [ "$count" -gt 0 ]; then
+              echo "Database is fully initialized with $count rows."
+              exit 0
+            fi
+            echo "Waiting for database initialization... (attempt $attempt)"
+            sleep 2
+          done
+
+          echo "Database initialization timed out."
+          docker compose logs postgres
+          exit 1
+
+      - name: Run unit tests
+        run: npm test
+        working-directory: apps/web
+
+      - name: Run integration tests
+        run: npm run test:integration
+        working-directory: apps/web
+
+      - name: Lint
+        run: npm run lint
+        working-directory: apps/web
+
+      - name: Build
+        run: npm run build
+        working-directory: apps/web

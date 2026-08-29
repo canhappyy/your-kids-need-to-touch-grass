@@ -1,31 +1,149 @@
-import { findPostcode } from "@/server/repositories/postcode.repository";
-import { findAllActivities } from "@/server/repositories/activity.repository";
+import type {
+  FallbackRecommendationQuery,
+  RecommendationCandidate,
+  RecommendationQuery,
+} from "@/server/repositories/recommendation.repository";
+import type { ResolvedLocation } from "@/server/services/location.service";
+import type { MatchReason, Recommendation } from "@/types/recommendation";
 
-type RecommendationInput = {
-  postcode: string;
-  age: number;
-  duration: number;
+type RecommendationInputBase = {
+  ageMin: number;
+  ageMax: number;
+  durationMinutes: number;
+  excludeMissionId?: string;
+  missionId?: string;
 };
 
-export async function getRecommendations(input: RecommendationInput) {
-  const postcode = await findPostcode(input.postcode);
+export type RecommendationInput = RecommendationInputBase &
+  (
+    | { locationMode: "nearby"; location: string }
+    | { locationMode: "home"; location?: never }
+  );
 
-  if (!postcode) {
-    return [];
+export type RecommendationRepository = {
+  findLocationBased(
+    input: RecommendationQuery,
+  ): Promise<RecommendationCandidate | null>;
+  findFallback(
+    input: FallbackRecommendationQuery,
+  ): Promise<RecommendationCandidate | null>;
+};
+
+export type RecommendationDependencies = {
+  resolveLocation(input: string): Promise<ResolvedLocation>;
+  repository: RecommendationRepository;
+};
+
+async function loadDefaultDependencies(): Promise<RecommendationDependencies> {
+  const [locationService, recommendationRepository] = await Promise.all([
+    import("@/server/services/location.service"),
+    import("@/server/repositories/recommendation.repository"),
+  ]);
+
+  return {
+    resolveLocation: locationService.resolveRecommendationLocation,
+    repository: {
+      findLocationBased:
+        recommendationRepository.findLocationBasedRecommendation,
+      findFallback: recommendationRepository.findFallbackRecommendation,
+    },
+  };
+}
+
+function formatDuration(durationMinutes: number): string {
+  const hours = Math.floor(durationMinutes / 60);
+  const minutes = durationMinutes % 60;
+
+  if (hours === 0) {
+    return `${minutes} minutes`;
   }
 
-  const activities = await findAllActivities();
+  const hourLabel = `${hours} ${hours === 1 ? "hour" : "hours"}`;
 
-  const suitableActivities = activities.filter((activity) => {
-    const ageSuitable =
-      (input.age >= 5 && input.age <= 7 && activity.age_5_7 === "Y") ||
-      (input.age >= 8 && input.age <= 9 && activity.age_8_9 === "Y") ||
-      (input.age >= 10 && input.age <= 12 && activity.age_10_12 === "Y");
+  return minutes === 0 ? hourLabel : `${hourLabel} ${minutes} minutes`;
+}
 
-    const durationSuitable = activity.duration_minutes <= input.duration;
+function buildReasons(
+  input: RecommendationInput,
+  location?: ResolvedLocation,
+): MatchReason[] {
+  const reasons: MatchReason[] = [
+    { kind: "age", label: `Ages ${input.ageMin}-${input.ageMax}` },
+    {
+      kind: "time",
+      label: `Fits within ${formatDuration(input.durationMinutes)}`,
+    },
+  ];
 
-    return ageSuitable && durationSuitable;
+  if (location) {
+    reasons.push({ kind: "location", label: `Near ${location.label}` });
+  }
+
+  return reasons;
+}
+
+export async function getRecommendation(
+  input: RecommendationInput,
+  dependencies?: RecommendationDependencies,
+): Promise<Recommendation | null> {
+  const deps = dependencies ?? (await loadDefaultDependencies());
+
+  if (input.locationMode === "home") {
+    const homeMission = await deps.repository.findFallback({
+      ageMin: input.ageMin,
+      ageMax: input.ageMax,
+      durationMinutes: input.durationMinutes,
+      excludeMissionId: input.excludeMissionId,
+      missionId: input.missionId,
+      missionTypes: ["Home-Based"],
+    });
+
+    return homeMission
+      ? { ...homeMission, reasons: buildReasons(input) }
+      : null;
+  }
+
+  const location = await deps.resolveLocation(input.location);
+  const candidate = await deps.repository.findLocationBased({
+    latitude: location.latitude,
+    longitude: location.longitude,
+    ageMin: input.ageMin,
+    ageMax: input.ageMax,
+    durationMinutes: input.durationMinutes,
+    excludeMissionId: input.excludeMissionId,
+    missionId: input.missionId,
   });
 
-  return suitableActivities.slice(0, 5);
+  const repeatsExcludedMission =
+    candidate?.missionId === input.excludeMissionId;
+
+  if (candidate && !repeatsExcludedMission) {
+    return {
+      ...candidate,
+      reasons: buildReasons(input, location),
+    };
+  }
+
+  const fallback = await deps.repository.findFallback({
+    ageMin: input.ageMin,
+    ageMax: input.ageMax,
+    durationMinutes: input.durationMinutes,
+    excludeMissionId: input.excludeMissionId,
+    missionId: input.missionId,
+    missionTypes: ["Home-Based", "Location-Agnostic"],
+  });
+
+  if (!fallback) {
+    return candidate
+      ? {
+          ...candidate,
+          reasons: buildReasons(input, location),
+        }
+      : null;
+  }
+
+  return {
+    ...fallback,
+    reasons: buildReasons(input),
+  };
 }
