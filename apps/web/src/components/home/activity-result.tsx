@@ -1,8 +1,9 @@
 import { Dices, MapPin, Timer } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { cn } from "@/lib/utils"
 
 type MockActivity = {
   title: string
@@ -101,19 +102,17 @@ function ActivityResult({ activity, onTryAnother }: ActivityResultProps) {
       <Separator className="mt-6 bg-zinc-200" />
 
       <div className="mt-auto space-y-3">
-        <Button
-          className="h-16 w-full rounded-full bg-emerald-600 px-6 text-lg font-bold text-white shadow-[0_10px_24px_rgba(5,150,90,0.25)] hover:bg-emerald-700 focus-visible:border-emerald-700 focus-visible:ring-emerald-600/30"
-          render={
-            <a
-              href={directionsUrl}
-              rel="noopener noreferrer"
-              target="_blank"
-            />
-          }
-          size="lg"
+        <a
+          className={cn(
+            buttonVariants({ size: "lg" }),
+            "h-16 w-full rounded-full bg-emerald-600 px-6 text-lg font-bold text-white shadow-[0_10px_24px_rgba(5,150,90,0.25)] hover:bg-emerald-700 focus-visible:border-emerald-700 focus-visible:ring-emerald-600/30"
+          )}
+          href={directionsUrl}
+          rel="noopener noreferrer"
+          target="_blank"
         >
           Get Directions
-        </Button>
+        </a>
         <Button
           className="h-16 w-full rounded-full border-zinc-300 bg-white px-6 text-lg font-bold text-zinc-900 hover:bg-zinc-50 focus-visible:border-emerald-700 focus-visible:ring-emerald-600/20"
           onClick={onTryAnother}
