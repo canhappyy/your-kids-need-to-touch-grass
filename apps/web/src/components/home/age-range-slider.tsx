@@ -31,7 +31,7 @@ function AgeRangeSlider({
       thumbCollisionBehavior="none"
       value={value}
     >
-      <SliderPrimitive.Control className="flex h-7 w-full touch-none items-center select-none">
+      <SliderPrimitive.Control className="relative flex h-7 w-full touch-none items-center select-none">
         <SliderPrimitive.Track className="h-1 w-full rounded-full bg-zinc-200">
           <SliderPrimitive.Indicator className="h-full rounded-full bg-emerald-600" />
         </SliderPrimitive.Track>
