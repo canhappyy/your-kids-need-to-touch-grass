@@ -1,0 +1,5 @@
+mission_id,activity_title,description,equipment_needed,instruction_text,indoor_outdoor_tag,duration_minutes,age_5_7,age_8_9,age_10_12,equipment_required_tag,supervision_level,mission_type,weather_dependency,variety_tags
+MIS-001,Park Nature Scavenger Hunt,Scavenger hunt.,Scavenger hunt checklist,"Find items.",Outdoor,30,Y,Y,Y,Household Items,Needs Supervision,Location-Based,Outdoor-Fair-Weather-Only,Nature|Exploration
+MIS-002,Alternative Park Scavenger Hunt,Scavenger hunt.,Scavenger hunt checklist,"Find items.",Outdoor,30,Y,Y,Y,Household Items,Needs Supervision,Location-Based,Outdoor-Fair-Weather-Only,Nature|Exploration
+MIS-003,Living Room Obstacle Course,Indoor obstacles.,None,Run around.,Indoor,10,Y,Y,Y,None,Needs Supervision,Home-Based,Weather-Independent,Energised Activity
+MIS-004,Living Room Obstacle Course 2,Indoor obstacles 2.,None,Run around.,Indoor,10,Y,Y,Y,None,Needs Supervision,Location-Agnostic,Weather-Independent,Energised Activity

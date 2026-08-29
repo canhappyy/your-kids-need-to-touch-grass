@@ -36,6 +36,9 @@ jobs:
         run: npm ci
         working-directory: apps/web
 
+      - name: Copy test fixtures to processed data folder
+        run: cp database/test_fixtures/*.csv pipeline/data/processed/
+
       - name: Start PostgreSQL
         run: docker compose up -d
 
@@ -43,13 +46,15 @@ jobs:
         shell: bash
         run: |
           for attempt in {1..30}; do
-            if docker compose exec -T postgres \
-              pg_isready -h localhost -U postgres -d appdb; then
+            if count=$(docker compose exec -T postgres psql -U postgres -d appdb -t -A -c "SELECT COUNT(*) FROM activity_location_category;" 2>/dev/null) && [ "$count" -gt 0 ]; then
+              echo "Database is fully initialized with $count rows."
               exit 0
             fi
+            echo "Waiting for database initialization... (attempt $attempt)"
             sleep 2
           done
 
+          echo "Database initialization timed out."
           docker compose logs postgres
           exit 1
 
