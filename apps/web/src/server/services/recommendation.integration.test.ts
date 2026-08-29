@@ -111,4 +111,24 @@ describe("seeded recommendation flow", () => {
 
     expect(retry?.missionId).not.toBe(first?.missionId)
   })
+
+  it("replays the same Home-Based mission for a home search", async () => {
+    const homeInput = {
+      locationMode: "home" as const,
+      ageMin: 6,
+      ageMax: 10,
+      durationMinutes: 120,
+    }
+    const first = await getRecommendation(homeInput)
+    const replay = await getRecommendation({
+      ...homeInput,
+      missionId: first?.missionId,
+    })
+
+    expect(first?.missionType).toBe("Home-Based")
+    expect(replay).toMatchObject({
+      missionId: first?.missionId,
+      missionType: "Home-Based",
+    })
+  })
 })
