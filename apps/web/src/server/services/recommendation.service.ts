@@ -123,27 +123,3 @@ export async function getRecommendation(
     reasons: buildReasons(input, location, false),
   };
 }
-
-type LegacyRecommendationInput = {
-  postcode: string;
-  age: number;
-  duration: number;
-};
-
-export async function getRecommendations(input: LegacyRecommendationInput) {
-  const { findAllActivities } = await import(
-    "@/server/repositories/activity.repository"
-  );
-  const activities = await findAllActivities();
-
-  return activities
-    .filter((activity) => {
-      const ageSuitable =
-        (input.age >= 5 && input.age <= 7 && activity.age_5_7 === "Y") ||
-        (input.age >= 8 && input.age <= 9 && activity.age_8_9 === "Y") ||
-        (input.age >= 10 && input.age <= 12 && activity.age_10_12 === "Y");
-
-      return ageSuitable && activity.duration_minutes <= input.duration;
-    })
-    .slice(0, 5);
-}
