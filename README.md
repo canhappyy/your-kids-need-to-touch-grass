@@ -81,6 +81,18 @@ If you only want to stop the database without deleting the data:
 docker compose down
 ```
 
+### Connect Database with Database Client (VS Code/DBeaver/Datagrip)
+
+Add new data source with PostgreSQL, then enter:
+
+```text
+Host: localhost
+Port: 5432
+Database: appdb
+User: postgres
+Password: postgres
+```
+
 ---
 
 ## 3. Configure Environment Variables
