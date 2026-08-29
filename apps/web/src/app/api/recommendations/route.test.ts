@@ -72,6 +72,24 @@ describe("GET /api/recommendations", () => {
     });
   });
 
+  it("accepts exact replay but rejects replay with exclusion", async () => {
+    const replayResponse = await GET(request({ missionId: "MIS-001" }));
+
+    expect(replayResponse.status).toBe(200);
+    expect(getRecommendation).toHaveBeenLastCalledWith(
+      expect.objectContaining({ missionId: "MIS-001" }),
+    );
+
+    const invalidResponse = await GET(
+      request({ missionId: "MIS-001", excludeMissionId: "MIS-002" }),
+    );
+
+    expect(invalidResponse.status).toBe(400);
+    await expect(invalidResponse.json()).resolves.toMatchObject({
+      error: { code: "INVALID_INPUT" },
+    });
+  });
+
   it.each([
     ["missing location", { location: null }],
     ["blank location", { location: " " }],

@@ -60,6 +60,7 @@ export function parseRecommendationQuery(
   const durationMinutes = parseInteger(searchParams.get("durationMinutes"));
   const excludeMissionId =
     searchParams.get("excludeMissionId")?.trim() || undefined;
+  const missionId = searchParams.get("missionId")?.trim() || undefined;
 
   if (
     (locationMode !== "nearby" && locationMode !== "home") ||
@@ -72,7 +73,8 @@ export function parseRecommendationQuery(
     durationMinutes === null ||
     durationMinutes < 5 ||
     durationMinutes > 775 ||
-    durationMinutes % 5 !== 0
+    durationMinutes % 5 !== 0 ||
+    Boolean(missionId && excludeMissionId)
   ) {
     return null;
   }
@@ -82,6 +84,7 @@ export function parseRecommendationQuery(
     ageMax,
     durationMinutes,
     ...(excludeMissionId ? { excludeMissionId } : {}),
+    ...(missionId ? { missionId } : {}),
   };
 
   return locationMode === "home"

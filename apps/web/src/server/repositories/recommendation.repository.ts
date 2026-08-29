@@ -22,6 +22,7 @@ export type RecommendationQuery = {
   ageMax: number;
   durationMinutes: number;
   excludeMissionId?: string;
+  missionId?: string;
 };
 
 export type FallbackRecommendationQuery = Omit<
@@ -125,6 +126,7 @@ export async function findLocationBasedRecommendation(
           AND os.category = alc.category_name
         )
       WHERE a.mission_type = 'Location-Based'
+        AND ($7::text IS NULL OR a.mission_id = $7)
         AND a.duration_minutes <= $5
         AND os.distance_km <= 10
         AND (
@@ -148,6 +150,7 @@ export async function findLocationBasedRecommendation(
       input.ageMax,
       input.durationMinutes,
       input.excludeMissionId ?? null,
+      input.missionId ?? null,
     ],
   );
 
@@ -169,6 +172,7 @@ export async function findFallbackRecommendation(
       mission_type
     FROM activity
     WHERE mission_type = ANY($5::text[])
+      AND ($6::text IS NULL OR mission_id = $6)
       AND duration_minutes <= $3
       AND (
         ($1 <= 7 AND $2 >= 5 AND age_5_7 = 'Y')
@@ -186,6 +190,7 @@ export async function findFallbackRecommendation(
       input.durationMinutes,
       input.excludeMissionId ?? null,
       input.missionTypes,
+      input.missionId ?? null,
     ],
   );
 

@@ -11,6 +11,7 @@ type RecommendationInputBase = {
   ageMax: number;
   durationMinutes: number;
   excludeMissionId?: string;
+  missionId?: string;
 };
 
 export type RecommendationInput = RecommendationInputBase &
@@ -93,6 +94,7 @@ export async function getRecommendation(
       ageMax: input.ageMax,
       durationMinutes: input.durationMinutes,
       excludeMissionId: input.excludeMissionId,
+      missionId: input.missionId,
       missionTypes: ["Home-Based"],
     });
 
@@ -109,6 +111,7 @@ export async function getRecommendation(
     ageMax: input.ageMax,
     durationMinutes: input.durationMinutes,
     excludeMissionId: input.excludeMissionId,
+    missionId: input.missionId,
   });
 
   const repeatsExcludedMission =
@@ -126,6 +129,7 @@ export async function getRecommendation(
     ageMax: input.ageMax,
     durationMinutes: input.durationMinutes,
     excludeMissionId: input.excludeMissionId,
+    missionId: input.missionId,
     missionTypes: ["Home-Based", "Location-Agnostic"],
   });
 

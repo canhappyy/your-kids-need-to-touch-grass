@@ -132,6 +132,22 @@ describe("getRecommendation", () => {
     });
   });
 
+  it("passes an exact mission through each matching query", async () => {
+    const deps = dependencies(null, fallbackMission);
+    const result = await getRecommendation(
+      { ...input, missionId: fallbackMission.missionId },
+      deps,
+    );
+
+    expect(result?.missionId).toBe(fallbackMission.missionId);
+    expect(deps.repository.findLocationBased).toHaveBeenCalledWith(
+      expect.objectContaining({ missionId: fallbackMission.missionId }),
+    );
+    expect(deps.repository.findFallback).toHaveBeenCalledWith(
+      expect.objectContaining({ missionId: fallbackMission.missionId }),
+    );
+  });
+
   it("returns null when neither tier matches", async () => {
     await expect(
       getRecommendation(input, dependencies(null, null)),
