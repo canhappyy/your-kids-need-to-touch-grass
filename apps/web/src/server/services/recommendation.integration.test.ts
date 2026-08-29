@@ -61,7 +61,7 @@ describe("seeded recommendation flow", () => {
     expect(recommendation).toMatchObject({
       missionType: "Location-Based",
       reasons: [
-        { kind: "age", label: "Ages 7–7" },
+        { kind: "age", label: "Ages 7-7" },
         { kind: "time", label: "Fits within 2 hours" },
         { kind: "location", label: "Near Clayton, Notting Hill 3168" },
       ],

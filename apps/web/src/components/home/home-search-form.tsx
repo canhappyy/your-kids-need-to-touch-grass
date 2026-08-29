@@ -146,7 +146,7 @@ function HomeSearchForm({
             aria-live="polite"
             className="text-sm font-semibold tabular-nums text-zinc-900"
           >
-            {ageRange[0]} – {ageRange[1]} years
+            {ageRange[0]} - {ageRange[1]} years
           </output>
         </div>
         <AgeRangeSlider onValueChange={setAgeRange} value={ageRange} />
@@ -214,11 +214,11 @@ function HomeSearchForm({
           </div>
         </div>
         <p className="mt-2 text-xs text-zinc-500">
-          Hours: 0–12 (1hr steps)
+          Hours: 0-12 (1hr steps)
           <span aria-hidden="true" className="px-2">
             ·
           </span>
-          Minutes: 0–55 (5min steps)
+          Minutes: 0-55 (5min steps)
         </p>
         {timeError && (
           <p className="mt-2 text-sm text-destructive" role="alert">

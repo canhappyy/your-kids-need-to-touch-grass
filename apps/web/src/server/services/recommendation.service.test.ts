@@ -68,7 +68,7 @@ describe("getRecommendation", () => {
     expect(result).toEqual({
       ...venueMission,
       reasons: [
-        { kind: "age", label: "Ages 6–10" },
+        { kind: "age", label: "Ages 6-10" },
         { kind: "time", label: "Fits within 2 hours" },
         { kind: "location", label: "Near Clayton, Notting Hill 3168" },
       ],
@@ -94,7 +94,7 @@ describe("getRecommendation", () => {
       missionId: fallbackMission.missionId,
       venue: null,
       reasons: [
-        { kind: "age", label: "Ages 6–10" },
+        { kind: "age", label: "Ages 6-10" },
         { kind: "time", label: "Fits within 45 minutes" },
       ],
     });

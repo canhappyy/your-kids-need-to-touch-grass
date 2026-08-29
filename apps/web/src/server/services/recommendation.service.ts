@@ -63,7 +63,7 @@ function buildReasons(
   includeLocation: boolean,
 ): MatchReason[] {
   const reasons: MatchReason[] = [
-    { kind: "age", label: `Ages ${input.ageMin}–${input.ageMax}` },
+    { kind: "age", label: `Ages ${input.ageMin}-${input.ageMax}` },
     {
       kind: "time",
       label: `Fits within ${formatDuration(input.durationMinutes)}`,
