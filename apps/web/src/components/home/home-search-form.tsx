@@ -36,7 +36,7 @@ type HomeSearchValues = {
 }
 
 type HomeSearchFormProps = {
-  onValidSubmit?: (values: HomeSearchValues) => void
+  onValidSubmit: (values: HomeSearchValues) => void
 }
 
 function HomeSearchForm({ onValidSubmit }: HomeSearchFormProps) {
@@ -68,7 +68,7 @@ function HomeSearchForm({ onValidSubmit }: HomeSearchFormProps) {
 
     if (nextLocationError || nextTimeError) return
 
-    onValidSubmit?.({
+    onValidSubmit({
       location: trimmedLocation,
       ageRange,
       hours,
