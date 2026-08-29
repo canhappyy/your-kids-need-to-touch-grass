@@ -92,7 +92,10 @@ export async function getRecommendation(
     excludeMissionId: input.excludeMissionId,
   });
 
-  if (candidate) {
+  const repeatsExcludedMission =
+    candidate?.missionId === input.excludeMissionId;
+
+  if (candidate && !repeatsExcludedMission) {
     return {
       ...candidate,
       reasons: buildReasons(input, location, true),
@@ -107,7 +110,12 @@ export async function getRecommendation(
   });
 
   if (!fallback) {
-    return null;
+    return candidate
+      ? {
+          ...candidate,
+          reasons: buildReasons(input, location, true),
+        }
+      : null;
   }
 
   return {

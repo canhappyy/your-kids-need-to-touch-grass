@@ -180,4 +180,22 @@ describe("getRecommendation fallback selection", () => {
       excludeMissionId: "MIS-101",
     });
   });
+
+  it("uses fallback when the excluded venue mission is the only venue match", async () => {
+    const deps = dependencies(locationCandidate, fallbackCandidate);
+
+    const recommendation = await getRecommendation(
+      {
+        location: "3168",
+        ageMin: 6,
+        ageMax: 10,
+        durationMinutes: 120,
+        excludeMissionId: locationCandidate.missionId,
+      },
+      deps,
+    );
+
+    expect(recommendation?.missionId).toBe(fallbackCandidate.missionId);
+    expect(deps.repository.findFallback).toHaveBeenCalledOnce();
+  });
 });
