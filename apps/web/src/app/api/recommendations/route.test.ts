@@ -12,8 +12,22 @@ vi.mock("@/server/services/recommendation.service", () => ({
 
 import { GET, runtime } from "./route";
 
-function request(query: string): Request {
-  return new Request(`http://localhost/api/recommendations?${query}`);
+const validQuery = {
+  location: "Clayton 3168",
+  ageMin: "6",
+  ageMax: "10",
+  durationMinutes: "120",
+};
+
+function request(overrides: Record<string, string | null> = {}) {
+  const params = new URLSearchParams(validQuery);
+
+  for (const [key, value] of Object.entries(overrides)) {
+    if (value === null) params.delete(key);
+    else params.set(key, value);
+  }
+
+  return new Request(`http://localhost/api/recommendations?${params}`);
 }
 
 describe("GET /api/recommendations", () => {
@@ -22,14 +36,12 @@ describe("GET /api/recommendations", () => {
     getRecommendation.mockResolvedValue(null);
   });
 
-  it("uses the Node.js runtime and returns one recommendation contract", async () => {
+  it("returns one no-store recommendation using Node.js", async () => {
     const recommendation = { missionId: "MIS-001" };
     getRecommendation.mockResolvedValue(recommendation);
 
     const response = await GET(
-      request(
-        "location=Clayton%203168&ageMin=6&ageMax=10&durationMinutes=120&excludeMissionId=MIS-002",
-      ),
+      request({ excludeMissionId: "MIS-002" }),
     );
 
     expect(runtime).toBe("nodejs");
@@ -37,7 +49,7 @@ describe("GET /api/recommendations", () => {
     expect(response.headers.get("Cache-Control")).toBe("no-store");
     await expect(response.json()).resolves.toEqual({ recommendation });
     expect(getRecommendation).toHaveBeenCalledWith({
-      location: "Clayton 3168",
+      ...validQuery,
       ageMin: 6,
       ageMax: 10,
       durationMinutes: 120,
@@ -46,21 +58,18 @@ describe("GET /api/recommendations", () => {
   });
 
   it.each([
-    ["missing location", "ageMin=6&ageMax=10&durationMinutes=120"],
-    ["blank location", "location=%20&ageMin=6&ageMax=10&durationMinutes=120"],
-    [
-      "long location",
-      `location=${"a".repeat(101)}&ageMin=6&ageMax=10&durationMinutes=120`,
-    ],
-    ["decimal age", "location=3168&ageMin=6.5&ageMax=10&durationMinutes=120"],
-    ["young age", "location=3168&ageMin=4&ageMax=10&durationMinutes=120"],
-    ["old age", "location=3168&ageMin=6&ageMax=13&durationMinutes=120"],
-    ["reversed ages", "location=3168&ageMin=10&ageMax=6&durationMinutes=120"],
-    ["short duration", "location=3168&ageMin=6&ageMax=10&durationMinutes=0"],
-    ["long duration", "location=3168&ageMin=6&ageMax=10&durationMinutes=780"],
-    ["duration step", "location=3168&ageMin=6&ageMax=10&durationMinutes=12"],
-  ])("returns 400 INVALID_INPUT for %s", async (_name, query) => {
-    const response = await GET(request(query));
+    ["missing location", { location: null }],
+    ["blank location", { location: " " }],
+    ["long location", { location: "a".repeat(101) }],
+    ["decimal age", { ageMin: "6.5" }],
+    ["age below range", { ageMin: "4" }],
+    ["age above range", { ageMax: "13" }],
+    ["reversed ages", { ageMin: "11", ageMax: "6" }],
+    ["short duration", { durationMinutes: "0" }],
+    ["long duration", { durationMinutes: "780" }],
+    ["duration step", { durationMinutes: "12" }],
+  ])("returns 400 for %s", async (_name, overrides) => {
+    const response = await GET(request(overrides));
 
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toMatchObject({
@@ -72,20 +81,12 @@ describe("GET /api/recommendations", () => {
   it.each([
     ["LOCATION_NOT_FOUND", 404],
     ["AMBIGUOUS_LOCATION", 422],
-  ] as const)("returns typed %s location errors", async (code, status) => {
+  ] as const)("returns %s location errors", async (code, status) => {
     getRecommendation.mockRejectedValue(
-      new LocationResolutionError(
-        code,
-        status,
-        code === "LOCATION_NOT_FOUND"
-          ? "Location not found."
-          : "Enter a postcode to choose the correct suburb.",
-      ),
+      new LocationResolutionError(code, status, "Location error."),
     );
 
-    const response = await GET(
-      request("location=Nowhere&ageMin=6&ageMax=10&durationMinutes=120"),
-    );
+    const response = await GET(request());
 
     expect(response.status).toBe(status);
     await expect(response.json()).resolves.toMatchObject({
@@ -93,14 +94,10 @@ describe("GET /api/recommendations", () => {
     });
   });
 
-  it("sanitizes unexpected database errors", async () => {
-    getRecommendation.mockRejectedValue(
-      new Error("password=secret relation activity missing"),
-    );
+  it("sanitizes unexpected errors", async () => {
+    getRecommendation.mockRejectedValue(new Error("password=secret"));
 
-    const response = await GET(
-      request("location=3168&ageMin=6&ageMax=10&durationMinutes=120"),
-    );
+    const response = await GET(request());
     const body = await response.json();
 
     expect(response.status).toBe(500);
