@@ -79,17 +79,10 @@ export async function findNearestPostcodeLocation(
         latitude,
         longitude,
         suburbs,
-        6371 * acos(
-          LEAST(
-            1,
-            GREATEST(
-              -1,
-              cos(radians($1)) * cos(radians(latitude))
-                * cos(radians(longitude) - radians($2))
-              + sin(radians($1)) * sin(radians(latitude))
-            )
-          )
-        ) AS distance_km
+        earth_distance(
+          ll_to_earth($1, $2),
+          ll_to_earth(latitude, longitude)
+        ) AS distance_metres
       FROM postcode
     )
     SELECT
@@ -98,8 +91,8 @@ export async function findNearestPostcodeLocation(
       longitude,
       suburbs
     FROM postcode_distances
-    WHERE distance_km <= $3
-    ORDER BY distance_km, postcode
+    WHERE distance_metres <= $3 * 1000
+    ORDER BY distance_metres, postcode
     LIMIT 1;
     `,
     [latitude, longitude, maxDistanceKm],
