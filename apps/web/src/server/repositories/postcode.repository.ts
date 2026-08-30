@@ -65,3 +65,45 @@ export async function findPostcodeLocationsBySuburb(
 
   return result.rows.map(mapPostcodeLocation);
 }
+
+export async function findNearestPostcodeLocation(
+  latitude: number,
+  longitude: number,
+  maxDistanceKm: number,
+): Promise<PostcodeLocation | null> {
+  const result = await pool.query(
+    `
+    WITH postcode_distances AS (
+      SELECT
+        postcode,
+        latitude,
+        longitude,
+        suburbs,
+        6371 * acos(
+          LEAST(
+            1,
+            GREATEST(
+              -1,
+              cos(radians($1)) * cos(radians(latitude))
+                * cos(radians(longitude) - radians($2))
+              + sin(radians($1)) * sin(radians(latitude))
+            )
+          )
+        ) AS distance_km
+      FROM postcode
+    )
+    SELECT
+      postcode,
+      latitude,
+      longitude,
+      suburbs
+    FROM postcode_distances
+    WHERE distance_km <= $3
+    ORDER BY distance_km, postcode
+    LIMIT 1;
+    `,
+    [latitude, longitude, maxDistanceKm],
+  );
+
+  return result.rows[0] ? mapPostcodeLocation(result.rows[0]) : null;
+}

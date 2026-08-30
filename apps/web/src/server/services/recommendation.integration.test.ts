@@ -2,6 +2,7 @@ import { afterAll, describe, expect, it } from "vitest"
 
 import { GET } from "@/app/api/recommendations/route"
 import pool from "@/lib/db"
+import { findNearestPostcodeLocation } from "@/server/repositories/postcode.repository"
 import { resolveRecommendationLocation } from "@/server/services/location.service"
 import { getRecommendation } from "@/server/services/recommendation.service"
 
@@ -46,10 +47,21 @@ describe("seeded recommendation flow", () => {
       code: "LOCATION_NOT_FOUND",
       status: 404,
     })
+    await expect(resolveRecommendationLocation("1111")).rejects.toMatchObject({
+      code: "LOCATION_NOT_FOUND",
+      status: 404,
+    })
     await expect(resolveRecommendationLocation("Melbourne")).rejects.toMatchObject({
       code: "AMBIGUOUS_LOCATION",
       status: 422,
     })
+  })
+
+  it("resolves GPS coordinates only within postcode dataset coverage", async () => {
+    await expect(
+      findNearestPostcodeLocation(-37.91342, 145.12665, 50),
+    ).resolves.toMatchObject({ postcode: "3168" })
+    await expect(findNearestPostcodeLocation(0, 0, 50)).resolves.toBeNull()
   })
 
   it("matches age, duration, compatible venue, distance, and reasons", async () => {
