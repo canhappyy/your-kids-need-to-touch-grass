@@ -124,7 +124,7 @@ function ActivityResult({
           <a
             className={cn(
               buttonVariants({ size: "lg" }),
-              "h-16 w-full rounded-full bg-emerald-600 px-6 text-lg font-bold text-white shadow-[0_10px_24px_rgba(5,150,90,0.25)] hover:bg-emerald-700 focus-visible:border-emerald-700 focus-visible:ring-emerald-600/30"
+              "h-12 w-full rounded-full bg-emerald-600 px-6 text-base font-bold text-white shadow-[0_10px_24px_rgba(5,150,90,0.25)] hover:bg-emerald-700 focus-visible:border-emerald-700 focus-visible:ring-emerald-600/30"
             )}
             href={directionsUrl}
             rel="noopener noreferrer"
@@ -135,7 +135,7 @@ function ActivityResult({
         )}
         <Button
           aria-describedby="swap-status"
-          className="h-16 w-full rounded-full border-zinc-300 bg-white px-6 text-lg font-bold text-zinc-900 hover:bg-zinc-50 focus-visible:border-emerald-700 focus-visible:ring-emerald-600/20"
+          className="h-12 w-full rounded-full border-zinc-300 bg-white px-6 text-base font-bold text-zinc-900 hover:bg-zinc-50 focus-visible:border-emerald-700 focus-visible:ring-emerald-600/20"
           disabled={isRetrying || swapsRemaining === 0}
           onClick={onTryAnother}
           size="lg"
@@ -156,7 +156,7 @@ function ActivityResult({
             : `${swapsRemaining} ${swapsRemaining === 1 ? "swap" : "swaps"} remaining`}
         </p>
         <Button
-          className="h-16 w-full rounded-full border-zinc-300 bg-white px-6 text-lg font-bold text-zinc-900 hover:bg-zinc-50 focus-visible:border-emerald-700 focus-visible:ring-emerald-600/20"
+          className="h-12 w-full rounded-full border-zinc-300 bg-white px-6 text-base font-bold text-zinc-900 hover:bg-zinc-50 focus-visible:border-emerald-700 focus-visible:ring-emerald-600/20"
           onClick={onBackToSearch}
           size="lg"
           type="button"
