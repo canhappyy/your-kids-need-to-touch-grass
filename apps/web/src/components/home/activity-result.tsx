@@ -119,7 +119,7 @@ function ActivityResult({
 
       <Separator className="mt-6 bg-zinc-200" />
 
-      <div className="mt-auto space-y-3">
+      <div className="mt-auto pt-6 space-y-3">
         {directionsUrl && (
           <a
             className={cn(
