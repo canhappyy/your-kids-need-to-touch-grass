@@ -151,4 +151,40 @@ describe("seeded recommendation flow", () => {
       missionType: "Home-Based",
     })
   })
+
+  it("excludes a mission without a duration", async () => {
+    const missionId = "TEST-US13-NULL-DURATION"
+
+    await pool.query("DELETE FROM activity WHERE mission_id = $1", [missionId])
+
+    try {
+      await pool.query(
+        `
+        INSERT INTO activity (
+          mission_id,
+          activity_title,
+          duration_minutes,
+          age_5_7,
+          age_8_9,
+          age_10_12,
+          mission_type
+        )
+        VALUES ($1, 'Missing Duration Mission', NULL, 'Y', 'Y', 'Y', 'Home-Based')
+        `,
+        [missionId],
+      )
+
+      await expect(
+        getRecommendation({
+          locationMode: "home",
+          ageMin: 6,
+          ageMax: 10,
+          durationMinutes: 120,
+          missionId,
+        }),
+      ).resolves.toBeNull()
+    } finally {
+      await pool.query("DELETE FROM activity WHERE mission_id = $1", [missionId])
+    }
+  })
 })
