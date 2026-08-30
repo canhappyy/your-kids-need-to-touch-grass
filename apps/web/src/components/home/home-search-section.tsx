@@ -33,9 +33,9 @@ export function HomeSearchSection() {
   }
 
   const locationErrorMessages: Record<string, string> = {
-    "not-found": "We couldn't find that location. Check it and try again.",
+    "not-found": "We couldn't find that postcode. Check it and try again.",
     ambiguous: "Enter a postcode to choose the correct suburb.",
-    invalid: "Enter a valid four-digit postcode or suburb.",
+    invalid: "Enter a valid four-digit postcode.",
   }
   const locationErrorCode = searchParams.get("locationError") || ""
 
