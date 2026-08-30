@@ -164,6 +164,18 @@ describe("seeded recommendation flow", () => {
     })
   })
 
+  it("excludes equipment-required missions from home searches", async () => {
+    await expect(
+      getRecommendation({
+        locationMode: "home",
+        ageMin: 6,
+        ageMax: 10,
+        durationMinutes: 120,
+        missionId: "MIS-025",
+      }),
+    ).resolves.toBeNull()
+  })
+
   it("excludes a mission without a duration", async () => {
     const missionId = "TEST-US13-NULL-DURATION"
 

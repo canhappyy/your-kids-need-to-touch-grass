@@ -128,7 +128,9 @@ describe("getRecommendation", () => {
       ageMax: 10,
       durationMinutes: 45,
       excludeMissionIds: undefined,
+      missionId: undefined,
       missionTypes: ["Home-Based"],
+      equipmentRequiredTag: "None",
     });
   });
 

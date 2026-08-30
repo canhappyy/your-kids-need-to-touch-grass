@@ -30,6 +30,7 @@ export type FallbackRecommendationQuery = Omit<
   "latitude" | "longitude"
 > & {
   missionTypes: Array<"Home-Based" | "Location-Agnostic">;
+  equipmentRequiredTag?: "None";
 };
 
 function mapLocationCandidate(
@@ -174,6 +175,7 @@ export async function findFallbackRecommendation(
     FROM activity
     WHERE mission_type = ANY($5::text[])
       AND ($6::text IS NULL OR mission_id = $6)
+      AND ($7::text IS NULL OR equipment_required_tag = $7)
       AND duration_minutes IS NOT NULL
       AND duration_minutes <= $3
       AND (
@@ -193,6 +195,7 @@ export async function findFallbackRecommendation(
       input.excludeMissionIds ?? [],
       input.missionTypes,
       input.missionId ?? null,
+      input.equipmentRequiredTag ?? null,
     ],
   );
 
