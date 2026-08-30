@@ -177,33 +177,66 @@ describe("seeded recommendation flow", () => {
   })
 
   it("returns no-equipment home mission details for matching ages", async () => {
-    const recommendation = await getRecommendation({
-      locationMode: "home",
-      ageMin: 6,
-      ageMax: 9,
-      durationMinutes: 120,
-    })
+    const missionId = "TEST-US31-HOME-DETAILS"
 
-    expect(recommendation).toMatchObject({
-      missionType: "Home-Based",
-      ageBands: ["5-7", "8-9"],
-      supervisionLevel: "Independent-Play-Safe",
-    })
+    await pool.query("DELETE FROM activity WHERE mission_id = $1", [missionId])
 
-    const equipment = await pool.query(
-      "SELECT equipment_required_tag FROM activity WHERE mission_id = $1",
-      [recommendation?.missionId],
-    )
-    expect(equipment.rows[0]?.equipment_required_tag).toBe("None")
+    try {
+      await pool.query(
+        `
+        INSERT INTO activity (
+          mission_id,
+          activity_title,
+          duration_minutes,
+          age_5_7,
+          age_8_9,
+          age_10_12,
+          equipment_required_tag,
+          supervision_level,
+          mission_type
+        )
+        VALUES (
+          $1,
+          'No-Equipment Home Mission',
+          20,
+          'Y',
+          'Y',
+          'N',
+          'None',
+          'Independent-Play-Safe',
+          'Home-Based'
+        )
+        `,
+        [missionId],
+      )
 
-    await expect(
-      getRecommendation({
+      const recommendation = await getRecommendation({
         locationMode: "home",
-        ageMin: 10,
-        ageMax: 12,
+        ageMin: 6,
+        ageMax: 9,
         durationMinutes: 120,
-      }),
-    ).resolves.toBeNull()
+        missionId,
+      })
+
+      expect(recommendation).toMatchObject({
+        missionId,
+        missionType: "Home-Based",
+        ageBands: ["5-7", "8-9"],
+        supervisionLevel: "Independent-Play-Safe",
+      })
+
+      await expect(
+        getRecommendation({
+          locationMode: "home",
+          ageMin: 10,
+          ageMax: 12,
+          durationMinutes: 120,
+          missionId,
+        }),
+      ).resolves.toBeNull()
+    } finally {
+      await pool.query("DELETE FROM activity WHERE mission_id = $1", [missionId])
+    }
   })
 
   it("excludes a mission without a duration", async () => {
