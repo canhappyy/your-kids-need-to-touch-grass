@@ -102,14 +102,34 @@ describe("seeded recommendation flow", () => {
     ).resolves.toBeNull()
   })
 
-  it("excludes the current mission when an alternative exists", async () => {
+  it("prefers missions outside the shown list and repeats after exhaustion", async () => {
     const first = await getRecommendation(input)
     const retry = await getRecommendation({
       ...input,
-      excludeMissionId: first?.missionId,
+      excludeMissionIds: first ? [first.missionId] : [],
     })
 
     expect(retry?.missionId).not.toBe(first?.missionId)
+
+    const eligible = await pool.query<{ mission_id: string }>(
+      `
+      SELECT mission_id
+      FROM activity
+      WHERE duration_minutes <= $1
+        AND (
+          ($2 <= 7 AND $3 >= 5 AND age_5_7 = 'Y')
+          OR ($2 <= 9 AND $3 >= 8 AND age_8_9 = 'Y')
+          OR ($2 <= 12 AND $3 >= 10 AND age_10_12 = 'Y')
+        )
+      `,
+      [input.durationMinutes, input.ageMin, input.ageMax],
+    )
+    const repeat = await getRecommendation({
+      ...input,
+      excludeMissionIds: eligible.rows.map((row) => row.mission_id),
+    })
+
+    expect(repeat).not.toBeNull()
   })
 
   it("replays the same Home-Based mission for a home search", async () => {

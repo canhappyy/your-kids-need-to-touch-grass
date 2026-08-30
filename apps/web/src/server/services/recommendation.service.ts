@@ -10,7 +10,7 @@ type RecommendationInputBase = {
   ageMin: number;
   ageMax: number;
   durationMinutes: number;
-  excludeMissionId?: string;
+  excludeMissionIds?: string[];
   missionId?: string;
 };
 
@@ -93,7 +93,7 @@ export async function getRecommendation(
       ageMin: input.ageMin,
       ageMax: input.ageMax,
       durationMinutes: input.durationMinutes,
-      excludeMissionId: input.excludeMissionId,
+      excludeMissionIds: input.excludeMissionIds,
       missionId: input.missionId,
       missionTypes: ["Home-Based"],
     });
@@ -110,12 +110,13 @@ export async function getRecommendation(
     ageMin: input.ageMin,
     ageMax: input.ageMax,
     durationMinutes: input.durationMinutes,
-    excludeMissionId: input.excludeMissionId,
+    excludeMissionIds: input.excludeMissionIds,
     missionId: input.missionId,
   });
 
-  const repeatsExcludedMission =
-    candidate?.missionId === input.excludeMissionId;
+  const repeatsExcludedMission = candidate
+    ? input.excludeMissionIds?.includes(candidate.missionId)
+    : false;
 
   if (candidate && !repeatsExcludedMission) {
     return {
@@ -128,7 +129,7 @@ export async function getRecommendation(
     ageMin: input.ageMin,
     ageMax: input.ageMax,
     durationMinutes: input.durationMinutes,
-    excludeMissionId: input.excludeMissionId,
+    excludeMissionIds: input.excludeMissionIds,
     missionId: input.missionId,
     missionTypes: ["Home-Based", "Location-Agnostic"],
   });

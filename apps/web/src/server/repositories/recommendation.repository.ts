@@ -21,7 +21,7 @@ export type RecommendationQuery = {
   ageMin: number;
   ageMax: number;
   durationMinutes: number;
-  excludeMissionId?: string;
+  excludeMissionIds?: string[];
   missionId?: string;
 };
 
@@ -139,7 +139,7 @@ export async function findLocationBasedRecommendation(
     SELECT *
     FROM nearest_per_mission
     ORDER BY
-      CASE WHEN mission_id = $6 THEN 1 ELSE 0 END,
+      CASE WHEN mission_id = ANY($6::text[]) THEN 1 ELSE 0 END,
       random()
     LIMIT 1;
     `,
@@ -149,7 +149,7 @@ export async function findLocationBasedRecommendation(
       input.ageMin,
       input.ageMax,
       input.durationMinutes,
-      input.excludeMissionId ?? null,
+      input.excludeMissionIds ?? [],
       input.missionId ?? null,
     ],
   );
@@ -180,7 +180,7 @@ export async function findFallbackRecommendation(
         OR ($1 <= 12 AND $2 >= 10 AND age_10_12 = 'Y')
       )
     ORDER BY
-      CASE WHEN mission_id = $4 THEN 1 ELSE 0 END,
+      CASE WHEN mission_id = ANY($4::text[]) THEN 1 ELSE 0 END,
       random()
     LIMIT 1;
     `,
@@ -188,7 +188,7 @@ export async function findFallbackRecommendation(
       input.ageMin,
       input.ageMax,
       input.durationMinutes,
-      input.excludeMissionId ?? null,
+      input.excludeMissionIds ?? [],
       input.missionTypes,
       input.missionId ?? null,
     ],

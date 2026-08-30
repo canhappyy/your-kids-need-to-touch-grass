@@ -80,7 +80,7 @@ describe("getRecommendation", () => {
       ageMin: 6,
       ageMax: 10,
       durationMinutes: 120,
-      excludeMissionId: undefined,
+      excludeMissionIds: undefined,
     });
     expect(deps.repository.findFallback).not.toHaveBeenCalled();
   });
@@ -127,7 +127,7 @@ describe("getRecommendation", () => {
       ageMin: 6,
       ageMax: 10,
       durationMinutes: 45,
-      excludeMissionId: undefined,
+      excludeMissionIds: undefined,
       missionTypes: ["Home-Based"],
     });
   });
@@ -154,9 +154,12 @@ describe("getRecommendation", () => {
     ).resolves.toBeNull();
   });
 
-  it("checks fallback before repeating an excluded sole venue mission", async () => {
+  it("prefers unseen missions and repeats after every mission was shown", async () => {
     const deps = dependencies(venueMission, fallbackMission);
-    const retryInput = { ...input, excludeMissionId: venueMission.missionId };
+    const retryInput = {
+      ...input,
+      excludeMissionIds: [venueMission.missionId],
+    };
     const result = await getRecommendation(retryInput, deps);
 
     expect(result?.missionId).toBe(fallbackMission.missionId);
@@ -164,8 +167,18 @@ describe("getRecommendation", () => {
       ageMin: 6,
       ageMax: 10,
       durationMinutes: 120,
-      excludeMissionId: venueMission.missionId,
+      excludeMissionIds: [venueMission.missionId],
       missionTypes: ["Home-Based", "Location-Agnostic"],
     });
+
+    const exhausted = await getRecommendation(
+      {
+        ...input,
+        excludeMissionIds: [venueMission.missionId, fallbackMission.missionId],
+      },
+      dependencies(venueMission, fallbackMission),
+    );
+
+    expect(exhausted).not.toBeNull();
   });
 });
