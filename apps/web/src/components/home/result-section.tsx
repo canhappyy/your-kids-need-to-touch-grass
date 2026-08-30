@@ -333,6 +333,7 @@ export function ResultSection() {
         }
       }}
       recommendation={recommendation}
+      swapsRemaining={MAX_SWAPS - swapsUsed}
     />
   )
 }

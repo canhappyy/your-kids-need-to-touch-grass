@@ -11,6 +11,7 @@ type ActivityResultProps = {
   isRetrying?: boolean
   onBackToSearch: () => void
   onTryAnother: () => void
+  swapsRemaining: number
 }
 
 function formatDuration(durationMinutes: number) {
@@ -28,6 +29,7 @@ function ActivityResult({
   isRetrying = false,
   onBackToSearch,
   onTryAnother,
+  swapsRemaining,
 }: ActivityResultProps) {
   const locationLabel = recommendation.venue
     ? recommendation.venue.name
@@ -117,16 +119,27 @@ function ActivityResult({
           </a>
         )}
         <Button
+          aria-describedby="swap-status"
           className="h-16 w-full rounded-full border-zinc-300 bg-white px-6 text-lg font-bold text-zinc-900 hover:bg-zinc-50 focus-visible:border-emerald-700 focus-visible:ring-emerald-600/20"
-          disabled={isRetrying}
+          disabled={isRetrying || swapsRemaining === 0}
           onClick={onTryAnother}
           size="lg"
           type="button"
           variant="outline"
         >
           <Dices aria-hidden="true" />
-          {isRetrying ? "Finding Another…" : "Try Another Activity"}
+          {isRetrying ? "Finding Another…" : "Give me another"}
         </Button>
+        <p
+          aria-live="polite"
+          className="text-center text-sm text-zinc-500"
+          id="swap-status"
+          role="status"
+        >
+          {swapsRemaining === 0
+            ? "Swap limit reached."
+            : `${swapsRemaining} ${swapsRemaining === 1 ? "swap" : "swaps"} remaining`}
+        </p>
         <Button
           className="h-16 w-full rounded-full border-zinc-300 bg-white px-6 text-lg font-bold text-zinc-900 hover:bg-zinc-50 focus-visible:border-emerald-700 focus-visible:ring-emerald-600/20"
           onClick={onBackToSearch}
