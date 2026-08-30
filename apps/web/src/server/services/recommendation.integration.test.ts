@@ -176,6 +176,36 @@ describe("seeded recommendation flow", () => {
     ).resolves.toBeNull()
   })
 
+  it("returns no-equipment home mission details for matching ages", async () => {
+    const recommendation = await getRecommendation({
+      locationMode: "home",
+      ageMin: 6,
+      ageMax: 9,
+      durationMinutes: 120,
+    })
+
+    expect(recommendation).toMatchObject({
+      missionType: "Home-Based",
+      ageBands: ["5–7", "8–9"],
+      supervisionLevel: "Independent-Play-Safe",
+    })
+
+    const equipment = await pool.query(
+      "SELECT equipment_required_tag FROM activity WHERE mission_id = $1",
+      [recommendation?.missionId],
+    )
+    expect(equipment.rows[0]?.equipment_required_tag).toBe("None")
+
+    await expect(
+      getRecommendation({
+        locationMode: "home",
+        ageMin: 10,
+        ageMax: 12,
+        durationMinutes: 120,
+      }),
+    ).resolves.toBeNull()
+  })
+
   it("excludes a mission without a duration", async () => {
     const missionId = "TEST-US13-NULL-DURATION"
 

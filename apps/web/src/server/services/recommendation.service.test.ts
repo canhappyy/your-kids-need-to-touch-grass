@@ -5,6 +5,7 @@ import {
   type RecommendationDependencies,
   type RecommendationInput,
 } from "@/server/services/recommendation.service";
+import type { AgeBand } from "@/types/recommendation";
 
 const input: RecommendationInput = {
   locationMode: "nearby",
@@ -30,6 +31,8 @@ const venueMission = {
   instructionText: "Find a hoop.",
   durationMinutes: 60,
   missionType: "Location-Based" as const,
+  ageBands: ["5–7", "8–9"] as AgeBand[],
+  supervisionLevel: "Independent-Play-Safe" as const,
   venue: {
     openSpaceId: 42,
     name: "Clayton Reserve",

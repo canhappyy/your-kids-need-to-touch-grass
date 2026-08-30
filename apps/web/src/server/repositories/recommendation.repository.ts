@@ -1,7 +1,9 @@
 import pool from "@/lib/db";
 import type {
+  AgeBand,
   MissionType,
   RecommendationVenue,
+  SupervisionLevel,
 } from "@/types/recommendation";
 
 export type RecommendationCandidate = {
@@ -12,6 +14,8 @@ export type RecommendationCandidate = {
   instructionText: string | null;
   durationMinutes: number;
   missionType: MissionType;
+  ageBands: AgeBand[];
+  supervisionLevel: SupervisionLevel;
   venue: RecommendationVenue | null;
 };
 
@@ -46,6 +50,8 @@ function mapLocationCandidate(
       row.instruction_text === null ? null : String(row.instruction_text),
     durationMinutes: Number(row.duration_minutes),
     missionType: "Location-Based",
+    ageBands: mapAgeBands(row),
+    supervisionLevel: String(row.supervision_level) as SupervisionLevel,
     venue: {
       openSpaceId: Number(row.open_space_id),
       name: String(row.open_space_name),
@@ -72,8 +78,20 @@ function mapFallbackCandidate(
     missionType: String(row.mission_type) as
       | "Home-Based"
       | "Location-Agnostic",
+    ageBands: mapAgeBands(row),
+    supervisionLevel: String(row.supervision_level) as SupervisionLevel,
     venue: null,
   };
+}
+
+function mapAgeBands(row: Record<string, unknown>): AgeBand[] {
+  const ageBands: AgeBand[] = [];
+
+  if (row.age_5_7 === "Y") ageBands.push("5–7");
+  if (row.age_8_9 === "Y") ageBands.push("8–9");
+  if (row.age_10_12 === "Y") ageBands.push("10–12");
+
+  return ageBands;
 }
 
 export async function findLocationBasedRecommendation(
@@ -109,6 +127,10 @@ export async function findLocationBasedRecommendation(
         a.equipment_needed,
         a.instruction_text,
         a.duration_minutes,
+        a.age_5_7,
+        a.age_8_9,
+        a.age_10_12,
+        a.supervision_level,
         os.open_space_id,
         os.name AS open_space_name,
         os.category,
@@ -129,6 +151,7 @@ export async function findLocationBasedRecommendation(
       WHERE a.mission_type = 'Location-Based'
         AND ($7::text IS NULL OR a.mission_id = $7)
         AND a.duration_minutes IS NOT NULL
+        AND a.supervision_level IS NOT NULL
         AND a.duration_minutes <= $5
         AND os.distance_km <= 10
         AND (
@@ -171,12 +194,17 @@ export async function findFallbackRecommendation(
       equipment_needed,
       instruction_text,
       duration_minutes,
-      mission_type
+      mission_type,
+      age_5_7,
+      age_8_9,
+      age_10_12,
+      supervision_level
     FROM activity
     WHERE mission_type = ANY($5::text[])
       AND ($6::text IS NULL OR mission_id = $6)
       AND ($7::text IS NULL OR equipment_required_tag = $7)
       AND duration_minutes IS NOT NULL
+      AND supervision_level IS NOT NULL
       AND duration_minutes <= $3
       AND (
         ($1 <= 7 AND $2 >= 5 AND age_5_7 = 'Y')
