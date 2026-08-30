@@ -89,9 +89,10 @@ describe("getRecommendation", () => {
   });
 
   it("returns fallback without a location reason", async () => {
+    const deps = dependencies(null, fallbackMission);
     const result = await getRecommendation(
       { ...input, durationMinutes: 45 },
-      dependencies(null, fallbackMission),
+      deps,
     );
 
     expect(result).toMatchObject({
@@ -102,6 +103,12 @@ describe("getRecommendation", () => {
         { kind: "time", label: "Fits within 45 minutes" },
       ],
     });
+    expect(deps.repository.findFallback).toHaveBeenCalledWith(
+      expect.objectContaining({
+        equipmentRequiredTag: "None",
+        missionTypes: ["Home-Based", "Location-Agnostic"],
+      }),
+    );
   });
 
   it("selects only Home-Based missions without resolving a location", async () => {
@@ -172,7 +179,9 @@ describe("getRecommendation", () => {
       ageMin: 6,
       ageMax: 10,
       durationMinutes: 120,
+      equipmentRequiredTag: "None",
       excludeMissionIds: [venueMission.missionId],
+      missionId: undefined,
       missionTypes: ["Home-Based", "Location-Agnostic"],
     });
 
