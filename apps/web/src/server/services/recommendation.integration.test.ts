@@ -164,6 +164,81 @@ describe("seeded recommendation flow", () => {
     })
   })
 
+  it("excludes equipment-required missions from home searches", async () => {
+    await expect(
+      getRecommendation({
+        locationMode: "home",
+        ageMin: 6,
+        ageMax: 10,
+        durationMinutes: 120,
+        missionId: "MIS-025",
+      }),
+    ).resolves.toBeNull()
+  })
+
+  it("returns no-equipment home mission details for matching ages", async () => {
+    const missionId = "TEST-US31-HOME-DETAILS"
+
+    await pool.query("DELETE FROM activity WHERE mission_id = $1", [missionId])
+
+    try {
+      await pool.query(
+        `
+        INSERT INTO activity (
+          mission_id,
+          activity_title,
+          duration_minutes,
+          age_5_7,
+          age_8_9,
+          age_10_12,
+          equipment_required_tag,
+          supervision_level,
+          mission_type
+        )
+        VALUES (
+          $1,
+          'No-Equipment Home Mission',
+          20,
+          'Y',
+          'Y',
+          'N',
+          'None',
+          'Independent-Play-Safe',
+          'Home-Based'
+        )
+        `,
+        [missionId],
+      )
+
+      const recommendation = await getRecommendation({
+        locationMode: "home",
+        ageMin: 6,
+        ageMax: 9,
+        durationMinutes: 120,
+        missionId,
+      })
+
+      expect(recommendation).toMatchObject({
+        missionId,
+        missionType: "Home-Based",
+        ageBands: ["5-7", "8-9"],
+        supervisionLevel: "Independent-Play-Safe",
+      })
+
+      await expect(
+        getRecommendation({
+          locationMode: "home",
+          ageMin: 10,
+          ageMax: 12,
+          durationMinutes: 120,
+          missionId,
+        }),
+      ).resolves.toBeNull()
+    } finally {
+      await pool.query("DELETE FROM activity WHERE mission_id = $1", [missionId])
+    }
+  })
+
   it("excludes a mission without a duration", async () => {
     const missionId = "TEST-US13-NULL-DURATION"
 

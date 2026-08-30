@@ -267,6 +267,11 @@ export function ResultSection() {
   if (recommendation === null) {
     return (
       <EmptyActivityResult
+        description={
+          locationMode === "home"
+            ? "We couldn't find a no-equipment activity matching that age range and time window. Try adjusting your filters."
+            : undefined
+        }
         onAdjustFilters={() => router.push(`/?${buildSearchQuery()}`)}
         onBackToSearch={() => router.push("/")}
       />

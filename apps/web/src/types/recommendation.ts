@@ -8,6 +8,12 @@ export type MissionType =
   | "Home-Based"
   | "Location-Agnostic";
 
+export type AgeBand = "5-7" | "8-9" | "10-12";
+
+export type SupervisionLevel =
+  | "Independent-Play-Safe"
+  | "Needs Supervision";
+
 export type RecommendationVenue = {
   openSpaceId: number;
   name: string;
@@ -25,6 +31,8 @@ export type Recommendation = {
   instructionText: string | null;
   durationMinutes: number;
   missionType: MissionType;
+  ageBands: AgeBand[];
+  supervisionLevel: SupervisionLevel;
   reasons: MatchReason[];
   venue: RecommendationVenue | null;
 };

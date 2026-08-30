@@ -96,6 +96,7 @@ export async function getRecommendation(
       excludeMissionIds: input.excludeMissionIds,
       missionId: input.missionId,
       missionTypes: ["Home-Based"],
+      equipmentRequiredTag: "None",
     });
 
     return homeMission
