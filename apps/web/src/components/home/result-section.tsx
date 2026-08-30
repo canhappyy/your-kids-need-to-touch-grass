@@ -24,7 +24,7 @@ type RecommendationRequest = {
   signal?: AbortSignal
 }
 
-const MAX_SWAPS = 3
+const MAX_SWAPS = 2
 
 function readSwapsUsed(value: string | null) {
   const parsed = Number(value)
