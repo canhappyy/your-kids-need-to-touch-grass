@@ -8,7 +8,7 @@ export type MissionType =
   | "Home-Based"
   | "Location-Agnostic";
 
-export type AgeBand = "5–7" | "8–9" | "10–12";
+export type AgeBand = "5-7" | "8-9" | "10-12";
 
 export type SupervisionLevel =
   | "Independent-Play-Safe"

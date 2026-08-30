@@ -87,9 +87,9 @@ function mapFallbackCandidate(
 function mapAgeBands(row: Record<string, unknown>): AgeBand[] {
   const ageBands: AgeBand[] = [];
 
-  if (row.age_5_7 === "Y") ageBands.push("5–7");
-  if (row.age_8_9 === "Y") ageBands.push("8–9");
-  if (row.age_10_12 === "Y") ageBands.push("10–12");
+  if (row.age_5_7 === "Y") ageBands.push("5-7");
+  if (row.age_8_9 === "Y") ageBands.push("8-9");
+  if (row.age_10_12 === "Y") ageBands.push("10-12");
 
   return ageBands;
 }

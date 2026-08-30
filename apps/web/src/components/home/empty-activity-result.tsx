@@ -3,11 +3,16 @@ import { Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 type EmptyActivityResultProps = {
+  description?: string
   onAdjustFilters: () => void
   onBackToSearch: () => void
 }
 
+const DEFAULT_DESCRIPTION =
+  "We couldn't find anything matching that age range, time window, and location. Try widening your search."
+
 function EmptyActivityResult({
+  description = DEFAULT_DESCRIPTION,
   onAdjustFilters,
   onBackToSearch,
 }: EmptyActivityResultProps) {
@@ -31,8 +36,7 @@ function EmptyActivityResult({
           No activities found
         </h1>
         <p className="mt-6 max-w-sm text-base leading-snug text-zinc-500">
-          We couldn&apos;t find anything matching that age range, time window,
-          and location. Try widening your search.
+          {description}
         </p>
       </div>
 

@@ -31,7 +31,7 @@ const venueMission = {
   instructionText: "Find a hoop.",
   durationMinutes: 60,
   missionType: "Location-Based" as const,
-  ageBands: ["5–7", "8–9"] as AgeBand[],
+  ageBands: ["5-7", "8-9"] as AgeBand[],
   supervisionLevel: "Independent-Play-Safe" as const,
   venue: {
     openSpaceId: 42,

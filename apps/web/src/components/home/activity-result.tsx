@@ -25,6 +25,12 @@ function formatDuration(durationMinutes: number) {
   return minutes ? `${hourLabel} ${minutes} minutes` : hourLabel
 }
 
+function formatSupervision(recommendation: Recommendation) {
+  return recommendation.supervisionLevel === "Independent-Play-Safe"
+    ? "Independent play"
+    : "Adult supervision"
+}
+
 function ActivityResult({
   recommendation,
   isRetrying = false,
@@ -71,6 +77,20 @@ function ActivityResult({
         >
           {recommendation.title}
         </h1>
+        <div
+          aria-label="Mission details"
+          className="mt-4 flex flex-wrap justify-center gap-2"
+        >
+          <Badge variant="outline">
+            Ages {recommendation.ageBands.join(", ")}
+          </Badge>
+          <Badge variant="outline">
+            {formatDuration(recommendation.durationMinutes)}
+          </Badge>
+          <Badge variant="outline">
+            {formatSupervision(recommendation)}
+          </Badge>
+        </div>
       </div>
 
       <dl className="mt-7 space-y-6">

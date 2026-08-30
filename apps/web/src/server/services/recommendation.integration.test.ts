@@ -186,7 +186,7 @@ describe("seeded recommendation flow", () => {
 
     expect(recommendation).toMatchObject({
       missionType: "Home-Based",
-      ageBands: ["5–7", "8–9"],
+      ageBands: ["5-7", "8-9"],
       supervisionLevel: "Independent-Play-Safe",
     })
 
