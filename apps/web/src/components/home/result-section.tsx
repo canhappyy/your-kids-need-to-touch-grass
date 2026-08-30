@@ -19,9 +19,19 @@ type ApiErrorResponse = {
 }
 
 type RecommendationRequest = {
-  excludeMissionId?: string
+  excludeMissionIds?: string[]
   missionId?: string
   signal?: AbortSignal
+}
+
+const MAX_SWAPS = 3
+
+function readSwapsUsed(value: string | null) {
+  const parsed = Number(value)
+
+  return Number.isInteger(parsed) && parsed >= 0 && parsed <= MAX_SWAPS
+    ? parsed
+    : 0
 }
 
 export function ResultSection() {
@@ -34,6 +44,15 @@ export function ResultSection() {
   const hours = searchParams.get("hours") || "2"
   const minutes = searchParams.get("minutes") || "0"
   const selectedMissionId = searchParams.get("missionId") || undefined
+  const swapsUsed = readSwapsUsed(searchParams.get("swapsUsed"))
+  const shownMissionIds = [
+    ...new Set(
+      [
+        ...searchParams.getAll("shownMissionId"),
+        ...(selectedMissionId ? [selectedMissionId] : []),
+      ].filter(Boolean),
+    ),
+  ]
   const currentMissionId = useRef<string | null>(null)
   const [recommendation, setRecommendation] = useState<
     Recommendation | null | undefined
@@ -69,7 +88,7 @@ export function ResultSection() {
 
   const requestRecommendation = useCallback(
     async ({
-      excludeMissionId,
+      excludeMissionIds,
       missionId,
       signal,
     }: RecommendationRequest = {}) => {
@@ -82,9 +101,9 @@ export function ResultSection() {
         durationMinutes: String(durationMinutes),
       })
 
-      if (excludeMissionId) {
-        params.set("excludeMissionId", excludeMissionId)
-      }
+      excludeMissionIds?.forEach((excludedMissionId) =>
+        params.append("excludeMissionId", excludedMissionId)
+      )
       if (missionId) params.set("missionId", missionId)
 
       const response = await fetch(`/api/recommendations?${params}`, {
@@ -149,6 +168,8 @@ export function ResultSection() {
           if (result && !selectedMissionId) {
             const params = buildSearchQuery()
             params.set("missionId", result.missionId)
+            params.append("shownMissionId", result.missionId)
+            params.set("swapsUsed", "0")
             window.history.replaceState(
               null,
               "",
@@ -202,6 +223,8 @@ export function ResultSection() {
                 if (result && !selectedMissionId) {
                   const params = buildSearchQuery()
                   params.set("missionId", result.missionId)
+                  params.append("shownMissionId", result.missionId)
+                  params.set("swapsUsed", "0")
                   window.history.replaceState(
                     null,
                     "",
@@ -255,42 +278,53 @@ export function ResultSection() {
       isRetrying={isRetrying}
       onBackToSearch={() => router.push("/")}
       onTryAnother={async () => {
+        if (swapsUsed >= MAX_SWAPS) return
+
+        const sourceMissionId = recommendation.missionId
+        const sourceSwapsUsed = swapsUsed
+        const sourceShownMissionIds = shownMissionIds
         setIsRetrying(true)
 
         try {
           const result = await requestRecommendation({
-            excludeMissionId: recommendation.missionId,
+            excludeMissionIds: sourceShownMissionIds,
           })
 
+          const currentParams = new URL(window.location.href).searchParams
           if (
-            new URL(window.location.href).searchParams.get("missionId") !==
-            recommendation.missionId
+            currentParams.get("missionId") !== sourceMissionId ||
+            readSwapsUsed(currentParams.get("swapsUsed")) !== sourceSwapsUsed
           ) {
             return
           }
 
-          if (result !== undefined) {
+          if (result) {
             setError("")
             setRecommendation(result)
+            currentMissionId.current = result.missionId
 
-            if (
-              result &&
-              result.missionId !== recommendation.missionId
-            ) {
-              currentMissionId.current = result.missionId
-              const params = buildSearchQuery()
-              params.set("missionId", result.missionId)
-              window.history.pushState(
-                null,
-                "",
-                `/result?${params.toString()}`
-              )
-            }
+            const params = buildSearchQuery()
+            params.set("missionId", result.missionId)
+            const nextShownMissionIds = [
+              ...new Set([...sourceShownMissionIds, result.missionId]),
+            ]
+            nextShownMissionIds.forEach((missionId) =>
+              params.append("shownMissionId", missionId)
+            )
+            params.set("swapsUsed", String(sourceSwapsUsed + 1))
+            window.history.pushState(
+              null,
+              "",
+              `/result?${params.toString()}`
+            )
+          } else if (result === null) {
+            setError("We couldn't load a mission. Please try again.")
           }
         } catch {
+          const currentParams = new URL(window.location.href).searchParams
           if (
-            new URL(window.location.href).searchParams.get("missionId") ===
-            recommendation.missionId
+            currentParams.get("missionId") === sourceMissionId &&
+            readSwapsUsed(currentParams.get("swapsUsed")) === sourceSwapsUsed
           ) {
             setError("We couldn't load a mission. Please try again.")
           }
