@@ -54,7 +54,7 @@ describe("GET /api/recommendations", () => {
       ageMin: 6,
       ageMax: 10,
       durationMinutes: 120,
-      excludeMissionId: "MIS-002",
+      excludeMissionIds: ["MIS-002"],
     });
   });
 
@@ -72,7 +72,22 @@ describe("GET /api/recommendations", () => {
     });
   });
 
-  it("accepts exact replay but rejects replay with exclusion", async () => {
+  it("normalizes repeated exclusions and rejects replay with exclusions", async () => {
+    const repeatedParams = new URLSearchParams(validQuery);
+    repeatedParams.append("excludeMissionId", "MIS-001");
+    repeatedParams.append("excludeMissionId", "MIS-002");
+    repeatedParams.append("excludeMissionId", "MIS-001");
+    const repeatedResponse = await GET(
+      new Request(`http://localhost/api/recommendations?${repeatedParams}`),
+    );
+
+    expect(repeatedResponse.status).toBe(200);
+    expect(getRecommendation).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        excludeMissionIds: ["MIS-001", "MIS-002"],
+      }),
+    );
+
     const replayResponse = await GET(request({ missionId: "MIS-001" }));
 
     expect(replayResponse.status).toBe(200);

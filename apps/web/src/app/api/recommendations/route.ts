@@ -58,8 +58,14 @@ export function parseRecommendationQuery(
   const ageMin = parseInteger(searchParams.get("ageMin"));
   const ageMax = parseInteger(searchParams.get("ageMax"));
   const durationMinutes = parseInteger(searchParams.get("durationMinutes"));
-  const excludeMissionId =
-    searchParams.get("excludeMissionId")?.trim() || undefined;
+  const excludeMissionIds = [
+    ...new Set(
+      searchParams
+        .getAll("excludeMissionId")
+        .map((missionId) => missionId.trim())
+        .filter(Boolean),
+    ),
+  ];
   const missionId = searchParams.get("missionId")?.trim() || undefined;
 
   if (
@@ -74,7 +80,7 @@ export function parseRecommendationQuery(
     durationMinutes < 5 ||
     durationMinutes > 775 ||
     durationMinutes % 5 !== 0 ||
-    Boolean(missionId && excludeMissionId)
+    Boolean(missionId && excludeMissionIds.length)
   ) {
     return null;
   }
@@ -83,7 +89,7 @@ export function parseRecommendationQuery(
     ageMin,
     ageMax,
     durationMinutes,
-    ...(excludeMissionId ? { excludeMissionId } : {}),
+    ...(excludeMissionIds.length ? { excludeMissionIds } : {}),
     ...(missionId ? { missionId } : {}),
   };
 
