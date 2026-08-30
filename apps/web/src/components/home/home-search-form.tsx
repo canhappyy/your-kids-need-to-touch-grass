@@ -1,6 +1,7 @@
 "use client"
 
-import { FormEvent, useState } from "react"
+import { LocateFixed } from "lucide-react"
+import { FormEvent, useRef, useState } from "react"
 
 import { AgeRangeSlider, type AgeRange } from "@/components/home/age-range-slider"
 import { Button } from "@/components/ui/button"
@@ -52,6 +53,10 @@ type HomeSearchFormProps = {
   onValidSubmit: (values: HomeSearchValues) => void
 }
 
+type NearestPostcodeResponse = {
+  postcode?: string
+}
+
 function HomeSearchForm({
   initialValues = defaultHomeSearchValues,
   initialLocationError = "",
@@ -68,23 +73,75 @@ function HomeSearchForm({
   const [minutes, setMinutes] = useState(initialValues.minutes)
   const [locationError, setLocationError] = useState(initialLocationError)
   const [timeError, setTimeError] = useState("")
+  const [isLocating, setIsLocating] = useState(false)
+  const [gpsStatus, setGpsStatus] = useState("")
+  const locationInputRef = useRef<HTMLInputElement>(null)
+
+  function showGpsFallback() {
+    setIsLocating(false)
+    setGpsStatus("")
+    setLocationError("We couldn't use your location. Enter your postcode.")
+    locationInputRef.current?.focus()
+  }
+
+  async function resolveGpsPostcode(coords: GeolocationCoordinates) {
+    try {
+      const response = await fetch("/api/postcodes/nearest", {
+        body: JSON.stringify({
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+        }),
+        headers: { "Content-Type": "application/json" },
+        method: "POST",
+      })
+      const body = (await response.json()) as NearestPostcodeResponse
+
+      if (!response.ok || !body.postcode) {
+        showGpsFallback()
+        return
+      }
+
+      setLocation(body.postcode)
+      setLocationError("")
+      setGpsStatus(`Using postcode ${body.postcode}.`)
+      setIsLocating(false)
+    } catch {
+      showGpsFallback()
+    }
+  }
+
+  function handleUseMyLocation() {
+    setLocationError("")
+    setGpsStatus("")
+
+    if (!navigator.geolocation) {
+      showGpsFallback()
+      return
+    }
+
+    setIsLocating(true)
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        void resolveGpsPostcode(coords)
+      },
+      showGpsFallback,
+      {
+        enableHighAccuracy: false,
+        maximumAge: 300_000,
+        timeout: 10_000,
+      }
+    )
+  }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
     const trimmedLocation = location.trim()
-    const isNumericLocation = /^\d+$/.test(trimmedLocation)
     let nextLocationError = ""
 
     if (locationMode === "nearby" && !trimmedLocation) {
-      nextLocationError = "Enter a suburb or postcode."
-    } else if (locationMode === "nearby" && trimmedLocation.length > 100) {
-      nextLocationError = "Enter a location under 100 characters."
-    } else if (
-      locationMode === "nearby" &&
-      isNumericLocation &&
-      !/^\d{4}$/.test(trimmedLocation)
-    ) {
+      nextLocationError = "Enter your postcode."
+    } else if (locationMode === "nearby" && !/^\d{4}$/.test(trimmedLocation)) {
       nextLocationError = "Enter a 4-digit postcode."
     }
 
@@ -142,28 +199,53 @@ function HomeSearchForm({
 
       {locationMode === "nearby" && (
         <div className="mt-5">
-          <Label
-            className="mb-2 text-xs font-medium tracking-wide text-zinc-600 uppercase"
-            htmlFor="location"
+          <Button
+            aria-describedby={gpsStatus ? "location-status" : undefined}
+            className="h-[52px] w-full rounded-xl border-zinc-300 bg-white text-base font-semibold text-zinc-900 hover:bg-zinc-50 focus-visible:border-emerald-700 focus-visible:ring-emerald-600/20"
+            disabled={isLocating}
+            onClick={handleUseMyLocation}
+            type="button"
+            variant="outline"
           >
-            Location
-          </Label>
-          <Input
-            aria-describedby={locationError ? "location-error" : undefined}
-            aria-invalid={Boolean(locationError)}
-            autoComplete="postal-code"
-            className="h-[52px] rounded-xl border-zinc-200 bg-zinc-50 px-4 text-base shadow-xs placeholder:text-zinc-500 focus-visible:border-emerald-600 focus-visible:ring-emerald-600/20 md:text-base"
-            id="location"
-            name="location"
-            onChange={(event) => {
-              setLocation(event.target.value)
-              if (locationError) setLocationError("")
-            }}
-            placeholder="Suburb or postcode, e.g. Clayton 3168"
-            required
-            type="text"
-            value={location}
-          />
+            <LocateFixed aria-hidden="true" />
+            {isLocating ? "Finding your location…" : "Use my location"}
+          </Button>
+
+          <div className="mt-4">
+            <Label
+              className="mb-2 text-xs font-medium tracking-wide text-zinc-600 uppercase"
+              htmlFor="location"
+            >
+              Postcode
+            </Label>
+            <Input
+              aria-describedby={
+                locationError
+                  ? "location-error"
+                  : gpsStatus
+                    ? "location-status"
+                    : undefined
+              }
+              aria-invalid={Boolean(locationError)}
+              autoComplete="postal-code"
+              className="h-[52px] rounded-xl border-zinc-200 bg-zinc-50 px-4 text-base shadow-xs placeholder:text-zinc-500 focus-visible:border-emerald-600 focus-visible:ring-emerald-600/20 md:text-base"
+              id="location"
+              inputMode="numeric"
+              maxLength={4}
+              name="location"
+              onChange={(event) => {
+                setLocation(event.target.value)
+                setGpsStatus("")
+                if (locationError) setLocationError("")
+              }}
+              pattern="[0-9]{4}"
+              placeholder="Postcode, e.g. 3168"
+              ref={locationInputRef}
+              required
+              type="text"
+              value={location}
+            />
+          </div>
           {locationError && (
             <p
               className="mt-2 text-sm text-destructive"
@@ -171,6 +253,16 @@ function HomeSearchForm({
               role="alert"
             >
               {locationError}
+            </p>
+          )}
+          {gpsStatus && !locationError && (
+            <p
+              aria-live="polite"
+              className="mt-2 text-sm text-emerald-700"
+              id="location-status"
+              role="status"
+            >
+              {gpsStatus}
             </p>
           )}
         </div>

@@ -2,6 +2,9 @@
 -- Nurturing Healthy Kids - Database Schema
 -- ============================================================
 
+CREATE EXTENSION IF NOT EXISTS cube;
+CREATE EXTENSION IF NOT EXISTS earthdistance;
+
 -- 0. Drop Existing Tables
 -- Order matters: junction tables (which reference
 -- other tables) are dropped before the tables they reference, and
