@@ -100,6 +100,131 @@ describe("seeded recommendation flow", () => {
     expect(match.rows[0]).toMatchObject({ age_5_7: "Y", compatible: true })
   })
 
+  it("uses the nearest compatible park for a location mission", async () => {
+    const missionId = "TEST-US32-NEAREST-FEATURE"
+    const openSpaceIds = [-32001, -32002]
+
+    await pool.query("DELETE FROM activity WHERE mission_id = $1", [missionId])
+    await pool.query("DELETE FROM open_space WHERE open_space_id = ANY($1::int[])", [
+      openSpaceIds,
+    ])
+
+    try {
+      await pool.query(
+        `
+        INSERT INTO open_space (
+          open_space_id,
+          name,
+          latitude,
+          longitude,
+          category
+        )
+        VALUES
+          ($1, 'Nearest Test Park', -37.914, 145.12665, 'park'),
+          ($2, 'Farther Test Park', -37.94, 145.12665, 'park')
+        `,
+        openSpaceIds,
+      )
+      await pool.query(
+        `
+        INSERT INTO activity (
+          mission_id,
+          activity_title,
+          duration_minutes,
+          age_5_7,
+          age_8_9,
+          age_10_12,
+          supervision_level,
+          mission_type
+        )
+        VALUES ($1, 'Nearest Park Mission', 20, 'Y', 'Y', 'N',
+          'Needs Supervision', 'Location-Based')
+        `,
+        [missionId],
+      )
+      await pool.query(
+        `
+        INSERT INTO activity_location_category (mission_id, category_name)
+        VALUES ($1, 'park')
+        `,
+        [missionId],
+      )
+
+      const recommendation = await getRecommendation({
+        ...input,
+        missionId,
+      })
+
+      expect(recommendation).toMatchObject({
+        missionId,
+        missionType: "Location-Based",
+        venue: {
+          openSpaceId: openSpaceIds[0],
+          name: "Nearest Test Park",
+          category: "park",
+          latitude: -37.914,
+          longitude: 145.12665,
+        },
+      })
+      expect(recommendation?.venue?.distanceKm).toBeLessThan(0.1)
+    } finally {
+      await pool.query("DELETE FROM activity WHERE mission_id = $1", [missionId])
+      await pool.query(
+        "DELETE FROM open_space WHERE open_space_id = ANY($1::int[])",
+        [openSpaceIds],
+      )
+    }
+  })
+
+  it("uses only no-equipment missions for nearby fallback", async () => {
+    const noEquipmentMissionId = "TEST-US32-FALLBACK-NONE"
+    const equipmentMissionId = "TEST-US32-FALLBACK-EQUIPMENT"
+    const missionIds = [noEquipmentMissionId, equipmentMissionId]
+
+    await pool.query("DELETE FROM activity WHERE mission_id = ANY($1::text[])", [
+      missionIds,
+    ])
+
+    try {
+      await pool.query(
+        `
+        INSERT INTO activity (
+          mission_id,
+          activity_title,
+          duration_minutes,
+          age_5_7,
+          age_8_9,
+          age_10_12,
+          equipment_required_tag,
+          supervision_level,
+          mission_type
+        )
+        VALUES
+          ($1, 'No-Equipment Fallback', 20, 'Y', 'Y', 'N', 'None',
+            'Independent-Play-Safe', 'Location-Agnostic'),
+          ($2, 'Equipment Fallback', 20, 'Y', 'Y', 'N', 'Household Items',
+            'Independent-Play-Safe', 'Home-Based')
+        `,
+        missionIds,
+      )
+
+      await expect(
+        getRecommendation({ ...input, missionId: equipmentMissionId }),
+      ).resolves.toBeNull()
+      await expect(
+        getRecommendation({ ...input, missionId: noEquipmentMissionId }),
+      ).resolves.toMatchObject({
+        missionId: noEquipmentMissionId,
+        missionType: "Location-Agnostic",
+        venue: null,
+      })
+    } finally {
+      await pool.query("DELETE FROM activity WHERE mission_id = ANY($1::text[])", [
+        missionIds,
+      ])
+    }
+  })
+
   it("uses fallback, then returns null when no tier fits", async () => {
     const fallback = await getRecommendation({ ...input, durationMinutes: 10 })
 
