@@ -133,6 +133,7 @@ export async function getRecommendation(
     excludeMissionIds: input.excludeMissionIds,
     missionId: input.missionId,
     missionTypes: ["Home-Based", "Location-Agnostic"],
+    equipmentRequiredTag: "None",
   });
 
   if (!fallback) {
