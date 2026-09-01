@@ -1,5 +1,10 @@
 import pool from "@/lib/db";
 
+/**
+ * Retrieves all activities from the database ordered alphabetically by title.
+ *
+ * @returns A promise resolving to an array of raw activity records.
+ */
 export async function findAllActivities() {
   const result = await pool.query(`
     SELECT
@@ -24,6 +29,13 @@ export async function findAllActivities() {
   return result.rows;
 }
 
+/**
+ * Retrieves a single activity by its unique mission identifier,
+ * including aggregated location categories and variety tags.
+ *
+ * @param missionId - The unique ID of the mission to find.
+ * @returns A promise resolving to the activity record with aggregated tags, or `null` if not found.
+ */
 export async function findActivityById(missionId: string) {
   const result = await pool.query(
     `

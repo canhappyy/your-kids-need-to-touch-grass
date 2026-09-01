@@ -6,37 +6,71 @@ import type {
   SupervisionLevel,
 } from "@/types/recommendation";
 
+/**
+ * Represents a raw recommendation candidate before match reasons are constructed.
+ */
 export type RecommendationCandidate = {
+  /** Unique mission identifier. */
   missionId: string;
+  /** Activity title. */
   title: string;
+  /** Description or summary of the activity. */
   description: string | null;
+  /** Required equipment description. */
   equipmentNeeded: string | null;
+  /** Instructions for completing the activity. */
   instructionText: string | null;
+  /** Duration in minutes. */
   durationMinutes: number;
+  /** Mission category (Location-Based, Home-Based, Location-Agnostic). */
   missionType: MissionType;
+  /** Age bands targeted by this activity. */
   ageBands: AgeBand[];
+  /** Required supervision level. */
   supervisionLevel: SupervisionLevel;
+  /** Venue details if location-based, or null for home/agnostic activities. */
   venue: RecommendationVenue | null;
 };
 
+/**
+ * Query criteria for finding a location-based recommendation near coordinates.
+ */
 export type RecommendationQuery = {
+  /** Target latitude. */
   latitude: number;
+  /** Target longitude. */
   longitude: number;
+  /** Minimum child age in years. */
   ageMin: number;
+  /** Maximum child age in years. */
   ageMax: number;
+  /** Maximum available time window in minutes. */
   durationMinutes: number;
+  /** Optional array of mission IDs to deprioritize/exclude. */
   excludeMissionIds?: string[];
+  /** Specific mission ID to target if requesting a particular mission. */
   missionId?: string;
 };
 
+/**
+ * Query criteria for finding a home-based or location-agnostic fallback recommendation.
+ */
 export type FallbackRecommendationQuery = Omit<
   RecommendationQuery,
   "latitude" | "longitude"
 > & {
+  /** Array of mission types to match against. */
   missionTypes: Array<"Home-Based" | "Location-Agnostic">;
+  /** Optional equipment required tag filter. */
   equipmentRequiredTag?: "None";
 };
 
+/**
+ * Maps a database row into a `RecommendationCandidate` with venue information.
+ *
+ * @param row - Raw query row from location-based query.
+ * @returns Structured `RecommendationCandidate` with populated venue.
+ */
 function mapLocationCandidate(
   row: Record<string, unknown>,
 ): RecommendationCandidate {
@@ -63,6 +97,12 @@ function mapLocationCandidate(
   };
 }
 
+/**
+ * Maps a database row into a `RecommendationCandidate` without venue information.
+ *
+ * @param row - Raw query row from fallback query.
+ * @returns Structured `RecommendationCandidate` with `venue: null`.
+ */
 function mapFallbackCandidate(
   row: Record<string, unknown>,
 ): RecommendationCandidate {
@@ -84,6 +124,12 @@ function mapFallbackCandidate(
   };
 }
 
+/**
+ * Maps age flags ('Y' / 'N') from database columns to `AgeBand` array.
+ *
+ * @param row - Raw database row containing age flags.
+ * @returns Array of applicable `AgeBand` values ("5-7", "8-9", "10-12").
+ */
 function mapAgeBands(row: Record<string, unknown>): AgeBand[] {
   const ageBands: AgeBand[] = [];
 
@@ -94,6 +140,12 @@ function mapAgeBands(row: Record<string, unknown>): AgeBand[] {
   return ageBands;
 }
 
+/**
+ * Searches for a location-based activity candidate within 10km of coordinates matching age and duration.
+ *
+ * @param input - The recommendation search criteria including coordinates, age bounds, and duration.
+ * @returns A promise resolving to the closest matching `RecommendationCandidate`, or `null` if none found.
+ */
 export async function findLocationBasedRecommendation(
   input: RecommendationQuery,
 ): Promise<RecommendationCandidate | null> {
@@ -182,6 +234,12 @@ export async function findLocationBasedRecommendation(
   return result.rows[0] ? mapLocationCandidate(result.rows[0]) : null;
 }
 
+/**
+ * Searches for a home-based or location-agnostic activity candidate matching age and duration criteria.
+ *
+ * @param input - Fallback recommendation search criteria.
+ * @returns A promise resolving to a matching `RecommendationCandidate`, or `null` if none found.
+ */
 export async function findFallbackRecommendation(
   input: FallbackRecommendationQuery,
 ): Promise<RecommendationCandidate | null> {

@@ -6,34 +6,60 @@ import type {
 import type { ResolvedLocation } from "@/server/services/location.service";
 import type { MatchReason, Recommendation } from "@/types/recommendation";
 
+/**
+ * Base input parameters shared across all recommendation requests.
+ */
 type RecommendationInputBase = {
+  /** Minimum child age in years. */
   ageMin: number;
+  /** Maximum child age in years. */
   ageMax: number;
+  /** Available duration in minutes. */
   durationMinutes: number;
+  /** Optional array of mission IDs to exclude from results. */
   excludeMissionIds?: string[];
+  /** Optional specific mission ID to fetch. */
   missionId?: string;
 };
 
+/**
+ * Discriminative union input for recommendation generation based on location mode.
+ */
 export type RecommendationInput = RecommendationInputBase &
   (
     | { locationMode: "nearby"; location: string }
     | { locationMode: "home"; location?: never }
   );
 
+/**
+ * Repository contract required by the recommendation service.
+ */
 export type RecommendationRepository = {
+  /** Finds a location-based recommendation candidate. */
   findLocationBased(
     input: RecommendationQuery,
   ): Promise<RecommendationCandidate | null>;
+  /** Finds a fallback home-based or location-agnostic recommendation candidate. */
   findFallback(
     input: FallbackRecommendationQuery,
   ): Promise<RecommendationCandidate | null>;
 };
 
+/**
+ * Injected dependencies for recommendation service execution and testing.
+ */
 export type RecommendationDependencies = {
+  /** Function that resolves a location string into coordinates and label. */
   resolveLocation(input: string): Promise<ResolvedLocation>;
+  /** Recommendation repository implementation. */
   repository: RecommendationRepository;
 };
 
+/**
+ * Loads default repository and location service dependencies.
+ *
+ * @returns A promise resolving to `RecommendationDependencies`.
+ */
 async function loadDefaultDependencies(): Promise<RecommendationDependencies> {
   const [locationService, recommendationRepository] = await Promise.all([
     import("@/server/services/location.service"),
@@ -50,6 +76,12 @@ async function loadDefaultDependencies(): Promise<RecommendationDependencies> {
   };
 }
 
+/**
+ * Formats duration in minutes into a readable text label.
+ *
+ * @param durationMinutes - Duration in minutes.
+ * @returns Formatted duration string (e.g. "45 minutes", "1 hour", "1 hour 30 minutes").
+ */
 function formatDuration(durationMinutes: number): string {
   const hours = Math.floor(durationMinutes / 60);
   const minutes = durationMinutes % 60;
@@ -63,6 +95,13 @@ function formatDuration(durationMinutes: number): string {
   return minutes === 0 ? hourLabel : `${hourLabel} ${minutes} minutes`;
 }
 
+/**
+ * Constructs user-facing match reasons explaining why this recommendation fits criteria.
+ *
+ * @param input - The search input criteria.
+ * @param location - Optional resolved location for location-based recommendations.
+ * @returns Array of structured `MatchReason` objects.
+ */
 function buildReasons(
   input: RecommendationInput,
   location?: ResolvedLocation,
@@ -82,6 +121,20 @@ function buildReasons(
   return reasons;
 }
 
+/**
+ * Core recommendation engine method that matches activities based on age, time, and location.
+ *
+ * For "home" mode:
+ * Searches for Home-Based, zero-equipment activities matching the criteria.
+ *
+ * For `"nearby"` mode:
+ * Resolves location, attempts to find a location-based activity within 10km, and falls back to
+ * Home-Based or Location-Agnostic activities if no nearby activity is found.
+ *
+ * @param input - Search criteria including age range, duration, and location mode.
+ * @param dependencies - Optional custom dependencies for testing.
+ * @returns A promise resolving to the final `Recommendation` with match reasons, or `null` if none found.
+ */
 export async function getRecommendation(
   input: RecommendationInput,
   dependencies?: RecommendationDependencies,

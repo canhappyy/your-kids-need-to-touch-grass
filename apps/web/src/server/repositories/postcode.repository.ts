@@ -1,12 +1,25 @@
 import pool from "@/lib/db";
 
+/**
+ * Represents a geographical postcode location with coordinates and associated suburb names.
+ */
 export type PostcodeLocation = {
+  /** The 4-digit postcode string. */
   postcode: string;
+  /** Latitude coordinate. */
   latitude: number;
+  /** Longitude coordinate. */
   longitude: number;
+  /** Comma-separated list of suburb names belonging to this postcode. */
   suburbs: string;
 };
 
+/**
+ * Maps a raw database row into a structured `PostcodeLocation` object.
+ *
+ * @param row - The raw query row from the database.
+ * @returns A structured `PostcodeLocation` object.
+ */
 function mapPostcodeLocation(row: Record<string, unknown>): PostcodeLocation {
   return {
     postcode: String(row.postcode),
@@ -16,6 +29,12 @@ function mapPostcodeLocation(row: Record<string, unknown>): PostcodeLocation {
   };
 }
 
+/**
+ * Retrieves the raw database record for a given postcode.
+ *
+ * @param postcode - The 4-digit postcode string to look up.
+ * @returns A promise resolving to the raw database row or `null` if not found.
+ */
 export async function findPostcode(postcode: string) {
   const result = await pool.query(
     `
@@ -33,6 +52,12 @@ export async function findPostcode(postcode: string) {
   return result.rows[0] ?? null;
 }
 
+/**
+ * Finds and returns a mapped `PostcodeLocation` for a specific postcode.
+ *
+ * @param postcode - The 4-digit postcode string to look up.
+ * @returns A promise resolving to the `PostcodeLocation` or `null` if not found.
+ */
 export async function findPostcodeLocation(
   postcode: string,
 ): Promise<PostcodeLocation | null> {
@@ -41,6 +66,12 @@ export async function findPostcodeLocation(
   return row ? mapPostcodeLocation(row) : null;
 }
 
+/**
+ * Searches for postcodes matching a given suburb name (case-insensitive).
+ *
+ * @param suburb - The suburb name to search for.
+ * @returns A promise resolving to an array of up to 2 matching `PostcodeLocation` records.
+ */
 export async function findPostcodeLocationsBySuburb(
   suburb: string,
 ): Promise<PostcodeLocation[]> {
@@ -66,6 +97,14 @@ export async function findPostcodeLocationsBySuburb(
   return result.rows.map(mapPostcodeLocation);
 }
 
+/**
+ * Finds the nearest postcode location to a pair of GPS coordinates within a maximum radius.
+ *
+ * @param latitude - Latitude coordinate.
+ * @param longitude - Longitude coordinate.
+ * @param maxDistanceKm - Maximum search radius in kilometers.
+ * @returns A promise resolving to the closest `PostcodeLocation` or `null` if none found within radius.
+ */
 export async function findNearestPostcodeLocation(
   latitude: number,
   longitude: number,
