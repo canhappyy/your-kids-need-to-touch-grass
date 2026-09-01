@@ -1,10 +1,10 @@
-import { afterAll, describe, expect, it } from "vitest"
+import { afterAll, describe, expect, it } from "vitest";
 
-import { GET } from "@/app/api/recommendations/route"
-import pool from "@/lib/db"
-import { findNearestPostcodeLocation } from "@/server/repositories/postcode.repository"
-import { resolveRecommendationLocation } from "@/server/services/location.service"
-import { getRecommendation } from "@/server/services/recommendation.service"
+import { GET } from "@/app/api/recommendations/route";
+import pool from "@/lib/db";
+import { findNearestPostcodeLocation } from "@/server/repositories/postcode.repository";
+import { resolveRecommendationLocation } from "@/server/services/location.service";
+import { getRecommendation } from "@/server/services/recommendation.service";
 
 const input = {
   locationMode: "nearby" as const,
@@ -12,64 +12,72 @@ const input = {
   ageMin: 6,
   ageMax: 10,
   durationMinutes: 120,
-}
+};
 
-afterAll(() => pool.end())
+afterAll(() => pool.end());
 
 describe("seeded recommendation flow", () => {
   it("returns exactly one recommendation within 3,000 ms", async () => {
-    const startedAt = performance.now()
+    const startedAt = performance.now();
     const response = await GET(
       new Request(
         "http://localhost/api/recommendations?location=Clayton%203168&ageMin=6&ageMax=10&durationMinutes=120",
       ),
-    )
-    const body = await response.json()
+    );
+    const body = await response.json();
 
-    expect(response.status).toBe(200)
-    expect(body.recommendation).not.toBeNull()
-    expect(Array.isArray(body.recommendation)).toBe(false)
-    expect(performance.now() - startedAt).toBeLessThan(3_000)
-  })
+    expect(response.status).toBe(200);
+    expect(body.recommendation).not.toBeNull();
+    expect(Array.isArray(body.recommendation)).toBe(false);
+    expect(performance.now() - startedAt).toBeLessThan(3_000);
+  });
 
   it("resolves postcode precedence, exact suburbs, and location errors", async () => {
-    await expect(resolveRecommendationLocation("Clayton 3000")).resolves.toMatchObject({
+    await expect(
+      resolveRecommendationLocation("Clayton 3000"),
+    ).resolves.toMatchObject({
       postcode: "3000",
-    })
-    await expect(resolveRecommendationLocation("cLaYtOn")).resolves.toMatchObject({
+    });
+    await expect(
+      resolveRecommendationLocation("cLaYtOn"),
+    ).resolves.toMatchObject({
       postcode: "3168",
-    })
+    });
     await expect(resolveRecommendationLocation("316")).rejects.toMatchObject({
       code: "INVALID_INPUT",
       status: 400,
-    })
-    await expect(resolveRecommendationLocation("Atlantis")).rejects.toMatchObject({
+    });
+    await expect(
+      resolveRecommendationLocation("Atlantis"),
+    ).rejects.toMatchObject({
       code: "LOCATION_NOT_FOUND",
       status: 404,
-    })
+    });
     await expect(resolveRecommendationLocation("1111")).rejects.toMatchObject({
       code: "LOCATION_NOT_FOUND",
       status: 404,
-    })
-    await expect(resolveRecommendationLocation("Melbourne")).rejects.toMatchObject({
+    });
+    await expect(
+      resolveRecommendationLocation("Melbourne"),
+    ).rejects.toMatchObject({
       code: "AMBIGUOUS_LOCATION",
       status: 422,
-    })
-  })
+    });
+  });
 
   it("resolves GPS coordinates only within postcode dataset coverage", async () => {
     await expect(
       findNearestPostcodeLocation(-37.91342, 145.12665, 50),
-    ).resolves.toMatchObject({ postcode: "3168" })
-    await expect(findNearestPostcodeLocation(0, 0, 50)).resolves.toBeNull()
-  })
+    ).resolves.toMatchObject({ postcode: "3168" });
+    await expect(findNearestPostcodeLocation(0, 0, 50)).resolves.toBeNull();
+  });
 
   it("matches age, duration, compatible venue, distance, and reasons", async () => {
     const recommendation = await getRecommendation({
       ...input,
       ageMin: 7,
       ageMax: 7,
-    })
+    });
 
     expect(recommendation).toMatchObject({
       missionType: "Location-Based",
@@ -78,9 +86,9 @@ describe("seeded recommendation flow", () => {
         { kind: "time", label: "Fits within 2 hours" },
         { kind: "location", label: "Near Clayton, Notting Hill 3168" },
       ],
-    })
-    expect(recommendation?.durationMinutes).toBeLessThanOrEqual(120)
-    expect(recommendation?.venue?.distanceKm).toBeLessThanOrEqual(10)
+    });
+    expect(recommendation?.durationMinutes).toBeLessThanOrEqual(120);
+    expect(recommendation?.venue?.distanceKm).toBeLessThanOrEqual(10);
 
     const match = await pool.query(
       `
@@ -96,18 +104,19 @@ describe("seeded recommendation flow", () => {
       WHERE a.mission_id = $1
       `,
       [recommendation?.missionId, recommendation?.venue?.category],
-    )
-    expect(match.rows[0]).toMatchObject({ age_5_7: "Y", compatible: true })
-  })
+    );
+    expect(match.rows[0]).toMatchObject({ age_5_7: "Y", compatible: true });
+  });
 
   it("uses the nearest compatible park for a location mission", async () => {
-    const missionId = "TEST-US32-NEAREST-FEATURE"
-    const openSpaceIds = [-32001, -32002]
+    const missionId = "TEST-US32-NEAREST-FEATURE";
+    const openSpaceIds = [-32001, -32002];
 
-    await pool.query("DELETE FROM activity WHERE mission_id = $1", [missionId])
-    await pool.query("DELETE FROM open_space WHERE open_space_id = ANY($1::int[])", [
-      openSpaceIds,
-    ])
+    await pool.query("DELETE FROM activity WHERE mission_id = $1", [missionId]);
+    await pool.query(
+      "DELETE FROM open_space WHERE open_space_id = ANY($1::int[])",
+      [openSpaceIds],
+    );
 
     try {
       await pool.query(
@@ -124,7 +133,7 @@ describe("seeded recommendation flow", () => {
           ($2, 'Farther Test Park', -37.94, 145.12665, 'park')
         `,
         openSpaceIds,
-      )
+      );
       await pool.query(
         `
         INSERT INTO activity (
@@ -141,19 +150,19 @@ describe("seeded recommendation flow", () => {
           'Needs Supervision', 'Location-Based')
         `,
         [missionId],
-      )
+      );
       await pool.query(
         `
         INSERT INTO activity_location_category (mission_id, category_name)
         VALUES ($1, 'park')
         `,
         [missionId],
-      )
+      );
 
       const recommendation = await getRecommendation({
         ...input,
         missionId,
-      })
+      });
 
       expect(recommendation).toMatchObject({
         missionId,
@@ -165,25 +174,28 @@ describe("seeded recommendation flow", () => {
           latitude: -37.914,
           longitude: 145.12665,
         },
-      })
-      expect(recommendation?.venue?.distanceKm).toBeLessThan(0.1)
+      });
+      expect(recommendation?.venue?.distanceKm).toBeLessThan(0.1);
     } finally {
-      await pool.query("DELETE FROM activity WHERE mission_id = $1", [missionId])
+      await pool.query("DELETE FROM activity WHERE mission_id = $1", [
+        missionId,
+      ]);
       await pool.query(
         "DELETE FROM open_space WHERE open_space_id = ANY($1::int[])",
         [openSpaceIds],
-      )
+      );
     }
-  })
+  });
 
   it("uses only no-equipment missions for nearby fallback", async () => {
-    const noEquipmentMissionId = "TEST-US32-FALLBACK-NONE"
-    const equipmentMissionId = "TEST-US32-FALLBACK-EQUIPMENT"
-    const missionIds = [noEquipmentMissionId, equipmentMissionId]
+    const noEquipmentMissionId = "TEST-US32-FALLBACK-NONE";
+    const equipmentMissionId = "TEST-US32-FALLBACK-EQUIPMENT";
+    const missionIds = [noEquipmentMissionId, equipmentMissionId];
 
-    await pool.query("DELETE FROM activity WHERE mission_id = ANY($1::text[])", [
-      missionIds,
-    ])
+    await pool.query(
+      "DELETE FROM activity WHERE mission_id = ANY($1::text[])",
+      [missionIds],
+    );
 
     try {
       await pool.query(
@@ -206,47 +218,50 @@ describe("seeded recommendation flow", () => {
             'Independent-Play-Safe', 'Home-Based')
         `,
         missionIds,
-      )
+      );
 
       await expect(
         getRecommendation({ ...input, missionId: equipmentMissionId }),
-      ).resolves.toBeNull()
+      ).resolves.toBeNull();
       await expect(
         getRecommendation({ ...input, missionId: noEquipmentMissionId }),
       ).resolves.toMatchObject({
         missionId: noEquipmentMissionId,
         missionType: "Location-Agnostic",
         venue: null,
-      })
+      });
     } finally {
-      await pool.query("DELETE FROM activity WHERE mission_id = ANY($1::text[])", [
-        missionIds,
-      ])
+      await pool.query(
+        "DELETE FROM activity WHERE mission_id = ANY($1::text[])",
+        [missionIds],
+      );
     }
-  })
+  });
 
   it("uses fallback, then returns null when no tier fits", async () => {
-    const fallback = await getRecommendation({ ...input, durationMinutes: 10 })
+    const fallback = await getRecommendation({ ...input, durationMinutes: 10 });
 
-    expect(["Home-Based", "Location-Agnostic"]).toContain(fallback?.missionType)
-    expect(fallback?.venue).toBeNull()
+    expect(["Home-Based", "Location-Agnostic"]).toContain(
+      fallback?.missionType,
+    );
+    expect(fallback?.venue).toBeNull();
     expect(fallback?.reasons.map((reason) => reason.kind)).toEqual([
       "age",
       "time",
-    ])
+    ]);
     await expect(
       getRecommendation({ ...input, durationMinutes: 5 }),
-    ).resolves.toBeNull()
-  })
+    ).resolves.toBeNull();
+  });
 
   it("prefers missions outside the shown list and repeats after exhaustion", async () => {
-    const first = await getRecommendation(input)
+    const first = await getRecommendation(input);
     const retry = await getRecommendation({
       ...input,
       excludeMissionIds: first ? [first.missionId] : [],
-    })
+    });
 
-    expect(retry?.missionId).not.toBe(first?.missionId)
+    expect(retry?.missionId).not.toBe(first?.missionId);
 
     const eligible = await pool.query<{ mission_id: string }>(
       `
@@ -260,14 +275,14 @@ describe("seeded recommendation flow", () => {
         )
       `,
       [input.durationMinutes, input.ageMin, input.ageMax],
-    )
+    );
     const repeat = await getRecommendation({
       ...input,
       excludeMissionIds: eligible.rows.map((row) => row.mission_id),
-    })
+    });
 
-    expect(repeat).not.toBeNull()
-  })
+    expect(repeat).not.toBeNull();
+  });
 
   it("replays the same Home-Based mission for a home search", async () => {
     const homeInput = {
@@ -275,19 +290,19 @@ describe("seeded recommendation flow", () => {
       ageMin: 6,
       ageMax: 10,
       durationMinutes: 120,
-    }
-    const first = await getRecommendation(homeInput)
+    };
+    const first = await getRecommendation(homeInput);
     const replay = await getRecommendation({
       ...homeInput,
       missionId: first?.missionId,
-    })
+    });
 
-    expect(first?.missionType).toBe("Home-Based")
+    expect(first?.missionType).toBe("Home-Based");
     expect(replay).toMatchObject({
       missionId: first?.missionId,
       missionType: "Home-Based",
-    })
-  })
+    });
+  });
 
   it("excludes equipment-required missions from home searches", async () => {
     await expect(
@@ -298,13 +313,13 @@ describe("seeded recommendation flow", () => {
         durationMinutes: 120,
         missionId: "MIS-025",
       }),
-    ).resolves.toBeNull()
-  })
+    ).resolves.toBeNull();
+  });
 
   it("returns no-equipment home mission details for matching ages", async () => {
-    const missionId = "TEST-US31-HOME-DETAILS"
+    const missionId = "TEST-US31-HOME-DETAILS";
 
-    await pool.query("DELETE FROM activity WHERE mission_id = $1", [missionId])
+    await pool.query("DELETE FROM activity WHERE mission_id = $1", [missionId]);
 
     try {
       await pool.query(
@@ -333,7 +348,7 @@ describe("seeded recommendation flow", () => {
         )
         `,
         [missionId],
-      )
+      );
 
       const recommendation = await getRecommendation({
         locationMode: "home",
@@ -341,14 +356,14 @@ describe("seeded recommendation flow", () => {
         ageMax: 9,
         durationMinutes: 120,
         missionId,
-      })
+      });
 
       expect(recommendation).toMatchObject({
         missionId,
         missionType: "Home-Based",
         ageBands: ["5-7", "8-9"],
         supervisionLevel: "Independent-Play-Safe",
-      })
+      });
 
       await expect(
         getRecommendation({
@@ -358,16 +373,18 @@ describe("seeded recommendation flow", () => {
           durationMinutes: 120,
           missionId,
         }),
-      ).resolves.toBeNull()
+      ).resolves.toBeNull();
     } finally {
-      await pool.query("DELETE FROM activity WHERE mission_id = $1", [missionId])
+      await pool.query("DELETE FROM activity WHERE mission_id = $1", [
+        missionId,
+      ]);
     }
-  })
+  });
 
   it("excludes a mission without a duration", async () => {
-    const missionId = "TEST-US13-NULL-DURATION"
+    const missionId = "TEST-US13-NULL-DURATION";
 
-    await pool.query("DELETE FROM activity WHERE mission_id = $1", [missionId])
+    await pool.query("DELETE FROM activity WHERE mission_id = $1", [missionId]);
 
     try {
       await pool.query(
@@ -384,7 +401,7 @@ describe("seeded recommendation flow", () => {
         VALUES ($1, 'Missing Duration Mission', NULL, 'Y', 'Y', 'Y', 'Home-Based')
         `,
         [missionId],
-      )
+      );
 
       await expect(
         getRecommendation({
@@ -394,9 +411,11 @@ describe("seeded recommendation flow", () => {
           durationMinutes: 120,
           missionId,
         }),
-      ).resolves.toBeNull()
+      ).resolves.toBeNull();
     } finally {
-      await pool.query("DELETE FROM activity WHERE mission_id = $1", [missionId])
+      await pool.query("DELETE FROM activity WHERE mission_id = $1", [
+        missionId,
+      ]);
     }
-  })
-})
+  });
+});

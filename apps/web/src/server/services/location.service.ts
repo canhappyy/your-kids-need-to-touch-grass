@@ -1,11 +1,21 @@
-import type { PostcodeLocation } from "@/server/repositories/postcode.repository";
+import type {
+  LocationErrorCode,
+  LocationRepository,
+  PostcodeLocation,
+  ResolvedLocation,
+} from "@/types/location";
 
-type LocationErrorCode =
-  | "INVALID_INPUT"
-  | "LOCATION_NOT_FOUND"
-  | "AMBIGUOUS_LOCATION";
+export type { LocationErrorCode, LocationRepository, ResolvedLocation };
 
+/**
+ * Custom error thrown when a user-provided location string cannot be resolved unambiguously.
+ */
 export class LocationResolutionError extends Error {
+  /**
+   * @param code - The error classification code.
+   * @param status - The corresponding HTTP status code (400, 404, or 422).
+   * @param message - Human-readable error message.
+   */
   constructor(
     public readonly code: LocationErrorCode,
     public readonly status: 400 | 404 | 422,
@@ -16,15 +26,11 @@ export class LocationResolutionError extends Error {
   }
 }
 
-export type ResolvedLocation = PostcodeLocation & {
-  label: string;
-};
-
-export type LocationRepository = {
-  findByPostcode(postcode: string): Promise<PostcodeLocation | null>;
-  findBySuburb(suburb: string): Promise<PostcodeLocation[]>;
-};
-
+/**
+ * Dynamically loads the default postcode repository implementation.
+ *
+ * @returns A promise resolving to a `LocationRepository` instance.
+ */
 async function loadDefaultRepository(): Promise<LocationRepository> {
   const repository = await import("@/server/repositories/postcode.repository");
 
@@ -34,6 +40,12 @@ async function loadDefaultRepository(): Promise<LocationRepository> {
   };
 }
 
+/**
+ * Augments a `PostcodeLocation` with a human-readable display label.
+ *
+ * @param location - The postcode location record.
+ * @returns A `ResolvedLocation` object with `label`.
+ */
 function withLabel(location: PostcodeLocation): ResolvedLocation {
   return {
     ...location,
@@ -41,6 +53,14 @@ function withLabel(location: PostcodeLocation): ResolvedLocation {
   };
 }
 
+/**
+ * Resolves a raw location string (postcode or suburb name) into a single, unambiguous `ResolvedLocation`.
+ *
+ * @param input - The raw location input from the user.
+ * @param repository - Optional repository instance for dependency injection in tests.
+ * @returns A promise resolving to the unambiguous `ResolvedLocation`.
+ * @throws {LocationResolutionError} If input is invalid (`INVALID_INPUT`), not found (`LOCATION_NOT_FOUND`), or matches multiple suburbs (`AMBIGUOUS_LOCATION`).
+ */
 export async function resolveRecommendationLocation(
   input: string,
   repository?: LocationRepository,

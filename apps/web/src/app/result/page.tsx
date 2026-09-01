@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { Suspense } from "react"
-import { ResultSection } from "@/components/home/result-section"
+import { ResultSection } from "@/components/result"
 
 export const metadata: Metadata = {
   title: "Boredom Buster - Activity Result",

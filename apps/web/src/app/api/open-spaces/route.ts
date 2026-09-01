@@ -1,13 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
+import { openSpaceQuerySchema } from "@/server/schemas/open-space.schema";
 import { getAllOpenSpaces } from "@/server/services/open-space.service";
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
 
-    const category = searchParams.get("category") ?? undefined;
+    const result = openSpaceQuerySchema.safeParse({
+      category: searchParams.get("category") ?? undefined,
+    });
 
-    const openSpaces = await getAllOpenSpaces(category);
+    if (!result.success) {
+      return NextResponse.json(
+        { error: "Invalid open space category" },
+        { status: 400 },
+      );
+    }
+
+    const openSpaces = await getAllOpenSpaces(result.data.category);
 
     return NextResponse.json(openSpaces);
   } catch (error) {

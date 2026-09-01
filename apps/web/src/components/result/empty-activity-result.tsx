@@ -11,7 +11,7 @@ type EmptyActivityResultProps = {
 const DEFAULT_DESCRIPTION =
   "We couldn't find anything matching that age range, time window, and location. Try widening your search."
 
-function EmptyActivityResult({
+export function EmptyActivityResult({
   description = DEFAULT_DESCRIPTION,
   onAdjustFilters,
   onBackToSearch,
@@ -63,4 +63,4 @@ function EmptyActivityResult({
   )
 }
 
-export { EmptyActivityResult, type EmptyActivityResultProps }
+export type { EmptyActivityResultProps }

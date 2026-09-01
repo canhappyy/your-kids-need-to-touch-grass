@@ -1,42 +1,24 @@
 import pool from "@/lib/db";
 import type {
   AgeBand,
-  MissionType,
-  RecommendationVenue,
+  FallbackRecommendationQuery,
+  RecommendationCandidate,
+  RecommendationQuery,
   SupervisionLevel,
 } from "@/types/recommendation";
 
-export type RecommendationCandidate = {
-  missionId: string;
-  title: string;
-  description: string | null;
-  equipmentNeeded: string | null;
-  instructionText: string | null;
-  durationMinutes: number;
-  missionType: MissionType;
-  ageBands: AgeBand[];
-  supervisionLevel: SupervisionLevel;
-  venue: RecommendationVenue | null;
-};
-
-export type RecommendationQuery = {
-  latitude: number;
-  longitude: number;
-  ageMin: number;
-  ageMax: number;
-  durationMinutes: number;
-  excludeMissionIds?: string[];
-  missionId?: string;
-};
-
-export type FallbackRecommendationQuery = Omit<
+export type {
+  FallbackRecommendationQuery,
+  RecommendationCandidate,
   RecommendationQuery,
-  "latitude" | "longitude"
-> & {
-  missionTypes: Array<"Home-Based" | "Location-Agnostic">;
-  equipmentRequiredTag?: "None";
 };
 
+/**
+ * Maps a database row into a `RecommendationCandidate` with venue information.
+ *
+ * @param row - Raw query row from location-based query.
+ * @returns Structured `RecommendationCandidate` with populated venue.
+ */
 function mapLocationCandidate(
   row: Record<string, unknown>,
 ): RecommendationCandidate {
@@ -63,6 +45,12 @@ function mapLocationCandidate(
   };
 }
 
+/**
+ * Maps a database row into a `RecommendationCandidate` without venue information.
+ *
+ * @param row - Raw query row from fallback query.
+ * @returns Structured `RecommendationCandidate` with `venue: null`.
+ */
 function mapFallbackCandidate(
   row: Record<string, unknown>,
 ): RecommendationCandidate {
@@ -75,15 +63,19 @@ function mapFallbackCandidate(
     instructionText:
       row.instruction_text === null ? null : String(row.instruction_text),
     durationMinutes: Number(row.duration_minutes),
-    missionType: String(row.mission_type) as
-      | "Home-Based"
-      | "Location-Agnostic",
+    missionType: String(row.mission_type) as "Home-Based" | "Location-Agnostic",
     ageBands: mapAgeBands(row),
     supervisionLevel: String(row.supervision_level) as SupervisionLevel,
     venue: null,
   };
 }
 
+/**
+ * Maps age flags ('Y' / 'N') from database columns to `AgeBand` array.
+ *
+ * @param row - Raw database row containing age flags.
+ * @returns Array of applicable `AgeBand` values ("5-7", "8-9", "10-12").
+ */
 function mapAgeBands(row: Record<string, unknown>): AgeBand[] {
   const ageBands: AgeBand[] = [];
 
@@ -94,6 +86,12 @@ function mapAgeBands(row: Record<string, unknown>): AgeBand[] {
   return ageBands;
 }
 
+/**
+ * Searches for a location-based activity candidate within 10km of coordinates matching age and duration.
+ *
+ * @param input - The recommendation search criteria including coordinates, age bounds, and duration.
+ * @returns A promise resolving to the closest matching `RecommendationCandidate`, or `null` if none found.
+ */
 export async function findLocationBasedRecommendation(
   input: RecommendationQuery,
 ): Promise<RecommendationCandidate | null> {
@@ -182,6 +180,12 @@ export async function findLocationBasedRecommendation(
   return result.rows[0] ? mapLocationCandidate(result.rows[0]) : null;
 }
 
+/**
+ * Searches for a home-based or location-agnostic activity candidate matching age and duration criteria.
+ *
+ * @param input - Fallback recommendation search criteria.
+ * @returns A promise resolving to a matching `RecommendationCandidate`, or `null` if none found.
+ */
 export async function findFallbackRecommendation(
   input: FallbackRecommendationQuery,
 ): Promise<RecommendationCandidate | null> {

@@ -40,11 +40,21 @@ describe("POST /api/postcodes/nearest", () => {
     })
   })
 
+  it("accepts coordinates at their boundaries", async () => {
+    getNearestPostcode.mockResolvedValue(null)
+
+    const response = await POST(request({ latitude: 90, longitude: -180 }))
+
+    expect(response.status).toBe(404)
+    expect(getNearestPostcode).toHaveBeenCalledWith(90, -180)
+  })
+
   it.each([
     null,
     { latitude: "-37.91", longitude: 145.13 },
     { latitude: 91, longitude: 145.13 },
     { latitude: -37.91, longitude: 181 },
+    { latitude: -37.91, longitude: 145.13, unexpected: true },
   ])("returns 400 for invalid coordinates", async (body) => {
     const response = await POST(request(body))
 

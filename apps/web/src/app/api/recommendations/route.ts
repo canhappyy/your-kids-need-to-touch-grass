@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { LocationResolutionError } from "@/server/services/location.service";
+import { recommendationQuerySchema } from "@/server/schemas/recommendation.schema";
 import {
   getRecommendation,
   type RecommendationInput,
@@ -40,62 +41,20 @@ function errorResponse(
   });
 }
 
-function parseInteger(value: string | null): number | null {
-  if (!value || !/^\d+$/.test(value)) {
-    return null;
-  }
-
-  const parsed = Number(value);
-
-  return Number.isSafeInteger(parsed) ? parsed : null;
-}
-
 export function parseRecommendationQuery(
   searchParams: URLSearchParams,
 ): RecommendationInput | null {
-  const locationMode = searchParams.get("locationMode") ?? "nearby";
-  const location = searchParams.get("location")?.trim() ?? "";
-  const ageMin = parseInteger(searchParams.get("ageMin"));
-  const ageMax = parseInteger(searchParams.get("ageMax"));
-  const durationMinutes = parseInteger(searchParams.get("durationMinutes"));
-  const excludeMissionIds = [
-    ...new Set(
-      searchParams
-        .getAll("excludeMissionId")
-        .map((missionId) => missionId.trim())
-        .filter(Boolean),
-    ),
-  ];
-  const missionId = searchParams.get("missionId")?.trim() || undefined;
+  const result = recommendationQuerySchema.safeParse({
+    locationMode: searchParams.get("locationMode") ?? "nearby",
+    location: searchParams.get("location") ?? undefined,
+    ageMin: searchParams.get("ageMin"),
+    ageMax: searchParams.get("ageMax"),
+    durationMinutes: searchParams.get("durationMinutes"),
+    excludeMissionIds: searchParams.getAll("excludeMissionId"),
+    missionId: searchParams.get("missionId") ?? undefined,
+  });
 
-  if (
-    (locationMode !== "nearby" && locationMode !== "home") ||
-    (locationMode === "nearby" && (!location || location.length > 100)) ||
-    ageMin === null ||
-    ageMax === null ||
-    ageMin < 5 ||
-    ageMax > 12 ||
-    ageMin > ageMax ||
-    durationMinutes === null ||
-    durationMinutes < 5 ||
-    durationMinutes > 775 ||
-    durationMinutes % 5 !== 0 ||
-    Boolean(missionId && excludeMissionIds.length)
-  ) {
-    return null;
-  }
-
-  const commonInput = {
-    ageMin,
-    ageMax,
-    durationMinutes,
-    ...(excludeMissionIds.length ? { excludeMissionIds } : {}),
-    ...(missionId ? { missionId } : {}),
-  };
-
-  return locationMode === "home"
-    ? { ...commonInput, locationMode }
-    : { ...commonInput, locationMode, location };
+  return result.success ? result.data : null;
 }
 
 export async function GET(request: Request) {
