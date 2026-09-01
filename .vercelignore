@@ -1,0 +1,29 @@
+# Local environment files
+.env.local
+
+# Local database / Docker
+docker-compose.yml
+database/
+
+# data pipeline files
+pipeline/
+
+# Python cache / virtual environments
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Local tooling / IDE
+.vscode/
+.idea/
+.DS_Store
+
+# Test / coverage artifacts
+coverage/
+test-results/
+playwright-report/
+
+# Misc local artifacts
+*.log
+*.tmp
