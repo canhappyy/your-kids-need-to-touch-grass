@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 
-import { ActivityResult } from "./activity-result"
+import { ActivityResult } from "@/components/result"
 import { EmptyActivityResult } from "./empty-activity-result"
 import { Button } from "@/components/ui/button"
 import type {
