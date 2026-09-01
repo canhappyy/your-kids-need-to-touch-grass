@@ -7,16 +7,6 @@ import {
 const MAX_GPS_POSTCODE_DISTANCE_KM = 50;
 
 /**
- * Validates whether a given string is a valid Australian 4-digit postcode.
- *
- * @param postcode - The postcode string to test.
- * @returns `true` if postcode matches exactly 4 digits, otherwise `false`.
- */
-export function isValidPostcode(postcode: string) {
-  return /^\d{4}$/.test(postcode);
-}
-
-/**
  * Retrieves postcode details including coordinates and suburbs.
  *
  * @param postcode - The 4-digit postcode string.

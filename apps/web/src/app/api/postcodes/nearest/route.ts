@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { nearestPostcodeBodySchema } from "@/server/schemas/postcode.schema";
 import { getNearestPostcode } from "@/server/services/postcode.service";
 
 export const runtime = "nodejs";
@@ -15,24 +16,12 @@ function errorResponse(status: number, code: ErrorCode, message: string) {
   );
 }
 
-function isValidCoordinate(
-  value: unknown,
-  minimum: number,
-  maximum: number,
-): value is number {
-  return (
-    typeof value === "number" &&
-    Number.isFinite(value) &&
-    value >= minimum &&
-    value <= maximum
-  );
-}
-
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as unknown;
+    const result = nearestPostcodeBodySchema.safeParse(body);
 
-    if (!body || typeof body !== "object" || Array.isArray(body)) {
+    if (!result.success) {
       return errorResponse(
         400,
         "INVALID_INPUT",
@@ -40,18 +29,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { latitude, longitude } = body as Record<string, unknown>;
-
-    if (
-      !isValidCoordinate(latitude, -90, 90) ||
-      !isValidCoordinate(longitude, -180, 180)
-    ) {
-      return errorResponse(
-        400,
-        "INVALID_INPUT",
-        "Valid latitude and longitude are required.",
-      );
-    }
+    const { latitude, longitude } = result.data;
 
     const postcode = await getNearestPostcode(latitude, longitude);
 

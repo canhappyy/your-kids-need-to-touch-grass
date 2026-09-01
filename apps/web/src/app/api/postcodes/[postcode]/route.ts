@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
-import {
-  getPostcode,
-  isValidPostcode,
-} from "@/server/services/postcode.service";
+import { postcodeParamsSchema } from "@/server/schemas/postcode.schema";
+import { getPostcode } from "@/server/services/postcode.service";
 
 type RouteContext = {
   params: Promise<{
@@ -12,9 +10,9 @@ type RouteContext = {
 
 export async function GET(request: Request, context: RouteContext) {
   try {
-    const { postcode } = await context.params;
+    const params = postcodeParamsSchema.safeParse(await context.params);
 
-    if (!isValidPostcode(postcode)) {
+    if (!params.success) {
       return NextResponse.json(
         {
           error: "Postcode must contain exactly 4 digits",
@@ -25,7 +23,7 @@ export async function GET(request: Request, context: RouteContext) {
       );
     }
 
-    const result = await getPostcode(postcode);
+    const result = await getPostcode(params.data.postcode);
 
     if (!result) {
       return NextResponse.json(
