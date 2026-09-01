@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { activityParamsSchema } from "@/server/schemas/activity.schema";
 import { getActivityById } from "@/server/services/activity.service";
 
 type RouteContext = {
@@ -9,9 +10,16 @@ type RouteContext = {
 
 export async function GET(request: Request, context: RouteContext) {
   try {
-    const { missionId } = await context.params;
+    const result = activityParamsSchema.safeParse(await context.params);
 
-    const activity = await getActivityById(missionId);
+    if (!result.success) {
+      return NextResponse.json(
+        { error: "Mission ID must contain 1 to 50 characters" },
+        { status: 400 },
+      );
+    }
+
+    const activity = await getActivityById(result.data.missionId);
 
     if (!activity) {
       return NextResponse.json(
