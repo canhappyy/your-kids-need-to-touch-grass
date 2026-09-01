@@ -72,6 +72,20 @@ describe("GET /api/recommendations", () => {
     });
   });
 
+  it("ignores an irrelevant location in home mode", async () => {
+    const response = await GET(
+      request({ locationMode: "home", location: "a".repeat(101) }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(getRecommendation).toHaveBeenCalledWith({
+      locationMode: "home",
+      ageMin: 6,
+      ageMax: 10,
+      durationMinutes: 120,
+    });
+  });
+
   it("normalizes repeated exclusions and rejects replay with exclusions", async () => {
     const repeatedParams = new URLSearchParams(validQuery);
     repeatedParams.append("excludeMissionId", "MIS-001");
@@ -105,6 +119,21 @@ describe("GET /api/recommendations", () => {
     });
   });
 
+  it("rejects more than ten mission exclusions", async () => {
+    const params = new URLSearchParams(validQuery);
+
+    for (let index = 1; index <= 11; index += 1) {
+      params.append("excludeMissionId", `MIS-${String(index).padStart(3, "0")}`);
+    }
+
+    const response = await GET(
+      new Request(`http://localhost/api/recommendations?${params}`),
+    );
+
+    expect(response.status).toBe(400);
+    expect(getRecommendation).not.toHaveBeenCalled();
+  });
+
   it.each([
     ["missing location", { location: null }],
     ["blank location", { location: " " }],
@@ -117,6 +146,7 @@ describe("GET /api/recommendations", () => {
     ["long duration", { durationMinutes: "780" }],
     ["duration step", { durationMinutes: "12" }],
     ["invalid location mode", { locationMode: "somewhere" }],
+    ["long mission ID", { missionId: "a".repeat(51) }],
   ])("returns 400 for %s", async (_name, overrides) => {
     const response = await GET(request(overrides));
 
