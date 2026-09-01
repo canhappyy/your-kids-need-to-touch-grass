@@ -1,12 +1,11 @@
-import type { PostcodeLocation } from "@/server/repositories/postcode.repository";
+import type {
+  LocationErrorCode,
+  LocationRepository,
+  PostcodeLocation,
+  ResolvedLocation,
+} from "@/types/location";
 
-/**
- * Valid error codes representing location resolution failures.
- */
-type LocationErrorCode =
-  | "INVALID_INPUT"
-  | "LOCATION_NOT_FOUND"
-  | "AMBIGUOUS_LOCATION";
+export type { LocationErrorCode, LocationRepository, ResolvedLocation };
 
 /**
  * Custom error thrown when a user-provided location string cannot be resolved unambiguously.
@@ -26,24 +25,6 @@ export class LocationResolutionError extends Error {
     this.name = "LocationResolutionError";
   }
 }
-
-/**
- * A resolved geographical location containing coordinates, postcode, and a formatted display label.
- */
-export type ResolvedLocation = PostcodeLocation & {
-  /** Formatted human-readable label combining suburbs and postcode. */
-  label: string;
-};
-
-/**
- * Repository interface for resolving location information by postcode or suburb.
- */
-export type LocationRepository = {
-  /** Finds a postcode location by its 4-digit postcode. */
-  findByPostcode(postcode: string): Promise<PostcodeLocation | null>;
-  /** Finds postcode locations by matching suburb name. */
-  findBySuburb(suburb: string): Promise<PostcodeLocation[]>;
-};
 
 /**
  * Dynamically loads the default postcode repository implementation.

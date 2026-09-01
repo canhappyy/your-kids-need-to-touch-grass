@@ -1,18 +1,7 @@
 import pool from "@/lib/db";
+import type { PostcodeLocation } from "@/types/location";
 
-/**
- * Represents a geographical postcode location with coordinates and associated suburb names.
- */
-export type PostcodeLocation = {
-  /** The 4-digit postcode string. */
-  postcode: string;
-  /** Latitude coordinate. */
-  latitude: number;
-  /** Longitude coordinate. */
-  longitude: number;
-  /** Comma-separated list of suburb names belonging to this postcode. */
-  suburbs: string;
-};
+export type { PostcodeLocation };
 
 /**
  * Maps a raw database row into a structured `PostcodeLocation` object.

@@ -79,7 +79,7 @@ export async function findActivityById(missionId: string) {
 
     GROUP BY a.mission_id;
     `,
-    [missionId]
+    [missionId],
   );
 
   return result.rows[0] ?? null;

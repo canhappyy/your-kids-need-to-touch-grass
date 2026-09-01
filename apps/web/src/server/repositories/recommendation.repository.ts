@@ -115,9 +115,7 @@ function mapFallbackCandidate(
     instructionText:
       row.instruction_text === null ? null : String(row.instruction_text),
     durationMinutes: Number(row.duration_minutes),
-    missionType: String(row.mission_type) as
-      | "Home-Based"
-      | "Location-Agnostic",
+    missionType: String(row.mission_type) as "Home-Based" | "Location-Agnostic",
     ageBands: mapAgeBands(row),
     supervisionLevel: String(row.supervision_level) as SupervisionLevel,
     venue: null,

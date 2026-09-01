@@ -3,7 +3,7 @@ import type {
   RecommendationCandidate,
   RecommendationQuery,
 } from "@/server/repositories/recommendation.repository";
-import type { ResolvedLocation } from "@/server/services/location.service";
+import type { ResolvedLocation } from "@/types/location";
 import type { MatchReason, Recommendation } from "@/types/recommendation";
 
 /**
