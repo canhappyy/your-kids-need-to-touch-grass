@@ -1,10 +1,11 @@
+import type { ResolvedLocation } from "@/types/location";
 import type {
   FallbackRecommendationQuery,
+  MatchReason,
+  Recommendation,
   RecommendationCandidate,
   RecommendationQuery,
-} from "@/server/repositories/recommendation.repository";
-import type { ResolvedLocation } from "@/types/location";
-import type { MatchReason, Recommendation } from "@/types/recommendation";
+} from "@/types/recommendation";
 
 /**
  * Base input parameters shared across all recommendation requests.
