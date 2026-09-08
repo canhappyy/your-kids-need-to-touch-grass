@@ -135,3 +135,28 @@ export type RecommendationResponse = {
   /** The recommendation object, or null if no matching activities were found. */
   recommendation: Recommendation | null;
 };
+
+/**
+ * Base input parameters shared across all recommendation requests.
+ */
+export type RecommendationInputBase = {
+  /** Minimum child age in years. */
+  ageMin: number;
+  /** Maximum child age in years. */
+  ageMax: number;
+  /** Available duration in minutes. */
+  durationMinutes: number;
+  /** Optional array of mission IDs to exclude from results. */
+  excludeMissionIds?: string[];
+  /** Optional specific mission ID to fetch. */
+  missionId?: string;
+};
+
+/**
+ * Discriminative union input for recommendation generation based on location mode.
+ */
+export type RecommendationInput = RecommendationInputBase &
+  (
+    | { locationMode: "nearby"; location: string }
+    | { locationMode: "home"; location?: never }
+  );
