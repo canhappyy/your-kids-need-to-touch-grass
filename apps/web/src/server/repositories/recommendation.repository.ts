@@ -89,6 +89,36 @@ function mapAgeBands(row: Record<string, unknown>): AgeBand[] {
 /**
  * Searches for a location-based activity candidate within 10km of coordinates matching age and duration.
  *
+ * How this query works:
+ * 1. Great-Circle Distance Calculation (`WITH open_space_distances AS MATERIALIZED (...)`):
+ *    Calculates distance in kilometers from the user's coordinates (`$1`, `$2`) to every
+ *    open space using PostgreSQL's `earthdistance` extension (`earth_distance` with `ll_to_earth`),
+ *    divided by 1000.0 to convert metres to kilometres. `MATERIALIZED` ensures distance calculations
+ *    are computed efficiently in a single pass.
+ *
+ * 2. Activity & Venue Matching (`INNER JOIN ...`):
+ *    Pairs activities with nearby open spaces through two possible paths:
+ *    - Direct venue reference (`alc.open_space_ref_id = os.open_space_id`), or
+ *    - Category match (`alc.category_name = os.category`, e.g. "Park", "Playground", "Oval").
+ *
+ * 3. Candidate Filtering (`WHERE ...`):
+ *    - Enforces `mission_type = 'Location-Based'`.
+ *    - Verifies the activity fits within available time (`duration_minutes <= $5`).
+ *    - Restricts venues to within 10 km (`distance_km <= 10`).
+ *    - Checks age band overlap: ensures the user's child age range (`[$3, $4]`) intersects with
+ *      at least one enabled age band (`age_5_7`, `age_8_9`, or `age_10_12`).
+ *    - Optionally filters for a specific mission (`$7`) if provided.
+ *
+ * 4. Closest Venue Per Mission (`SELECT DISTINCT ON (a.mission_id)`):
+ *    Because an activity might match dozens of nearby parks, `DISTINCT ON (a.mission_id)` paired with
+ *    `ORDER BY a.mission_id, os.distance_km` retains only the single closest venue for each eligible activity.
+ *
+ * 5. Soft Exclusion & Randomisation (`ORDER BY CASE ... random() LIMIT 1`):
+ *    - Soft-excludes previously seen missions (`excludeMissionIds`, `$6`) by placing them last,
+ *      ensuring users still get results even if all eligible activities have been seen.
+ *    - Uses `random()` to select unpredictably among eligible candidates for varied recommendations.
+ *    - `LIMIT 1` returns the single chosen recommendation candidate.
+ *
  * @param input - The recommendation search criteria including coordinates, age bounds, and duration.
  * @returns A promise resolving to the closest matching `RecommendationCandidate`, or `null` if none found.
  */
@@ -104,17 +134,10 @@ export async function findLocationBasedRecommendation(
         os.latitude,
         os.longitude,
         os.category,
-        6371 * acos(
-          LEAST(
-            1,
-            GREATEST(
-              -1,
-              cos(radians($1)) * cos(radians(os.latitude))
-                * cos(radians(os.longitude) - radians($2))
-              + sin(radians($1)) * sin(radians(os.latitude))
-            )
-          )
-        ) AS distance_km
+        earth_distance(
+          ll_to_earth($1, $2),
+          ll_to_earth(os.latitude, os.longitude)
+        ) / 1000.0 AS distance_km
       FROM open_space AS os
     ),
     nearest_per_mission AS (
@@ -182,6 +205,29 @@ export async function findLocationBasedRecommendation(
 
 /**
  * Searches for a home-based or location-agnostic activity candidate matching age and duration criteria.
+ *
+ * How this query works:
+ * 1. Activity Field Selection (`SELECT ... FROM activity`):
+ *    Retrieves core activity details (title, description, instructions, duration, age flags,
+ *    supervision level) directly from the `activity` table without requiring venue joins.
+ *
+ * 2. Multi-Criteria Filtering (`WHERE ...`):
+ *    - Mission Types (`mission_type = ANY($5::text[])`): Restricts results to the allowed mission types
+ *      (e.g., `'Home-Based'`, `'Location-Agnostic'`).
+ *    - Optional Target Mission (`$6`): Matches a specific `mission_id` if provided, otherwise ignored.
+ *    - Equipment Filter (`$7`): Optionally matches on `equipment_required_tag` (e.g., `'No equipment'`).
+ *    - Duration Cap (`duration_minutes <= $3`): Filters for activities that fit within the available time.
+ *    - Age Band Overlap: Verifies the child's age range (`[$1, $2]`) intersects with at least
+ *      one enabled age band (`age_5_7`, `age_8_9`, or `age_10_12`).
+ *
+ * 3. Soft Exclusion & Randomisation (`ORDER BY CASE ... random() LIMIT 1`):
+ *    - Soft-excludes previously seen missions (`excludeMissionIds`, `$4`) by placing them last,
+ *      guaranteeing users still receive a suggestion if all eligible activities have been seen.
+ *    - Uses `random()` to pick unpredictably among top candidates for recommendation variety.
+ *    - `LIMIT 1` returns the single winning candidate.
+ *
+ * 4. Data Mapping (`mapFallbackCandidate`):
+ *    Transforms the database row into a `RecommendationCandidate` with `venue: null`.
  *
  * @param input - Fallback recommendation search criteria.
  * @returns A promise resolving to a matching `RecommendationCandidate`, or `null` if none found.
