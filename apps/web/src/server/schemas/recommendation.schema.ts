@@ -1,13 +1,43 @@
 import { z } from "zod";
 
+/**
+ * Parses and validates a numeric query parameter string into a safe integer.
+ */
 const integerString = z
   .string()
   .regex(/^\d+$/)
   .transform(Number)
   .pipe(z.number().int().safe());
 
+/**
+ * Validates a single mission identifier string (1 to 50 characters).
+ */
 const missionId = z.string().trim().min(1).max(50);
 
+/**
+ * Validates and transforms query parameters for the activity recommendation endpoint (`GET /api/recommendations`).
+ *
+ * Validation rules:
+ * 1. Mode and Location (`locationMode` & `location`):
+ *    - `locationMode`: must be either `"nearby"` (venue/park-based) or `"home"` (indoor/home-based).
+ *    - `location`: optional trimmed string; required (1 to 100 characters) when `locationMode` is `"nearby"`.
+ *
+ * 2. Age Bounds (`ageMin` & `ageMax`):
+ *    - Accepts numeric strings between 5 and 12.
+ *    - Cross-field validation: `ageMin` cannot be greater than `ageMax`.
+ *
+ * 3. Duration (`durationMinutes`):
+ *    - Accepts numeric strings between 5 and 775 minutes, must be an interval of 5.
+ *
+ * 4. Mission Exclusions & Replay (`excludeMissionIds` & `missionId`):
+ *    - `excludeMissionIds`: array of up to 10 previously seen mission IDs.
+ *    - `missionId`: optional target mission ID to replay.
+ *    - Cross-field validation: replay of a specific `missionId` cannot be combined with exclusions.
+ *
+ * Transformations:
+ * 1. Deduplication: removes any duplicate IDs from `excludeMissionIds`.
+ * 2. Discriminated output: guarantees `location` is present when `locationMode` is `"nearby"`, and omits it for `"home"`.
+ */
 export const recommendationQuerySchema = z
   .object({
     locationMode: z.enum(["nearby", "home"]),
