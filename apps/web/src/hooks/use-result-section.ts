@@ -18,6 +18,39 @@ import type {
   ResultSearchParams,
 } from "@/types/result"
 
+/**
+ * Custom hook that powers the activity result page, handling recommendation fetching,
+ * activity swapping (rerolls), browser URL synchronization, and error handling.
+ *
+ * How this hook works:
+ * 1. URL State Parsing & Validation:
+ *    Extracts search criteria from the URL query parameters (location, age bounds, duration,
+ *    replay mission ID, and swap counts). If in `"nearby"` mode without a location,
+ *    it redirects immediately to the home search page.
+ *
+ * 2. Recommendation Fetching (`requestRecommendation`):
+ *    - Calls the `/api/recommendations` endpoint with active search criteria.
+ *    - AbortController integration cancels in-flight requests when the component unmounts or parameters change.
+ *    - Automatically redirects back to the search page with error flags if the location is invalid or ambiguous.
+ *
+ * 3. Initial Load & Shareable URL Generation:
+ *    Loads the initial recommendation and updates the browser URL via `history.replaceState`
+ *    with `missionId` and `swapsUsed=0` so the result can be bookmarked or shared directly.
+ *
+ * 4. Activity Swapping (`handleTryAnother`):
+ *    - Allows users to swap activities up to `MAX_SWAPS` (2 times).
+ *    - Sends all previously viewed `shownMissionIds` as exclusions to prevent immediate repeats.
+ *    - Guard checks prevent race conditions if multiple swaps are triggered concurrently.
+ *    - Pushes a new entry to browser history (`history.pushState`) with updated swap counts.
+ *
+ * 5. Recovery & Navigation:
+ *    - `handleTryAgain`: Re-attempts loading if a transient network failure occurred.
+ *    - `handleAdjustFilters`: Returns the user to the search page with their existing filter inputs intact.
+ *    - `handleBackToSearch`: Returns to a fresh search page.
+ *
+ * @returns An object containing the current `recommendation`, loading and error states,
+ *          swaps remaining, and navigation / action handlers.
+ */
 export function useResultSection() {
   const router = useRouter()
   const searchParams = useSearchParams()

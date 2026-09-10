@@ -2,10 +2,8 @@ import { NextResponse } from "next/server";
 
 import { LocationResolutionError } from "@/server/services/location.service";
 import { recommendationQuerySchema } from "@/server/schemas/recommendation.schema";
-import {
-  getRecommendation,
-  type RecommendationInput,
-} from "@/server/services/recommendation.service";
+import { getRecommendation } from "@/server/services/recommendation.service";
+import type { RecommendationInput } from "@/types/recommendation";
 
 export const runtime = "nodejs";
 
