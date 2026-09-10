@@ -13,6 +13,32 @@ import type {
   LocationMode,
 } from "@/types/home-search";
 
+/**
+ * Custom hook that manages all state, validation, and geolocation logic for the home activity search form.
+ *
+ * How this hook works:
+ * 1. Form State Management:
+ *    Initializes and tracks state for location mode (nearby vs home), location text,
+ *    target age range, available time (hours and minutes), and validation errors.
+ *
+ * 2. Browser Geolocation & Reverse Geocoding (`handleUseMyLocation`):
+ *    - Requests current GPS coordinates using the browser's `navigator.geolocation` API.
+ *    - Calls `fetchNearestPostcode` to resolve GPS coordinates into the closest Victoria postcode.
+ *    - Automatically updates the location field and provides status feedback if successful.
+ *    - Gracefully falls back to manual postcode input and auto-focuses the text field if GPS is denied or fails.
+ *
+ * 3. Reactive Field Handlers:
+ *    Provides stable `useCallback` handlers for all form inputs (mode toggle, location text,
+ *    age slider, hours, and minutes) that automatically clear relevant error messages when modified.
+ *
+ * 4. Client-Side Validation & Submission (`handleSubmit`):
+ *    - Validates that total duration is greater than 0 minutes.
+ *    - Validates that a non-empty location is provided when in `"nearby"` mode.
+ *    - If valid, invokes `onValidSubmit` with trimmed and normalized search criteria (omitting location when in `"home"` mode).
+ *
+ * @param props - Configuration props including `initialValues`, `initialLocationError`, and the `onValidSubmit` callback.
+ * @returns An object containing all form values, field change handlers, validation errors, and GPS state.
+ */
 export function useHomeSearchForm({
   initialValues = defaultHomeSearchValues,
   initialLocationError = "",
