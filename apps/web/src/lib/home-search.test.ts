@@ -24,7 +24,7 @@ describe("home-search lib utilities", () => {
 
     it("has valid default values", () => {
       expect(defaultHomeSearchValues).toEqual({
-        ageRange: [6, 10],
+        ageRange: [7, 9],
         hours: 2,
         location: "",
         locationMode: "nearby",

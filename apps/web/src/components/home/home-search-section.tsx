@@ -26,8 +26,8 @@ export function HomeSearchSection() {
         : ("nearby" as LocationMode),
     location: searchParams.get("location") || "",
     ageRange: [
-      getNumberParam("ageMin", 6),
-      getNumberParam("ageMax", 10),
+      getNumberParam("ageMin", 7),
+      getNumberParam("ageMax", 9),
     ],
     hours: getNumberParam("hours", 2),
     minutes: getNumberParam("minutes", 0),

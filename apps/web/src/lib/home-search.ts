@@ -19,7 +19,7 @@ export const minuteOptions = Array.from({ length: 12 }, (_, index) => {
 })
 
 export const defaultHomeSearchValues: HomeSearchValues = {
-  ageRange: [6, 10],
+  ageRange: [7, 9],
   hours: 2,
   location: "",
   locationMode: "nearby",
