@@ -50,7 +50,7 @@ export function EmptyActivityResult({
           Adjust Filters
         </Button>
         <Button
-          className="h-16 w-full rounded-full border-zinc-300 bg-white px-6 text-lg font-bold text-zinc-900 hover:bg-zinc-50 focus-visible:border-[#E4633C] focus-visible:ring-[#E4633C]/20"
+          className="h-16 w-full rounded-full border-[#93AB63] bg-white px-6 text-lg font-bold text-[#93AB63] hover:bg-zinc-50 hover:text-[#93AB63] focus-visible:border-[#93AB63] focus-visible:ring-[#93AB63]/20"
           onClick={onBackToSearch}
           size="lg"
           type="button"

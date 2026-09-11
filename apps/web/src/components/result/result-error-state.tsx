@@ -25,7 +25,7 @@ export function ResultErrorState({
         Try Again
       </Button>
       <Button
-        className="mt-3 h-14 w-full rounded-full"
+        className="mt-3 h-14 w-full rounded-full border-[#93AB63] bg-white text-base font-bold text-[#93AB63] hover:bg-zinc-50 hover:text-[#93AB63] focus-visible:border-[#93AB63] focus-visible:ring-[#93AB63]/20"
         onClick={onBackToSearch}
         type="button"
         variant="outline"

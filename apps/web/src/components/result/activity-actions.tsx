@@ -33,7 +33,7 @@ export function ActivityActions({
         </a>
       )}
       <Button
-        className="h-12 w-full rounded-full border-zinc-300 bg-white px-6 text-base font-bold text-zinc-900 hover:bg-zinc-50 focus-visible:border-[#E4633C] focus-visible:ring-[#E4633C]/20"
+        className="h-12 w-full rounded-full border-[#93AB63] bg-white px-6 text-base font-bold text-[#93AB63] hover:bg-zinc-50 hover:text-[#93AB63] focus-visible:border-[#93AB63] focus-visible:ring-[#93AB63]/20"
         disabled={isRetrying}
         onClick={onTryAnother}
         size="lg"
@@ -44,7 +44,7 @@ export function ActivityActions({
         {isRetrying ? "Finding Another…" : "Give me another"}
       </Button>
       <Button
-        className="h-12 w-full rounded-full border-zinc-300 bg-white px-6 text-base font-bold text-zinc-900 hover:bg-zinc-50 focus-visible:border-[#E4633C] focus-visible:ring-[#E4633C]/20"
+        className="h-12 w-full rounded-full border-[#93AB63] bg-white px-6 text-base font-bold text-[#93AB63] hover:bg-zinc-50 hover:text-[#93AB63] focus-visible:border-[#93AB63] focus-visible:ring-[#93AB63]/20"
         onClick={onBackToSearch}
         size="lg"
         type="button"
