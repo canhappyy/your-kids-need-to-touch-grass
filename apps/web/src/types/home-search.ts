@@ -9,6 +9,21 @@ export type LocationMode = "nearby" | "home";
 export type AgeRange = [number, number];
 
 /**
+ * Identifier for selectable age group buckets.
+ */
+export type AgeBucketId = "5-6" | "7-9" | "10-12";
+
+/**
+ * Metadata for a selectable age group bucket option.
+ */
+export type AgeBucketOption = {
+  id: AgeBucketId;
+  label: string;
+  min: number;
+  max: number;
+};
+
+/**
  * Search form field values submitted by the user on the home search page.
  */
 export type HomeSearchValues = {

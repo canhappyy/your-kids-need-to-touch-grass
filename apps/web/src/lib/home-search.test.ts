@@ -1,13 +1,35 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  calculateRangeFromBuckets,
   defaultHomeSearchValues,
+  getInitialBuckets,
   hourOptions,
   minuteOptions,
   validateSearchForm,
 } from "./home-search";
 
 describe("home-search lib utilities", () => {
+  describe("age buckets", () => {
+    it("derives initial buckets from range", () => {
+      expect(getInitialBuckets([7, 9])).toEqual(["7-9"]);
+      expect(getInitialBuckets([5, 6])).toEqual(["5-6"]);
+      expect(getInitialBuckets([10, 12])).toEqual(["10-12"]);
+      expect(getInitialBuckets([5, 9])).toEqual(["5-6", "7-9"]);
+      expect(getInitialBuckets([7, 12])).toEqual(["7-9", "10-12"]);
+      expect(getInitialBuckets([5, 12])).toEqual(["5-6", "7-9", "10-12"]);
+    });
+
+    it("calculates age range from selected bucket IDs", () => {
+      expect(calculateRangeFromBuckets(["7-9"])).toEqual([7, 9]);
+      expect(calculateRangeFromBuckets(["5-6", "7-9"])).toEqual([5, 9]);
+      expect(calculateRangeFromBuckets(["7-9", "10-12"])).toEqual([7, 12]);
+      expect(calculateRangeFromBuckets(["5-6", "10-12"])).toEqual([5, 12]);
+      expect(calculateRangeFromBuckets(["5-6", "7-9", "10-12"])).toEqual([5, 12]);
+      expect(calculateRangeFromBuckets([])).toEqual([7, 9]);
+    });
+  });
+
   describe("options", () => {
     it("generates 13 hour options from 0 to 12", () => {
       expect(hourOptions).toHaveLength(13);
