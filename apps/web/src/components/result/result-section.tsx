@@ -17,7 +17,6 @@ export function ResultSection() {
     location,
     locationMode,
     recommendation,
-    swapsRemaining,
   } = useResultSection()
 
   if (locationMode === "nearby" && !location) {
@@ -58,7 +57,6 @@ export function ResultSection() {
       onBackToSearch={handleBackToSearch}
       onTryAnother={handleTryAnother}
       recommendation={recommendation}
-      swapsRemaining={swapsRemaining}
     />
   )
 }

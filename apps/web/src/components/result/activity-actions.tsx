@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 type ActivityActionsProps = {
   directionsUrl: string | null
   isRetrying?: boolean
-  swapsRemaining: number
+  swapsRemaining?: number
   onTryAnother: () => void
   onBackToSearch: () => void
 }
@@ -14,7 +14,6 @@ type ActivityActionsProps = {
 export function ActivityActions({
   directionsUrl,
   isRetrying = false,
-  swapsRemaining,
   onTryAnother,
   onBackToSearch,
 }: ActivityActionsProps) {
@@ -34,9 +33,8 @@ export function ActivityActions({
         </a>
       )}
       <Button
-        aria-describedby="swap-status"
         className="h-12 w-full rounded-full border-zinc-300 bg-white px-6 text-base font-bold text-zinc-900 hover:bg-zinc-50 focus-visible:border-[#E4633C] focus-visible:ring-[#E4633C]/20"
-        disabled={isRetrying || swapsRemaining === 0}
+        disabled={isRetrying}
         onClick={onTryAnother}
         size="lg"
         type="button"
@@ -45,16 +43,6 @@ export function ActivityActions({
         <Dices aria-hidden="true" />
         {isRetrying ? "Finding Another…" : "Give me another"}
       </Button>
-      <p
-        aria-live="polite"
-        className="text-center text-sm text-zinc-500"
-        id="swap-status"
-        role="status"
-      >
-        {swapsRemaining === 0
-          ? "Swap limit reached."
-          : `${swapsRemaining} ${swapsRemaining === 1 ? "swap" : "swaps"} remaining`}
-      </p>
       <Button
         className="h-12 w-full rounded-full border-zinc-300 bg-white px-6 text-base font-bold text-zinc-900 hover:bg-zinc-50 focus-visible:border-[#E4633C] focus-visible:ring-[#E4633C]/20"
         onClick={onBackToSearch}

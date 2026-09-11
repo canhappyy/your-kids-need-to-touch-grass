@@ -10,7 +10,6 @@ function ActivityResult({
   isRetrying = false,
   onBackToSearch,
   onTryAnother,
-  swapsRemaining,
 }: ActivityResultProps) {
   const {
     agesLabel,
@@ -52,7 +51,6 @@ function ActivityResult({
         isRetrying={isRetrying}
         onBackToSearch={onBackToSearch}
         onTryAnother={onTryAnother}
-        swapsRemaining={swapsRemaining}
       />
     </section>
   )

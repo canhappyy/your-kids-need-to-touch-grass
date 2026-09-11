@@ -13,7 +13,7 @@ export type ActivityResultProps = {
   /** Callback to request another activity swap. */
   onTryAnother: () => void;
   /** Number of swaps remaining for this session (out of MAX_SWAPS). */
-  swapsRemaining: number;
+  swapsRemaining?: number;
 };
 
 /**
