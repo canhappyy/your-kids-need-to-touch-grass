@@ -55,7 +55,7 @@ export function HomeSearchSection() {
 
   return (
     <>
-      <header>
+      <header className="flex justify-center">
         <h1>
           <Image
             src="/playgo.svg"
