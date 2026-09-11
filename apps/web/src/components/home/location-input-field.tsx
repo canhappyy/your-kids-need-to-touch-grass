@@ -3,7 +3,7 @@ import { RefObject } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 
 type LocationInputFieldProps = {
   isLocating: boolean;
@@ -38,13 +38,15 @@ export function LocationInputField({
         {isLocating ? "Finding your location…" : "Use my location"}
       </Button>
 
-      <div className="mt-4">
-        <Label
-          className="mb-2 text-xs font-medium tracking-wide text-zinc-600 uppercase"
-          htmlFor="location"
-        >
-          Postcode
-        </Label>
+      <div aria-hidden="true" className="my-4 flex items-center gap-3">
+        <Separator className="flex-1 bg-zinc-200" />
+        <span className="text-xs font-semibold tracking-wider text-zinc-500 uppercase">
+          or
+        </span>
+        <Separator className="flex-1 bg-zinc-200" />
+      </div>
+
+      <div>
         <Input
           aria-describedby={
             locationError
