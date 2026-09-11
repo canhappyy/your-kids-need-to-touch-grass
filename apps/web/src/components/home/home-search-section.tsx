@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { useSearchParams, useRouter } from "next/navigation"
 import {
   HomeSearchForm,
@@ -55,12 +56,15 @@ export function HomeSearchSection() {
   return (
     <>
       <header>
-        <h1 className="text-3xl font-bold tracking-tight">
-          Boredom Buster
+        <h1>
+          <Image
+            src="/playgo.svg"
+            alt="PlayGo"
+            width={142}
+            height={47}
+            priority
+          />
         </h1>
-        <p className="mt-1 text-base text-zinc-500">
-          Find something fun for your child, fast.
-        </p>
       </header>
 
       <HomeSearchForm

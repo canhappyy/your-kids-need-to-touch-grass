@@ -4,3 +4,4 @@ pipeline/data/processed/*
 !pipeline/data/raw/.gitkeep
 !pipeline/data/processed/.gitkeep
 pipeline/docs/.Rhistory
+AGENTS.md
