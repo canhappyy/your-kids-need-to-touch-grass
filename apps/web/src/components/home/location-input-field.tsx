@@ -28,7 +28,7 @@ export function LocationInputField({
     <div className="mt-5">
       <Button
         aria-describedby={gpsStatus ? "location-status" : undefined}
-        className="h-[52px] w-full rounded-xl border-zinc-300 bg-white text-base font-semibold text-zinc-900 hover:bg-zinc-50 focus-visible:border-emerald-700 focus-visible:ring-emerald-600/20"
+        className="h-[52px] w-full rounded-xl border-zinc-300 bg-[#F0B6A31F] text-base font-semibold text-zinc-900 hover:bg-[#F0B6A333] focus-visible:border-emerald-700 focus-visible:ring-emerald-600/20"
         disabled={isLocating}
         onClick={onUseMyLocation}
         type="button"
@@ -55,7 +55,7 @@ export function LocationInputField({
           }
           aria-invalid={Boolean(locationError)}
           autoComplete="postal-code"
-          className="h-[52px] rounded-xl border-zinc-200 bg-zinc-50 px-4 text-base shadow-xs placeholder:text-zinc-500 focus-visible:border-emerald-600 focus-visible:ring-emerald-600/20 md:text-base"
+          className="h-[52px] rounded-xl border-zinc-200 bg-[#F0B6A31F] px-4 text-base shadow-xs placeholder:text-zinc-500 focus-visible:border-emerald-600 focus-visible:ring-emerald-600/20 md:text-base"
           id="location"
           inputMode="numeric"
           maxLength={4}
