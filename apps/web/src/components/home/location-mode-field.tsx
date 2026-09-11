@@ -27,7 +27,7 @@ export function LocationModeField({ value, onChange }: LocationModeFieldProps) {
               type="radio"
               value={mode.value}
             />
-            <span className="flex h-[52px] items-center justify-center rounded-xl border border-zinc-200 bg-[#F0B6A31F] px-4 text-sm font-semibold text-zinc-700 shadow-xs transition-colors peer-checked:border-emerald-600 peer-checked:bg-emerald-50 peer-checked:text-emerald-800 peer-focus-visible:ring-2 peer-focus-visible:ring-emerald-600/30 peer-focus-visible:ring-offset-2 hover:bg-[#F0B6A333]">
+            <span className="flex h-[52px] items-center justify-center rounded-xl border border-zinc-200 bg-[#F0B6A31F] px-4 text-sm font-semibold text-zinc-700 shadow-xs transition-colors peer-checked:border-[#E4633C] peer-checked:bg-[#E4633C] peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-[#E4633C]/30 peer-focus-visible:ring-offset-2">
               {mode.label}
             </span>
           </label>

@@ -42,7 +42,7 @@ export function TimePickerField({
             }}
             value={hours}
           >
-            <SelectTrigger className="h-[52px] w-full rounded-xl border-zinc-200 bg-[#F0B6A31F] px-4 text-base font-semibold shadow-xs focus-visible:border-emerald-600 focus-visible:ring-emerald-600/20">
+            <SelectTrigger className="h-[52px] w-full rounded-xl border-zinc-200 bg-[#F0B6A31F] px-4 text-base font-semibold shadow-xs focus-visible:border-[#E4633C] focus-visible:ring-[#E4633C]/20">
               <SelectValue />
             </SelectTrigger>
             <SelectContent align="start">
@@ -68,7 +68,7 @@ export function TimePickerField({
             }}
             value={minutes}
           >
-            <SelectTrigger className="h-[52px] w-full rounded-xl border-zinc-200 bg-[#F0B6A31F] px-4 text-base font-semibold shadow-xs focus-visible:border-emerald-600 focus-visible:ring-emerald-600/20">
+            <SelectTrigger className="h-[52px] w-full rounded-xl border-zinc-200 bg-[#F0B6A31F] px-4 text-base font-semibold shadow-xs focus-visible:border-[#E4633C] focus-visible:ring-[#E4633C]/20">
               <SelectValue />
             </SelectTrigger>
             <SelectContent align="start">

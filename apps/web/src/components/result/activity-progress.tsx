@@ -16,7 +16,7 @@ export function ActivityProgress({
     <>
       <Progress
         aria-valuetext={goalAriaText}
-        className="mt-6 gap-2 [&_[data-slot=progress-indicator]]:bg-emerald-600 [&_[data-slot=progress-track]]:h-2"
+        className="mt-6 gap-2 [&_[data-slot=progress-indicator]]:bg-[#E4633C] [&_[data-slot=progress-track]]:h-2"
         value={progressValue}
       >
         <ProgressLabel className="w-full text-center text-sm font-medium text-zinc-600">

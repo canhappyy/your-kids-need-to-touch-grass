@@ -18,7 +18,7 @@ export function ResultErrorState({
         {error}
       </p>
       <Button
-        className="mt-8 h-14 w-full rounded-full bg-emerald-600 text-base font-bold text-white hover:bg-emerald-700"
+        className="mt-8 h-14 w-full rounded-full bg-[#E4633C] text-base font-bold text-white hover:bg-[#c95330]"
         onClick={onTryAgain}
         type="button"
       >
