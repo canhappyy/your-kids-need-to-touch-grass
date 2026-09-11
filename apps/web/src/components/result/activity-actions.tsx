@@ -24,7 +24,7 @@ export function ActivityActions({
         <a
           className={cn(
             buttonVariants({ size: "lg" }),
-            "h-12 w-full rounded-full bg-[#E4633C] px-6 text-base font-bold text-white shadow-[0_10px_24px_rgba(228,99,60,0.25)] hover:bg-[#c95330] focus-visible:border-[#c95330] focus-visible:ring-[#E4633C]/30"
+            "h-12 w-full rounded-full bg-[#E4633C] px-6 text-base font-bold text-white hover:bg-[#c95330] focus-visible:border-[#c95330] focus-visible:ring-[#E4633C]/30"
           )}
           href={directionsUrl}
           rel="noopener noreferrer"

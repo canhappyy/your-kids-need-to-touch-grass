@@ -42,7 +42,7 @@ export function EmptyActivityResult({
 
       <div className="mt-auto space-y-3">
         <Button
-          className="h-16 w-full rounded-full bg-[#E4633C] px-6 text-lg font-bold text-white shadow-[0_10px_24px_rgba(228,99,60,0.25)] hover:bg-[#c95330] focus-visible:border-[#c95330] focus-visible:ring-[#E4633C]/30"
+          className="h-16 w-full rounded-full bg-[#E4633C] px-6 text-lg font-bold text-white hover:bg-[#c95330] focus-visible:border-[#c95330] focus-visible:ring-[#E4633C]/30"
           onClick={onAdjustFilters}
           size="lg"
           type="button"

@@ -55,7 +55,7 @@ export function LocationInputField({
           }
           aria-invalid={Boolean(locationError)}
           autoComplete="postal-code"
-          className="h-[52px] rounded-xl border-zinc-200 bg-[#F0B6A31F] px-4 text-base shadow-xs placeholder:text-zinc-500 focus-visible:border-[#E4633C] focus-visible:ring-[#E4633C]/20 md:text-base"
+          className="h-[52px] rounded-xl border-zinc-200 bg-[#F0B6A31F] px-4 text-base placeholder:text-zinc-500 focus-visible:border-[#E4633C] focus-visible:ring-[#E4633C]/20 md:text-base"
           id="location"
           inputMode="numeric"
           maxLength={4}
