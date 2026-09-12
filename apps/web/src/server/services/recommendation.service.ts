@@ -15,11 +15,11 @@ export type { RecommendationInput, RecommendationInputBase };
  * Repository contract required by the recommendation service.
  */
 export type RecommendationRepository = {
-  /** Finds a location-based recommendation candidate. */
+  /** Finds a location-based recommendation candidate matching spatial, age, duration, and play preference criteria. */
   findLocationBased(
     input: RecommendationQuery,
   ): Promise<RecommendationCandidate | null>;
-  /** Finds a fallback home-based or location-agnostic recommendation candidate. */
+  /** Finds a fallback home-based or location-agnostic recommendation candidate matching age, duration, and play preference criteria. */
   findFallback(
     input: FallbackRecommendationQuery,
   ): Promise<RecommendationCandidate | null>;
@@ -102,16 +102,16 @@ function buildReasons(
 }
 
 /**
- * Core recommendation engine method that matches activities based on age, time, and location.
+ * Core recommendation engine method that matches activities based on age, time, location, and play preferences.
  *
- * For "home" mode:
- * Searches for Home-Based, zero-equipment activities matching the criteria.
+ * For `"home"` mode:
+ * Searches for Home-Based, zero-equipment activities matching the age, duration, play style, and supervision criteria.
  *
  * For `"nearby"` mode:
- * Resolves location, attempts to find a location-based activity within 10km, and falls back to
+ * Resolves location, attempts to find a location-based activity within 10km matching criteria, and falls back to
  * Home-Based or Location-Agnostic activities if no nearby activity is found.
  *
- * @param input - Search criteria including age range, duration, and location mode.
+ * @param input - Search criteria including age range, duration, location mode, play style, and supervision availability.
  * @param dependencies - Optional custom dependencies for testing.
  * @returns A promise resolving to the final `Recommendation` with match reasons, or `null` if none found.
  */
@@ -126,8 +126,8 @@ export async function getRecommendation(
       ageMin: input.ageMin,
       ageMax: input.ageMax,
       durationMinutes: input.durationMinutes,
-    playStyle: input.playStyle,
-    canSupervise: input.canSupervise,
+      playStyle: input.playStyle,
+      canSupervise: input.canSupervise,
       excludeMissionIds: input.excludeMissionIds,
       missionId: input.missionId,
       missionTypes: ["Home-Based"],
@@ -146,8 +146,8 @@ export async function getRecommendation(
     ageMin: input.ageMin,
     ageMax: input.ageMax,
     durationMinutes: input.durationMinutes,
-      playStyle: input.playStyle,
-      canSupervise: input.canSupervise,
+    playStyle: input.playStyle,
+    canSupervise: input.canSupervise,
     excludeMissionIds: input.excludeMissionIds,
     missionId: input.missionId,
   });
@@ -167,8 +167,8 @@ export async function getRecommendation(
     ageMin: input.ageMin,
     ageMax: input.ageMax,
     durationMinutes: input.durationMinutes,
-      playStyle: input.playStyle,
-      canSupervise: input.canSupervise,
+    playStyle: input.playStyle,
+    canSupervise: input.canSupervise,
     excludeMissionIds: input.excludeMissionIds,
     missionId: input.missionId,
     missionTypes: ["Home-Based", "Location-Agnostic"],
