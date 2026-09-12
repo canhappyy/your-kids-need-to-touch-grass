@@ -32,7 +32,7 @@ export type HomeSearchValues = PlayPreferences & {
   locationMode: LocationMode;
   /** User-entered location (4-digit postcode or suburb name). Empty when locationMode is "home". */
   location: string;
-  /** Selected age bucket IDs (e.g. ['5-6']). Empty when no bucket is selected. */
+  /** Selected age bucket IDs (e.g. ['5-7']). Empty when no bucket is selected. */
   selectedBuckets: AgeBucketId[];
   /** Available duration hours (0-12, optional). */
   hours?: number;

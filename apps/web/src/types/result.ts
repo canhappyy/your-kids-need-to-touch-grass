@@ -19,7 +19,7 @@ export type RecommendationRequest = {
 export type ResultSearchParams = PlayPreferences & {
   /** Selected location mode ("nearby" or "home"). */
   locationMode: "nearby" | "home";
-  /** Postcode string when locationMode is "nearby". */
+  /** Postcode or suburb string when locationMode is "nearby". */
   location: string;
   /** Optional device latitude string if acquired from geolocation. */
   lat?: string;
