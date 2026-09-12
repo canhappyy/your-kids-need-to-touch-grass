@@ -42,31 +42,26 @@ export const hourOptions = Array.from({ length: 13 }, (_, hour) => ({
   value: hour,
 }));
 
-export const minuteOptions = Array.from({ length: 12 }, (_, index) => {
-  const minute = index * 5;
-
-  return {
-    label: `${minute.toString().padStart(2, "0")} min`,
-    value: minute,
-  };
-});
+export const minuteOptions = [15, 30, 45, 60, 75, 90].map((minute) => ({
+  label: `${minute} min`,
+  value: minute,
+}));
 
 export const defaultHomeSearchValues: HomeSearchValues = {
   ageRange: [7, 9],
-  hours: 2,
+  hours: 0,
   location: "",
   locationMode: "nearby",
-  minutes: 0,
+  minutes: 45,
 };
 
 /**
  * Validates the search form fields.
  */
 export function validateSearchForm(
-  values: Pick<
-    HomeSearchValues,
-    "locationMode" | "location" | "hours" | "minutes"
-  >,
+  values: Pick<HomeSearchValues, "locationMode" | "location" | "minutes"> & {
+    hours?: number;
+  },
 ): FormValidationResult {
   const trimmedLocation = values.location.trim();
   let locationError = "";
@@ -80,10 +75,8 @@ export function validateSearchForm(
     locationError = "Enter a 4-digit postcode.";
   }
 
-  const timeError =
-    values.hours === 0 && values.minutes === 0
-      ? "Choose at least 5 minutes."
-      : "";
+  const totalMinutes = (values.hours ?? 0) * 60 + values.minutes;
+  const timeError = totalMinutes < 15 ? "Choose at least 15 minutes." : "";
 
   return {
     isValid: !locationError && !timeError,

@@ -25,7 +25,9 @@ describe("home-search lib utilities", () => {
       expect(calculateRangeFromBuckets(["5-6", "7-9"])).toEqual([5, 9]);
       expect(calculateRangeFromBuckets(["7-9", "10-12"])).toEqual([7, 12]);
       expect(calculateRangeFromBuckets(["5-6", "10-12"])).toEqual([5, 12]);
-      expect(calculateRangeFromBuckets(["5-6", "7-9", "10-12"])).toEqual([5, 12]);
+      expect(calculateRangeFromBuckets(["5-6", "7-9", "10-12"])).toEqual([
+        5, 12,
+      ]);
       expect(calculateRangeFromBuckets([])).toEqual([7, 9]);
     });
   });
@@ -37,20 +39,23 @@ describe("home-search lib utilities", () => {
       expect(hourOptions[12]).toEqual({ label: "12 hr", value: 12 });
     });
 
-    it("generates 12 minute options in 5-minute increments", () => {
-      expect(minuteOptions).toHaveLength(12);
-      expect(minuteOptions[0]).toEqual({ label: "00 min", value: 0 });
-      expect(minuteOptions[1]).toEqual({ label: "05 min", value: 5 });
-      expect(minuteOptions[11]).toEqual({ label: "55 min", value: 55 });
+    it("generates 6 minute options from 15 to 90 minutes in 15-minute increments", () => {
+      expect(minuteOptions).toHaveLength(6);
+      expect(minuteOptions[0]).toEqual({ label: "15 min", value: 15 });
+      expect(minuteOptions[1]).toEqual({ label: "30 min", value: 30 });
+      expect(minuteOptions[2]).toEqual({ label: "45 min", value: 45 });
+      expect(minuteOptions[3]).toEqual({ label: "60 min", value: 60 });
+      expect(minuteOptions[4]).toEqual({ label: "75 min", value: 75 });
+      expect(minuteOptions[5]).toEqual({ label: "90 min", value: 90 });
     });
 
     it("has valid default values", () => {
       expect(defaultHomeSearchValues).toEqual({
         ageRange: [7, 9],
-        hours: 2,
+        hours: 0,
         location: "",
         locationMode: "nearby",
-        minutes: 0,
+        minutes: 45,
       });
     });
   });
@@ -58,10 +63,10 @@ describe("home-search lib utilities", () => {
   describe("validateSearchForm", () => {
     it("returns error when nearby location is empty", () => {
       const result = validateSearchForm({
-        hours: 1,
+        hours: 0,
         location: "",
         locationMode: "nearby",
-        minutes: 0,
+        minutes: 30,
       });
 
       expect(result).toEqual({
@@ -73,28 +78,28 @@ describe("home-search lib utilities", () => {
 
     it("returns error when nearby location is not a 4-digit postcode", () => {
       const resultNonDigits = validateSearchForm({
-        hours: 1,
+        hours: 0,
         location: "abcd",
         locationMode: "nearby",
-        minutes: 0,
+        minutes: 30,
       });
       expect(resultNonDigits.locationError).toBe("Enter a 4-digit postcode.");
 
       const resultShortDigits = validateSearchForm({
-        hours: 1,
+        hours: 0,
         location: "316",
         locationMode: "nearby",
-        minutes: 0,
+        minutes: 30,
       });
       expect(resultShortDigits.locationError).toBe("Enter a 4-digit postcode.");
     });
 
     it("allows empty location when locationMode is home", () => {
       const result = validateSearchForm({
-        hours: 1,
+        hours: 0,
         location: "",
         locationMode: "home",
-        minutes: 0,
+        minutes: 30,
       });
 
       expect(result).toEqual({
@@ -115,7 +120,7 @@ describe("home-search lib utilities", () => {
       expect(result).toEqual({
         isValid: false,
         locationError: "",
-        timeError: "Choose at least 5 minutes.",
+        timeError: "Choose at least 15 minutes.",
       });
     });
 

@@ -33,9 +33,9 @@ export type HomeSearchValues = {
   location: string;
   /** Selected child age range [minAge, maxAge]. */
   ageRange: AgeRange;
-  /** Available duration hours (0-12). */
-  hours: number;
-  /** Available duration minutes (0-55 in 5-min increments). */
+  /** Available duration hours (0-12, optional). */
+  hours?: number;
+  /** Available duration minutes (15-90 in 15-min increments). */
   minutes: number;
 };
 

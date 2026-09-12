@@ -22,13 +22,11 @@ function HomeSearchForm({
     ageRange,
     gpsStatus,
     handleAgeRangeChange,
-    handleHoursChange,
     handleLocationChange,
     handleLocationModeChange,
     handleMinutesChange,
     handleSubmit,
     handleUseMyLocation,
-    hours,
     isLocating,
     location,
     locationError,
@@ -68,9 +66,7 @@ function HomeSearchForm({
       <AgeRangeField onChange={handleAgeRangeChange} value={ageRange} />
 
       <TimePickerField
-        hours={hours}
         minutes={minutes}
-        onHoursChange={handleHoursChange}
         onMinutesChange={handleMinutesChange}
         timeError={timeError}
       />
