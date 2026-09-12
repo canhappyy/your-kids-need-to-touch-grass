@@ -1,7 +1,8 @@
-import { mergeConfig } from "vitest/config";
-import baseConfig from "./vitest.config.mjs";
+import path from "node:path";
+import { defineConfig } from "vitest/config";
 
-export default mergeConfig(baseConfig, {
+export default defineConfig({
+  resolve: { alias: { "@": path.resolve(import.meta.dirname, "src") } },
   test: {
     include: ["**/*.integration.test.ts"],
     testTimeout: 10_000,
