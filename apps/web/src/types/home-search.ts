@@ -11,7 +11,7 @@ export type AgeRange = [number, number];
 /**
  * Identifier for selectable age group buckets.
  */
-export type AgeBucketId = "5-6" | "7-9" | "10-12";
+export type AgeBucketId = "5-7" | "8-9" | "10-12";
 
 /**
  * Metadata for a selectable age group bucket option.

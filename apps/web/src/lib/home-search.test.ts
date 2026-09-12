@@ -12,20 +12,22 @@ import {
 describe("home-search lib utilities", () => {
   describe("age buckets", () => {
     it("derives initial buckets from range", () => {
-      expect(getInitialBuckets([7, 9])).toEqual(["7-9"]);
-      expect(getInitialBuckets([5, 6])).toEqual(["5-6"]);
+      expect(getInitialBuckets([5, 7])).toEqual(["5-7"]);
+      expect(getInitialBuckets([8, 9])).toEqual(["8-9"]);
       expect(getInitialBuckets([10, 12])).toEqual(["10-12"]);
-      expect(getInitialBuckets([5, 9])).toEqual(["5-6", "7-9"]);
-      expect(getInitialBuckets([7, 12])).toEqual(["7-9", "10-12"]);
-      expect(getInitialBuckets([5, 12])).toEqual(["5-6", "7-9", "10-12"]);
+      expect(getInitialBuckets([5, 9])).toEqual(["5-7", "8-9"]);
+      expect(getInitialBuckets([8, 12])).toEqual(["8-9", "10-12"]);
+      expect(getInitialBuckets([5, 12])).toEqual(["5-7", "8-9", "10-12"]);
     });
 
     it("calculates age range from selected bucket IDs", () => {
-      expect(calculateRangeFromBuckets(["7-9"])).toEqual([7, 9]);
-      expect(calculateRangeFromBuckets(["5-6", "7-9"])).toEqual([5, 9]);
-      expect(calculateRangeFromBuckets(["7-9", "10-12"])).toEqual([7, 12]);
-      expect(calculateRangeFromBuckets(["5-6", "10-12"])).toEqual([5, 12]);
-      expect(calculateRangeFromBuckets(["5-6", "7-9", "10-12"])).toEqual([
+      expect(calculateRangeFromBuckets(["5-7"])).toEqual([5, 7]);
+      expect(calculateRangeFromBuckets(["8-9"])).toEqual([8, 9]);
+      expect(calculateRangeFromBuckets(["10-12"])).toEqual([10, 12]);
+      expect(calculateRangeFromBuckets(["5-7", "8-9"])).toEqual([5, 9]);
+      expect(calculateRangeFromBuckets(["8-9", "10-12"])).toEqual([8, 12]);
+      expect(calculateRangeFromBuckets(["5-7", "10-12"])).toEqual([5, 12]);
+      expect(calculateRangeFromBuckets(["5-7", "8-9", "10-12"])).toEqual([
         5, 12,
       ]);
       expect(calculateRangeFromBuckets([])).toEqual([5, 12]);
