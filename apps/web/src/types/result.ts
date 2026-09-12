@@ -1,3 +1,4 @@
+import type { PlayPreferences } from "@/types/play-preferences";
 import type { Recommendation } from "./recommendation";
 
 /**
@@ -15,7 +16,7 @@ export type RecommendationRequest = {
 /**
  * Parsed search URL parameters for the Result page.
  */
-export type ResultSearchParams = {
+export type ResultSearchParams = PlayPreferences & {
   /** Selected location mode ("nearby" or "home"). */
   locationMode: "nearby" | "home";
   /** Postcode string when locationMode is "nearby". */

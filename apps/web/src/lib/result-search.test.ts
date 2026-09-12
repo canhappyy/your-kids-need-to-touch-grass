@@ -35,12 +35,16 @@ describe("result-search lib utilities", () => {
         ageMin: "6",
         hours: "1",
         location: "3000",
+        playStyle: "group",
+        canSupervise: true,
         locationMode: "nearby",
         minutes: "30",
       })
 
       expect(query.get("locationMode")).toBe("nearby")
       expect(query.get("location")).toBe("3000")
+      expect(query.get("playStyle")).toBe("group")
+      expect(query.get("canSupervise")).toBe("true")
       expect(query.get("ageMin")).toBe("6")
       expect(query.get("ageMax")).toBe("10")
       expect(query.get("hours")).toBe("1")
@@ -53,6 +57,8 @@ describe("result-search lib utilities", () => {
         ageMin: "6",
         hours: "2",
         location: "3000",
+        playStyle: "solo",
+        canSupervise: false,
         locationMode: "home",
         minutes: "0",
       })
@@ -79,7 +85,9 @@ describe("result-search lib utilities", () => {
           ageMin: "6",
           hours: "1",
           location: "3168",
-          locationMode: "nearby",
+          playStyle: "group",
+          canSupervise: true,
+        locationMode: "nearby",
           minutes: "15",
         },
         {
@@ -90,6 +98,8 @@ describe("result-search lib utilities", () => {
 
       expect(url).toContain("/api/recommendations?")
       const parsedUrl = new URL(url, "http://localhost")
+      expect(parsedUrl.searchParams.get("playStyle")).toBe("group")
+      expect(parsedUrl.searchParams.get("canSupervise")).toBe("true")
       expect(parsedUrl.searchParams.get("durationMinutes")).toBe("75")
       expect(parsedUrl.searchParams.get("location")).toBe("3168")
       expect(parsedUrl.searchParams.get("missionId")).toBe("m3")

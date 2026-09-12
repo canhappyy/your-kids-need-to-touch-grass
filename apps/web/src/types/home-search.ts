@@ -1,3 +1,4 @@
+import type { PlayPreferences } from "@/types/play-preferences";
 /**
  * Search mode for activities: "nearby" (outdoor/local open spaces) or "home" (indoor/at-home activities).
  */
@@ -11,7 +12,7 @@ export type AgeRange = [number, number];
 /**
  * Identifier for selectable age group buckets.
  */
-export type AgeBucketId = "5-6" | "7-9" | "10-12";
+export type AgeBucketId = "5-7" | "8-9" | "10-12";
 
 /**
  * Metadata for a selectable age group bucket option.
@@ -26,13 +27,13 @@ export type AgeBucketOption = {
 /**
  * Search form field values submitted by the user on the home search page.
  */
-export type HomeSearchValues = {
+export type HomeSearchValues = PlayPreferences & {
   /** Selected location mode ("nearby" or "home"). */
   locationMode: LocationMode;
   /** User-entered location (4-digit postcode or suburb name). Empty when locationMode is "home". */
   location: string;
-  /** Selected child age range [minAge, maxAge]. */
-  ageRange: AgeRange;
+  /** Selected age bucket IDs (e.g. ['5-6']). Empty when no bucket is selected. */
+  selectedBuckets: AgeBucketId[];
   /** Available duration hours (0-12, optional). */
   hours?: number;
   /** Available duration minutes (15-90 in 15-min increments). */

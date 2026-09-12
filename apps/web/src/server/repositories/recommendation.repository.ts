@@ -87,7 +87,7 @@ function mapAgeBands(row: Record<string, unknown>): AgeBand[] {
 }
 
 /**
- * Searches for a location-based activity candidate within 10km of coordinates matching age and duration.
+ * Searches for a location-based activity candidate within 10km of coordinates matching age, duration, supervision level, and play style.
  *
  * How this query works:
  * 1. Great-Circle Distance Calculation (`WITH open_space_distances AS MATERIALIZED (...)`):
@@ -103,6 +103,10 @@ function mapAgeBands(row: Record<string, unknown>): AgeBand[] {
  *
  * 3. Candidate Filtering (`WHERE ...`):
  *    - Enforces `mission_type = 'Location-Based'`.
+ *    - Supervision Level (`supervision_level = $8`): Enforces parental supervision availability
+ *      (`'Needs Supervision'` when `canSupervise` is true, or `'Independent-Play-Safe'` when false).
+ *    - Play Style Variety Tag: Uses `EXISTS` on `activity_variety_tag` (`$9`) to match
+ *      `['Pairs', 'Group/Family']` for group play or `['Solo']` for solo play.
  *    - Verifies the activity fits within available time (`duration_minutes <= $5`).
  *    - Restricts venues to within 10 km (`distance_km <= 10`).
  *    - Checks age band overlap: ensures the user's child age range (`[$3, $4]`) intersects with
@@ -119,7 +123,7 @@ function mapAgeBands(row: Record<string, unknown>): AgeBand[] {
  *    - Uses `random()` to select unpredictably among eligible candidates for varied recommendations.
  *    - `LIMIT 1` returns the single chosen recommendation candidate.
  *
- * @param input - The recommendation search criteria including coordinates, age bounds, and duration.
+ * @param input - The recommendation search criteria including coordinates, age bounds, duration, play style, and supervision availability.
  * @returns A promise resolving to the closest matching `RecommendationCandidate`, or `null` if none found.
  */
 export async function findLocationBasedRecommendation(
@@ -172,7 +176,11 @@ export async function findLocationBasedRecommendation(
       WHERE a.mission_type = 'Location-Based'
         AND ($7::text IS NULL OR a.mission_id = $7)
         AND a.duration_minutes IS NOT NULL
-        AND a.supervision_level IS NOT NULL
+        AND a.supervision_level = $8
+        AND EXISTS (
+          SELECT 1 FROM activity_variety_tag avt
+          WHERE avt.mission_id = a.mission_id AND avt.tag_name = ANY($9::text[])
+        )
         AND a.duration_minutes <= $5
         AND os.distance_km <= 10
         AND (
@@ -197,6 +205,8 @@ export async function findLocationBasedRecommendation(
       input.durationMinutes,
       input.excludeMissionIds ?? [],
       input.missionId ?? null,
+      input.canSupervise ? "Needs Supervision" : "Independent-Play-Safe",
+      input.playStyle === "group" ? ["Pairs", "Group/Family"] : ["Solo"],
     ],
   );
 
@@ -204,7 +214,7 @@ export async function findLocationBasedRecommendation(
 }
 
 /**
- * Searches for a home-based or location-agnostic activity candidate matching age and duration criteria.
+ * Searches for a home-based or location-agnostic activity candidate matching age, duration, supervision level, and play style criteria.
  *
  * How this query works:
  * 1. Activity Field Selection (`SELECT ... FROM activity`):
@@ -215,7 +225,11 @@ export async function findLocationBasedRecommendation(
  *    - Mission Types (`mission_type = ANY($5::text[])`): Restricts results to the allowed mission types
  *      (e.g., `'Home-Based'`, `'Location-Agnostic'`).
  *    - Optional Target Mission (`$6`): Matches a specific `mission_id` if provided, otherwise ignored.
- *    - Equipment Filter (`$7`): Optionally matches on `equipment_required_tag` (e.g., `'No equipment'`).
+ *    - Equipment Filter (`$7`): Optionally matches on `equipment_required_tag` (e.g., `'None'`).
+ *    - Supervision Level (`supervision_level = $8`): Enforces parental supervision availability
+ *      (`'Needs Supervision'` when `canSupervise` is true, or `'Independent-Play-Safe'` when false).
+ *    - Play Style Variety Tag: Uses `EXISTS` on `activity_variety_tag` (`$9`) to match
+ *      `['Pairs', 'Group/Family']` for group play or `['Solo']` for solo play.
  *    - Duration Cap (`duration_minutes <= $3`): Filters for activities that fit within the available time.
  *    - Age Band Overlap: Verifies the child's age range (`[$1, $2]`) intersects with at least
  *      one enabled age band (`age_5_7`, `age_8_9`, or `age_10_12`).
@@ -229,7 +243,7 @@ export async function findLocationBasedRecommendation(
  * 4. Data Mapping (`mapFallbackCandidate`):
  *    Transforms the database row into a `RecommendationCandidate` with `venue: null`.
  *
- * @param input - Fallback recommendation search criteria.
+ * @param input - Fallback recommendation search criteria including age bounds, duration, play style, and supervision level.
  * @returns A promise resolving to a matching `RecommendationCandidate`, or `null` if none found.
  */
 export async function findFallbackRecommendation(
@@ -254,7 +268,11 @@ export async function findFallbackRecommendation(
       AND ($6::text IS NULL OR mission_id = $6)
       AND ($7::text IS NULL OR equipment_required_tag = $7)
       AND duration_minutes IS NOT NULL
-      AND supervision_level IS NOT NULL
+      AND supervision_level = $8
+      AND EXISTS (
+        SELECT 1 FROM activity_variety_tag avt
+        WHERE avt.mission_id = activity.mission_id AND avt.tag_name = ANY($9::text[])
+      )
       AND duration_minutes <= $3
       AND (
         ($1 <= 7 AND $2 >= 5 AND age_5_7 = 'Y')
@@ -274,6 +292,8 @@ export async function findFallbackRecommendation(
       input.missionTypes,
       input.missionId ?? null,
       input.equipmentRequiredTag ?? null,
+      input.canSupervise ? "Needs Supervision" : "Independent-Play-Safe",
+      input.playStyle === "group" ? ["Pairs", "Group/Family"] : ["Solo"],
     ],
   );
 

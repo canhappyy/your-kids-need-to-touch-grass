@@ -1,3 +1,4 @@
+import { defaultPlayPreferences } from "@/lib/play-preferences";
 import type {
   AgeBucketId,
   AgeBucketOption,
@@ -8,8 +9,8 @@ import type {
 } from "@/types/home-search";
 
 export const AGE_BUCKETS: AgeBucketOption[] = [
-  { id: "5-6", label: "5 - 6 yrs", max: 6, min: 5 },
-  { id: "7-9", label: "7 - 9 yrs", max: 9, min: 7 },
+  { id: "5-7", label: "5 - 7 yrs", max: 7, min: 5 },
+  { id: "8-9", label: "8 - 9 yrs", max: 9, min: 8 },
   { id: "10-12", label: "10 - 12 yrs", max: 12, min: 10 },
 ];
 
@@ -19,18 +20,19 @@ export const AGE_BUCKETS: AgeBucketOption[] = [
 export function getInitialBuckets(range: AgeRange): AgeBucketId[] {
   const [min, max] = range;
   const buckets: AgeBucketId[] = [];
-  if (min <= 6 && max >= 5) buckets.push("5-6");
-  if (min <= 9 && max >= 7) buckets.push("7-9");
+  if (min <= 7 && max >= 5) buckets.push("5-7");
+  if (min <= 9 && max >= 8) buckets.push("8-9");
   if (min <= 12 && max >= 10) buckets.push("10-12");
-  return buckets.length > 0 ? buckets : ["7-9"];
+  return buckets;
 }
 
 /**
  * Calculates the combined age range [min, max] from one or more selected bucket IDs.
+ * Returns the widest range [5, 12] when no buckets are selected.
  */
 export function calculateRangeFromBuckets(bucketIds: AgeBucketId[]): AgeRange {
   const selected = AGE_BUCKETS.filter((b) => bucketIds.includes(b.id));
-  if (selected.length === 0) return [7, 9];
+  if (selected.length === 0) return [5, 12];
   return [
     Math.min(...selected.map((b) => b.min)),
     Math.max(...selected.map((b) => b.max)),
@@ -48,11 +50,12 @@ export const minuteOptions = [15, 30, 45, 60, 75, 90].map((minute) => ({
 }));
 
 export const defaultHomeSearchValues: HomeSearchValues = {
-  ageRange: [7, 9],
+  ...defaultPlayPreferences,
   hours: 0,
   location: "",
   locationMode: "nearby",
   minutes: 45,
+  selectedBuckets: [],
 };
 
 /**

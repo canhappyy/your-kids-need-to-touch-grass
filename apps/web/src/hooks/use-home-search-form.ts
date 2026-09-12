@@ -8,7 +8,7 @@ import {
   validateSearchForm,
 } from "@/lib/home-search";
 import type {
-  AgeRange,
+  AgeBucketId,
   HomeSearchFormProps,
   LocationMode,
 } from "@/types/home-search";
@@ -48,9 +48,13 @@ export function useHomeSearchForm({
     initialValues.locationMode,
   );
   const [location, setLocation] = useState(initialValues.location);
-  const [ageRange, setAgeRange] = useState<AgeRange>([
-    ...initialValues.ageRange,
-  ]);
+  const [selectedBuckets, setSelectedBuckets] = useState<AgeBucketId[]>(
+    initialValues.selectedBuckets ?? [],
+  );
+  const [playStyle, setPlayStyle] = useState(initialValues.playStyle ?? "solo");
+  const [canSupervise, setCanSupervise] = useState(
+    initialValues.canSupervise ?? false,
+  );
   const [hours, setHours] = useState(initialValues.hours);
   const [minutes, setMinutes] = useState(initialValues.minutes);
   const [locationError, setLocationError] = useState(initialLocationError);
@@ -126,8 +130,8 @@ export function useHomeSearchForm({
     setLocationError("");
   }, []);
 
-  const handleAgeRangeChange = useCallback((range: AgeRange) => {
-    setAgeRange(range);
+  const handleSelectedBucketsChange = useCallback((buckets: AgeBucketId[]) => {
+    setSelectedBuckets(buckets);
   }, []);
 
   const handleHoursChange = useCallback((value: number) => {
@@ -157,24 +161,30 @@ export function useHomeSearchForm({
       if (!validation.isValid) return;
 
       onValidSubmit({
-        ageRange,
+        playStyle,
+        canSupervise,
         hours,
         location: locationMode === "nearby" ? location.trim() : "",
         locationMode,
         minutes,
+        selectedBuckets,
       });
     },
-    [ageRange, hours, location, locationMode, minutes, onValidSubmit],
+    [hours, location, locationMode, minutes, onValidSubmit, selectedBuckets,
+      playStyle, canSupervise],
   );
 
   return {
-    ageRange,
+    playStyle,
+    canSupervise,
+    setPlayStyle,
+    setCanSupervise,
     gpsStatus,
-    handleAgeRangeChange,
     handleHoursChange,
     handleLocationChange,
     handleLocationModeChange,
     handleMinutesChange,
+    handleSelectedBucketsChange,
     handleSubmit,
     handleUseMyLocation,
     hours,
@@ -184,6 +194,7 @@ export function useHomeSearchForm({
     locationInputRef,
     locationMode,
     minutes,
+    selectedBuckets,
     timeError,
   };
 }

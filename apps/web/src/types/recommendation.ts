@@ -1,3 +1,4 @@
+import type { PlayPreferences } from "@/types/play-preferences";
 /**
  * Explanatory reason badge displayed on an activity recommendation.
  */
@@ -70,7 +71,7 @@ export type RecommendationCandidate = {
 /**
  * Query criteria for finding a location-based recommendation near coordinates.
  */
-export type RecommendationQuery = {
+export type RecommendationQuery = PlayPreferences & {
   /** Target latitude. */
   latitude: number;
   /** Target longitude. */
@@ -139,7 +140,7 @@ export type RecommendationResponse = {
 /**
  * Base input parameters shared across all recommendation requests.
  */
-export type RecommendationInputBase = {
+export type RecommendationInputBase = PlayPreferences & {
   /** Minimum child age in years. */
   ageMin: number;
   /** Maximum child age in years. */

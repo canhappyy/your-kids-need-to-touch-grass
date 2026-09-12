@@ -1,5 +1,6 @@
 "use client";
 
+import { PlayPreferencesField } from "./play-preferences-field";
 import { AgeRangeField } from "./age-range-field";
 import { LocationInputField } from "./location-input-field";
 import { LocationModeField } from "./location-mode-field";
@@ -19,12 +20,15 @@ function HomeSearchForm({
   onValidSubmit,
 }: HomeSearchFormProps) {
   const {
-    ageRange,
+    playStyle,
+    canSupervise,
+    setPlayStyle,
+    setCanSupervise,
     gpsStatus,
-    handleAgeRangeChange,
     handleLocationChange,
     handleLocationModeChange,
     handleMinutesChange,
+    handleSelectedBucketsChange,
     handleSubmit,
     handleUseMyLocation,
     isLocating,
@@ -33,6 +37,7 @@ function HomeSearchForm({
     locationInputRef,
     locationMode,
     minutes,
+    selectedBuckets,
     timeError,
   } = useHomeSearchForm({
     initialLocationError,
@@ -63,12 +68,22 @@ function HomeSearchForm({
         />
       )}
 
-      <AgeRangeField onChange={handleAgeRangeChange} value={ageRange} />
+      <AgeRangeField
+        onChange={handleSelectedBucketsChange}
+        selectedBuckets={selectedBuckets}
+      />
 
       <TimePickerField
         minutes={minutes}
         onMinutesChange={handleMinutesChange}
         timeError={timeError}
+      />
+
+      <PlayPreferencesField
+        playStyle={playStyle}
+        canSupervise={canSupervise}
+        onPlayStyleChange={setPlayStyle}
+        onSupervisionChange={setCanSupervise}
       />
 
       <div className="mt-auto pt-16 text-center">

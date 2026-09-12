@@ -39,10 +39,18 @@ function errorResponse(
   });
 }
 
+/**
+ * Parses and validates recommendation search query parameters from an incoming request.
+ *
+ * @param searchParams - The URL search parameters from the request.
+ * @returns A validated `RecommendationInput` object, or `null` if validation fails.
+ */
 export function parseRecommendationQuery(
   searchParams: URLSearchParams,
 ): RecommendationInput | null {
   const result = recommendationQuerySchema.safeParse({
+    playStyle: searchParams.get("playStyle") ?? undefined,
+    canSupervise: searchParams.get("canSupervise") ?? undefined,
     locationMode: searchParams.get("locationMode") ?? "nearby",
     location: searchParams.get("location") ?? undefined,
     ageMin: searchParams.get("ageMin"),
@@ -55,6 +63,12 @@ export function parseRecommendationQuery(
   return result.success ? result.data : null;
 }
 
+/**
+ * Handles GET requests to retrieve an activity recommendation based on search criteria.
+ *
+ * @param request - Incoming HTTP request with query parameters.
+ * @returns JSON response containing the recommendation or a structured error response.
+ */
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);

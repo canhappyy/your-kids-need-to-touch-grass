@@ -1,3 +1,4 @@
+import { playPreferenceParams } from "@/lib/play-preferences";
 import type { RecommendationResponse } from "@/types/recommendation"
 import type {
   ApiErrorResponse,
@@ -25,10 +26,11 @@ export function readSwapsUsed(value: string | null): number {
 export function buildSearchQuery(
   params: Pick<
     ResultSearchParams,
-    "locationMode" | "location" | "ageMin" | "ageMax" | "hours" | "minutes"
+    "locationMode" | "location" | "ageMin" | "ageMax" | "hours" | "minutes" | "playStyle" | "canSupervise"
   >
 ): URLSearchParams {
   return new URLSearchParams({
+    ...playPreferenceParams(params),
     locationMode: params.locationMode,
     ...(params.locationMode === "nearby" ? { location: params.location } : {}),
     ageMin: params.ageMin,
@@ -55,7 +57,7 @@ export function mapLocationErrorCode(
 export function buildRecommendationApiUrl(
   searchParams: Pick<
     ResultSearchParams,
-    "locationMode" | "location" | "ageMin" | "ageMax" | "hours" | "minutes"
+    "locationMode" | "location" | "ageMin" | "ageMax" | "hours" | "minutes" | "playStyle" | "canSupervise"
   >,
   request: RecommendationRequest = {}
 ): string {
@@ -63,6 +65,7 @@ export function buildRecommendationApiUrl(
     Number(searchParams.hours) * 60 + Number(searchParams.minutes)
 
   const params = new URLSearchParams({
+    ...playPreferenceParams(searchParams),
     locationMode: searchParams.locationMode,
     ...(searchParams.locationMode === "nearby"
       ? { location: searchParams.location }
