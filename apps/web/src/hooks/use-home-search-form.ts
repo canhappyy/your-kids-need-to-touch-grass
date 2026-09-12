@@ -62,7 +62,9 @@ export function useHomeSearchForm({
   const showGpsFallback = useCallback(() => {
     setIsLocating(false);
     setGpsStatus("");
-    setLocationError("We couldn't use your location. Enter your postcode.");
+    setLocationError(
+      "We couldn't use your location. Enter your postcode or suburb.",
+    );
     locationInputRef.current?.focus();
   }, []);
 

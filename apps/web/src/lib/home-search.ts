@@ -66,13 +66,17 @@ export function validateSearchForm(
   const trimmedLocation = values.location.trim();
   let locationError = "";
 
-  if (values.locationMode === "nearby" && !trimmedLocation) {
-    locationError = "Enter your postcode.";
-  } else if (
-    values.locationMode === "nearby" &&
-    !/^\d{4}$/.test(trimmedLocation)
-  ) {
-    locationError = "Enter a 4-digit postcode.";
+  if (values.locationMode === "nearby") {
+    if (!trimmedLocation) {
+      locationError = "Enter your postcode or suburb.";
+    } else if (
+      /^\d+$/.test(trimmedLocation) &&
+      !/^\d{4}$/.test(trimmedLocation)
+    ) {
+      locationError = "Enter a 4-digit postcode or suburb.";
+    } else if (trimmedLocation.length < 2) {
+      locationError = "Enter a valid postcode or suburb.";
+    }
   }
 
   const totalMinutes = (values.hours ?? 0) * 60 + values.minutes;

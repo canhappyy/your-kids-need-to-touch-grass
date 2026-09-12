@@ -71,27 +71,43 @@ describe("home-search lib utilities", () => {
 
       expect(result).toEqual({
         isValid: false,
-        locationError: "Enter your postcode.",
+        locationError: "Enter your postcode or suburb.",
         timeError: "",
       });
     });
 
-    it("returns error when nearby location is not a 4-digit postcode", () => {
-      const resultNonDigits = validateSearchForm({
-        hours: 0,
-        location: "abcd",
-        locationMode: "nearby",
-        minutes: 30,
-      });
-      expect(resultNonDigits.locationError).toBe("Enter a 4-digit postcode.");
-
+    it("returns error when nearby numeric location is not a 4-digit postcode", () => {
       const resultShortDigits = validateSearchForm({
         hours: 0,
         location: "316",
         locationMode: "nearby",
         minutes: 30,
       });
-      expect(resultShortDigits.locationError).toBe("Enter a 4-digit postcode.");
+      expect(resultShortDigits.locationError).toBe(
+        "Enter a 4-digit postcode or suburb.",
+      );
+
+      const resultLongDigits = validateSearchForm({
+        hours: 0,
+        location: "12345",
+        locationMode: "nearby",
+        minutes: 30,
+      });
+      expect(resultLongDigits.locationError).toBe(
+        "Enter a 4-digit postcode or suburb.",
+      );
+    });
+
+    it("returns error when nearby location is too short", () => {
+      const resultSingleChar = validateSearchForm({
+        hours: 0,
+        location: "a",
+        locationMode: "nearby",
+        minutes: 30,
+      });
+      expect(resultSingleChar.locationError).toBe(
+        "Enter a valid postcode or suburb.",
+      );
     });
 
     it("allows empty location when locationMode is home", () => {
@@ -124,15 +140,41 @@ describe("home-search lib utilities", () => {
       });
     });
 
-    it("returns valid result for valid nearby inputs", () => {
-      const result = validateSearchForm({
+    it("returns valid result for valid nearby inputs (postcodes and suburbs)", () => {
+      const resultPostcode = validateSearchForm({
         hours: 0,
         location: "3168",
         locationMode: "nearby",
         minutes: 30,
       });
 
-      expect(result).toEqual({
+      expect(resultPostcode).toEqual({
+        isValid: true,
+        locationError: "",
+        timeError: "",
+      });
+
+      const resultSuburb = validateSearchForm({
+        hours: 0,
+        location: "Clayton",
+        locationMode: "nearby",
+        minutes: 30,
+      });
+
+      expect(resultSuburb).toEqual({
+        isValid: true,
+        locationError: "",
+        timeError: "",
+      });
+
+      const resultMultiWordSuburb = validateSearchForm({
+        hours: 0,
+        location: "St Kilda",
+        locationMode: "nearby",
+        minutes: 30,
+      });
+
+      expect(resultMultiWordSuburb).toEqual({
         isValid: true,
         locationError: "",
         timeError: "",
