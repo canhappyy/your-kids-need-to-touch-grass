@@ -7,6 +7,8 @@ import { resolveRecommendationLocation } from "@/server/services/location.servic
 import { getRecommendation } from "@/server/services/recommendation.service";
 
 const input = {
+  playStyle: "solo" as const,
+  canSupervise: false,
   locationMode: "nearby" as const,
   location: "Clayton 3168",
   ageMin: 6,
@@ -147,7 +149,7 @@ describe("seeded recommendation flow", () => {
           mission_type
         )
         VALUES ($1, 'Nearest Park Mission', 20, 'Y', 'Y', 'N',
-          'Needs Supervision', 'Location-Based')
+          'Independent-Play-Safe', 'Location-Based')
         `,
         [missionId],
       );
@@ -158,6 +160,8 @@ describe("seeded recommendation flow", () => {
         `,
         [missionId],
       );
+
+      await pool.query("INSERT INTO activity_variety_tag (mission_id, tag_name) VALUES ($1, 'Solo')", [missionId]);
 
       const recommendation = await getRecommendation({
         ...input,
@@ -219,6 +223,8 @@ describe("seeded recommendation flow", () => {
         `,
         missionIds,
       );
+
+      await pool.query("INSERT INTO activity_variety_tag (mission_id, tag_name) SELECT unnest($1::text[]), 'Solo'", [missionIds]);
 
       await expect(
         getRecommendation({ ...input, missionId: equipmentMissionId }),
@@ -286,6 +292,8 @@ describe("seeded recommendation flow", () => {
 
   it("replays the same Home-Based mission for a home search", async () => {
     const homeInput = {
+      playStyle: "solo" as const,
+      canSupervise: false,
       locationMode: "home" as const,
       ageMin: 6,
       ageMax: 10,
@@ -307,6 +315,8 @@ describe("seeded recommendation flow", () => {
   it("excludes equipment-required missions from home searches", async () => {
     await expect(
       getRecommendation({
+        playStyle: "solo" as const,
+        canSupervise: false,
         locationMode: "home",
         ageMin: 6,
         ageMax: 10,
@@ -350,7 +360,11 @@ describe("seeded recommendation flow", () => {
         [missionId],
       );
 
+      await pool.query("INSERT INTO activity_variety_tag (mission_id, tag_name) VALUES ($1, 'Solo')", [missionId]);
+
       const recommendation = await getRecommendation({
+        playStyle: "solo" as const,
+        canSupervise: false,
         locationMode: "home",
         ageMin: 6,
         ageMax: 9,
@@ -367,6 +381,8 @@ describe("seeded recommendation flow", () => {
 
       await expect(
         getRecommendation({
+          playStyle: "solo" as const,
+          canSupervise: false,
           locationMode: "home",
           ageMin: 10,
           ageMax: 12,
@@ -405,6 +421,8 @@ describe("seeded recommendation flow", () => {
 
       await expect(
         getRecommendation({
+          playStyle: "solo" as const,
+          canSupervise: false,
           locationMode: "home",
           ageMin: 6,
           ageMax: 10,

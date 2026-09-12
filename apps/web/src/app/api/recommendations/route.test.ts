@@ -49,6 +49,8 @@ describe("GET /api/recommendations", () => {
     expect(response.headers.get("Cache-Control")).toBe("no-store");
     await expect(response.json()).resolves.toEqual({ recommendation });
     expect(getRecommendation).toHaveBeenCalledWith({
+      playStyle: "solo",
+      canSupervise: false,
       ...validQuery,
       locationMode: "nearby",
       ageMin: 6,
@@ -65,11 +67,19 @@ describe("GET /api/recommendations", () => {
 
     expect(response.status).toBe(200);
     expect(getRecommendation).toHaveBeenCalledWith({
+      playStyle: "solo",
+      canSupervise: false,
       locationMode: "home",
       ageMin: 6,
       ageMax: 10,
       durationMinutes: 120,
     });
+  });
+
+  it("parses group play and supervision explicitly", async () => {
+    const response = await GET(request({ playStyle: "group", canSupervise: "true" }));
+    expect(response.status).toBe(200);
+    expect(getRecommendation).toHaveBeenCalledWith(expect.objectContaining({ playStyle: "group", canSupervise: true }));
   });
 
   it("ignores an irrelevant location in home mode", async () => {
@@ -79,6 +89,8 @@ describe("GET /api/recommendations", () => {
 
     expect(response.status).toBe(200);
     expect(getRecommendation).toHaveBeenCalledWith({
+      playStyle: "solo",
+      canSupervise: false,
       locationMode: "home",
       ageMin: 6,
       ageMax: 10,
@@ -135,6 +147,8 @@ describe("GET /api/recommendations", () => {
   });
 
   it.each([
+    ["invalid play style", { playStyle: "pairs" }],
+    ["invalid supervision", { canSupervise: "yes" }],
     ["missing location", { location: null }],
     ["blank location", { location: " " }],
     ["long location", { location: "a".repeat(101) }],

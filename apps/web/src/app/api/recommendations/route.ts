@@ -43,6 +43,8 @@ export function parseRecommendationQuery(
   searchParams: URLSearchParams,
 ): RecommendationInput | null {
   const result = recommendationQuerySchema.safeParse({
+    playStyle: searchParams.get("playStyle") ?? undefined,
+    canSupervise: searchParams.get("canSupervise") ?? undefined,
     locationMode: searchParams.get("locationMode") ?? "nearby",
     location: searchParams.get("location") ?? undefined,
     ageMin: searchParams.get("ageMin"),

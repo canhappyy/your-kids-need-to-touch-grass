@@ -8,6 +8,8 @@ import {
 import type { AgeBand } from "@/types/recommendation";
 
 const input: RecommendationInput = {
+  playStyle: "solo" as const,
+  canSupervise: false,
   locationMode: "nearby",
   location: "Clayton 3168",
   ageMin: 6,
@@ -78,6 +80,8 @@ describe("getRecommendation", () => {
       ],
     });
     expect(deps.repository.findLocationBased).toHaveBeenCalledWith({
+      playStyle: "solo",
+      canSupervise: false,
       latitude: resolvedLocation.latitude,
       longitude: resolvedLocation.longitude,
       ageMin: 6,
@@ -115,6 +119,8 @@ describe("getRecommendation", () => {
     const deps = dependencies(null, fallbackMission);
     const result = await getRecommendation(
       {
+        playStyle: "solo" as const,
+        canSupervise: false,
         locationMode: "home",
         ageMin: 6,
         ageMax: 10,
@@ -134,6 +140,8 @@ describe("getRecommendation", () => {
     expect(deps.resolveLocation).not.toHaveBeenCalled();
     expect(deps.repository.findLocationBased).not.toHaveBeenCalled();
     expect(deps.repository.findFallback).toHaveBeenCalledWith({
+      playStyle: "solo",
+      canSupervise: false,
       ageMin: 6,
       ageMax: 10,
       durationMinutes: 45,
@@ -176,6 +184,8 @@ describe("getRecommendation", () => {
 
     expect(result?.missionId).toBe(fallbackMission.missionId);
     expect(deps.repository.findFallback).toHaveBeenCalledWith({
+      playStyle: "solo",
+      canSupervise: false,
       ageMin: 6,
       ageMax: 10,
       durationMinutes: 120,

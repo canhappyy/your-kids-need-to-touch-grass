@@ -40,6 +40,8 @@ const missionId = z.string().trim().min(1).max(50);
  */
 export const recommendationQuerySchema = z
   .object({
+    playStyle: z.enum(["solo", "group"]).default("solo"),
+    canSupervise: z.enum(["true", "false"]).default("false").transform(value => value === "true"),
     locationMode: z.enum(["nearby", "home"]),
     location: z.string().trim().optional(),
     ageMin: integerString.pipe(z.number().min(5).max(12)),
@@ -80,6 +82,8 @@ export const recommendationQuerySchema = z
   })
   .transform((value) => {
     const common = {
+      playStyle: value.playStyle,
+      canSupervise: value.canSupervise,
       ageMin: value.ageMin,
       ageMax: value.ageMax,
       durationMinutes: value.durationMinutes,

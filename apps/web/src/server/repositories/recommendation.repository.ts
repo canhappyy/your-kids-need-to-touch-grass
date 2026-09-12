@@ -172,7 +172,11 @@ export async function findLocationBasedRecommendation(
       WHERE a.mission_type = 'Location-Based'
         AND ($7::text IS NULL OR a.mission_id = $7)
         AND a.duration_minutes IS NOT NULL
-        AND a.supervision_level IS NOT NULL
+        AND a.supervision_level = $8
+        AND EXISTS (
+          SELECT 1 FROM activity_variety_tag avt
+          WHERE avt.mission_id = a.mission_id AND avt.tag_name = ANY($9::text[])
+        )
         AND a.duration_minutes <= $5
         AND os.distance_km <= 10
         AND (
@@ -197,6 +201,8 @@ export async function findLocationBasedRecommendation(
       input.durationMinutes,
       input.excludeMissionIds ?? [],
       input.missionId ?? null,
+      input.canSupervise ? "Needs Supervision" : "Independent-Play-Safe",
+      input.playStyle === "group" ? ["Pairs", "Group/Family"] : ["Solo"],
     ],
   );
 
@@ -254,7 +260,11 @@ export async function findFallbackRecommendation(
       AND ($6::text IS NULL OR mission_id = $6)
       AND ($7::text IS NULL OR equipment_required_tag = $7)
       AND duration_minutes IS NOT NULL
-      AND supervision_level IS NOT NULL
+      AND supervision_level = $8
+      AND EXISTS (
+        SELECT 1 FROM activity_variety_tag avt
+        WHERE avt.mission_id = activity.mission_id AND avt.tag_name = ANY($9::text[])
+      )
       AND duration_minutes <= $3
       AND (
         ($1 <= 7 AND $2 >= 5 AND age_5_7 = 'Y')
@@ -274,6 +284,8 @@ export async function findFallbackRecommendation(
       input.missionTypes,
       input.missionId ?? null,
       input.equipmentRequiredTag ?? null,
+      input.canSupervise ? "Needs Supervision" : "Independent-Play-Safe",
+      input.playStyle === "group" ? ["Pairs", "Group/Family"] : ["Solo"],
     ],
   );
 
