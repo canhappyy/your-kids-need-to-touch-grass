@@ -22,13 +22,11 @@ function HomeSearchForm({
     ageRange,
     gpsStatus,
     handleAgeRangeChange,
-    handleHoursChange,
     handleLocationChange,
     handleLocationModeChange,
     handleMinutesChange,
     handleSubmit,
     handleUseMyLocation,
-    hours,
     isLocating,
     location,
     locationError,
@@ -68,20 +66,18 @@ function HomeSearchForm({
       <AgeRangeField onChange={handleAgeRangeChange} value={ageRange} />
 
       <TimePickerField
-        hours={hours}
         minutes={minutes}
-        onHoursChange={handleHoursChange}
         onMinutesChange={handleMinutesChange}
         timeError={timeError}
       />
 
       <div className="mt-auto pt-16 text-center">
         <Button
-          className="h-12 w-full rounded-full bg-emerald-600 px-6 text-base font-bold text-white shadow-[0_10px_24px_rgba(5,150,90,0.25)] hover:bg-emerald-700 focus-visible:border-emerald-700 focus-visible:ring-emerald-600/30"
+          className="h-12 w-full rounded-full bg-indigo-400 px-6 text-base font-bold text-white hover:bg-indigo-500"
           size="lg"
           type="submit"
         >
-          My Kid Needs to Touch Grass
+          Generate an Activity
         </Button>
         <p className="mt-7 text-sm text-zinc-500">
           Tap for a random activity idea{" "}

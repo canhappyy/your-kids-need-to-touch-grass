@@ -9,6 +9,21 @@ export type LocationMode = "nearby" | "home";
 export type AgeRange = [number, number];
 
 /**
+ * Identifier for selectable age group buckets.
+ */
+export type AgeBucketId = "5-6" | "7-9" | "10-12";
+
+/**
+ * Metadata for a selectable age group bucket option.
+ */
+export type AgeBucketOption = {
+  id: AgeBucketId;
+  label: string;
+  min: number;
+  max: number;
+};
+
+/**
  * Search form field values submitted by the user on the home search page.
  */
 export type HomeSearchValues = {
@@ -18,9 +33,9 @@ export type HomeSearchValues = {
   location: string;
   /** Selected child age range [minAge, maxAge]. */
   ageRange: AgeRange;
-  /** Available duration hours (0-12). */
-  hours: number;
-  /** Available duration minutes (0-55 in 5-min increments). */
+  /** Available duration hours (0-12, optional). */
+  hours?: number;
+  /** Available duration minutes (15-90 in 15-min increments). */
   minutes: number;
 };
 

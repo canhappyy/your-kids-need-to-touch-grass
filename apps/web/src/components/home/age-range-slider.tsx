@@ -33,16 +33,16 @@ function AgeRangeSlider({
     >
       <SliderPrimitive.Control className="relative flex h-7 w-full touch-none items-center select-none">
         <SliderPrimitive.Track className="h-1 w-full rounded-full bg-zinc-200">
-          <SliderPrimitive.Indicator className="h-full rounded-full bg-emerald-600" />
+          <SliderPrimitive.Indicator className="h-full rounded-full bg-[#E4633C]" />
         </SliderPrimitive.Track>
         <SliderPrimitive.Thumb
-          className="size-5 rounded-full border-2 border-emerald-600 bg-white shadow-sm outline-none transition-shadow focus-visible:ring-4 focus-visible:ring-emerald-600/20"
+          className="size-5 rounded-full border-2 border-[#E4633C] bg-white shadow-sm outline-none transition-shadow focus-visible:ring-4 focus-visible:ring-[#E4633C]/20"
           getAriaLabel={() => "Minimum age"}
           getAriaValueText={(_, age) => `${age} years`}
           index={0}
         />
         <SliderPrimitive.Thumb
-          className="size-5 rounded-full border-2 border-emerald-600 bg-white shadow-sm outline-none transition-shadow focus-visible:ring-4 focus-visible:ring-emerald-600/20"
+          className="size-5 rounded-full border-2 border-[#E4633C] bg-white shadow-sm outline-none transition-shadow focus-visible:ring-4 focus-visible:ring-[#E4633C]/20"
           getAriaLabel={() => "Maximum age"}
           getAriaValueText={(_, age) => `${age} years`}
           index={1}

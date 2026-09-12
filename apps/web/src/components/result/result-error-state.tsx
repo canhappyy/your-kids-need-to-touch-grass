@@ -18,14 +18,14 @@ export function ResultErrorState({
         {error}
       </p>
       <Button
-        className="mt-8 h-14 w-full rounded-full bg-emerald-600 text-base font-bold text-white hover:bg-emerald-700"
+        className="mt-8 h-14 w-full rounded-full bg-[#E4633C] text-base font-bold text-white hover:bg-[#c95330]"
         onClick={onTryAgain}
         type="button"
       >
         Try Again
       </Button>
       <Button
-        className="mt-3 h-14 w-full rounded-full"
+        className="mt-3 h-14 w-full rounded-full border-[#93AB63] bg-white text-base font-bold text-[#93AB63] hover:bg-zinc-50 hover:text-[#93AB63] focus-visible:border-[#93AB63] focus-visible:ring-[#93AB63]/20"
         onClick={onBackToSearch}
         type="button"
         variant="outline"

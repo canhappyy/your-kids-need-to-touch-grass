@@ -1,13 +1,13 @@
-import { Badge } from "@/components/ui/badge"
-import type { MatchReason } from "@/types/recommendation"
+import { Badge } from "@/components/ui/badge";
+import type { MatchReason } from "@/types/recommendation";
 
 type ActivityHeaderProps = {
-  title: string
-  reasons: MatchReason[]
-  agesLabel: string
-  formattedDuration: string
-  formattedSupervision: string
-}
+  title: string;
+  reasons: MatchReason[];
+  agesLabel: string;
+  formattedDuration: string;
+  formattedSupervision: string;
+};
 
 export function ActivityHeader({
   title,
@@ -42,10 +42,25 @@ export function ActivityHeader({
         aria-label="Mission details"
         className="mt-4 flex flex-wrap justify-center gap-2"
       >
-        <Badge variant="outline">Ages {agesLabel}</Badge>
-        <Badge variant="outline">{formattedDuration}</Badge>
-        <Badge variant="outline">{formattedSupervision}</Badge>
+        <Badge
+          className="border-transparent bg-[#F5C24C38] text-zinc-800"
+          variant="outline"
+        >
+          Ages {agesLabel}
+        </Badge>
+        <Badge
+          className="border-transparent bg-[#F5C24C38] text-zinc-800"
+          variant="outline"
+        >
+          {formattedDuration}
+        </Badge>
+        <Badge
+          className="border-transparent bg-[#F5C24C38] text-zinc-800"
+          variant="outline"
+        >
+          {formattedSupervision}
+        </Badge>
       </div>
     </div>
-  )
+  );
 }

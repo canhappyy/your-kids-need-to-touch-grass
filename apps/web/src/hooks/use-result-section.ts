@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 
 import {
-  MAX_SWAPS,
   buildRecommendationApiUrl,
   buildSearchQuery as buildSearchQueryUtil,
   mapLocationErrorCode,
@@ -38,10 +37,10 @@ import type {
  *    with `missionId` and `swapsUsed=0` so the result can be bookmarked or shared directly.
  *
  * 4. Activity Swapping (`handleTryAnother`):
- *    - Allows users to swap activities up to `MAX_SWAPS` (2 times).
+ *    - Allows users to swap activities with no limit.
  *    - Sends all previously viewed `shownMissionIds` as exclusions to prevent immediate repeats.
  *    - Guard checks prevent race conditions if multiple swaps are triggered concurrently.
- *    - Pushes a new entry to browser history (`history.pushState`) with updated swap counts.
+ *    - Pushes a new entry to browser history (`history.pushState`) with updated mission IDs.
  *
  * 5. Recovery & Navigation:
  *    - `handleTryAgain`: Re-attempts loading if a transient network failure occurred.
@@ -211,7 +210,6 @@ export function useResultSection() {
             const params = buildSearchQuery()
             params.set("missionId", result.missionId)
             params.append("shownMissionId", result.missionId)
-            params.set("swapsUsed", "0")
             window.history.replaceState(
               null,
               "",
@@ -258,7 +256,6 @@ export function useResultSection() {
           const params = buildSearchQuery()
           params.set("missionId", result.missionId)
           params.append("shownMissionId", result.missionId)
-          params.set("swapsUsed", "0")
           window.history.replaceState(null, "", `/result?${params.toString()}`)
         }
       }
@@ -268,10 +265,9 @@ export function useResultSection() {
   }, [buildSearchQuery, requestRecommendation, selectedMissionId])
 
   const handleTryAnother = useCallback(async () => {
-    if (swapsUsed >= MAX_SWAPS || !recommendation) return
+    if (isRetrying || !recommendation) return
 
     const sourceMissionId = recommendation.missionId
-    const sourceSwapsUsed = swapsUsed
     const sourceShownMissionIds = shownMissionIds
     setIsRetrying(true)
 
@@ -281,10 +277,7 @@ export function useResultSection() {
       })
 
       const currentParams = new URL(window.location.href).searchParams
-      if (
-        currentParams.get("missionId") !== sourceMissionId ||
-        readSwapsUsed(currentParams.get("swapsUsed")) !== sourceSwapsUsed
-      ) {
+      if (currentParams.get("missionId") !== sourceMissionId) {
         return
       }
 
@@ -301,17 +294,13 @@ export function useResultSection() {
         nextShownMissionIds.forEach((missionId) =>
           params.append("shownMissionId", missionId)
         )
-        params.set("swapsUsed", String(sourceSwapsUsed + 1))
         window.history.pushState(null, "", `/result?${params.toString()}`)
       } else if (result === null) {
         setError("We couldn't load a mission. Please try again.")
       }
     } catch {
       const currentParams = new URL(window.location.href).searchParams
-      if (
-        currentParams.get("missionId") === sourceMissionId &&
-        readSwapsUsed(currentParams.get("swapsUsed")) === sourceSwapsUsed
-      ) {
+      if (currentParams.get("missionId") === sourceMissionId) {
         setError("We couldn't load a mission. Please try again.")
       }
     } finally {
@@ -319,10 +308,10 @@ export function useResultSection() {
     }
   }, [
     buildSearchQuery,
+    isRetrying,
     recommendation,
     requestRecommendation,
     shownMissionIds,
-    swapsUsed,
   ])
 
   const handleBackToSearch = useCallback(() => {
@@ -344,6 +333,6 @@ export function useResultSection() {
     locationMode,
     recommendation,
     searchParams: parsedSearchParams,
-    swapsRemaining: MAX_SWAPS - swapsUsed,
+    swapsRemaining: Infinity,
   }
 }
