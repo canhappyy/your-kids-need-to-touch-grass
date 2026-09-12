@@ -1,5 +1,6 @@
 "use client"
 
+import { readPlayPreferences } from "@/lib/play-preferences";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 
@@ -54,6 +55,7 @@ export function useResultSection() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
+  const { playStyle, canSupervise } = readPlayPreferences(searchParams);
   const locationMode =
     searchParams.get("locationMode") === "home" ? "home" : "nearby"
   const location = searchParams.get("location") || ""
@@ -83,6 +85,8 @@ export function useResultSection() {
       location,
       locationMode,
       minutes,
+      playStyle,
+      canSupervise,
       selectedMissionId,
       shownMissionIds,
       swapsUsed,
@@ -94,6 +98,8 @@ export function useResultSection() {
       location,
       locationMode,
       minutes,
+      playStyle,
+      canSupervise,
       selectedMissionId,
       shownMissionIds,
       swapsUsed,
@@ -115,8 +121,10 @@ export function useResultSection() {
       location,
       locationMode,
       minutes,
+      playStyle,
+      canSupervise,
     })
-  }, [ageMax, ageMin, hours, location, locationMode, minutes])
+  }, [ageMax, ageMin, hours, location, locationMode, minutes, playStyle, canSupervise])
 
   const returnToSearchWithError = useCallback(
     (code: string) => {
@@ -138,6 +146,8 @@ export function useResultSection() {
           location,
           locationMode,
           minutes,
+          playStyle,
+          canSupervise,
         },
         request
       )
@@ -174,6 +184,8 @@ export function useResultSection() {
       location,
       locationMode,
       minutes,
+      playStyle,
+      canSupervise,
       returnToSearchWithError,
     ]
   )
