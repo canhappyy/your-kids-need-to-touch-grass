@@ -32,6 +32,8 @@ const venueMission = {
   equipmentNeeded: "Basketball",
   instructionText: "Find a hoop.",
   durationMinutes: 60,
+  commuteMinutes: 24,
+  totalMinutes: 84,
   missionType: "Location-Based" as const,
   ageBands: ["5-7", "8-9"] as AgeBand[],
   supervisionLevel: "Independent-Play-Safe" as const,
@@ -51,6 +53,8 @@ const fallbackMission = {
   title: "Living Room Obstacle Course",
   missionType: "Home-Based" as const,
   venue: null,
+  commuteMinutes: 0,
+  totalMinutes: 60,
 };
 
 function dependencies(

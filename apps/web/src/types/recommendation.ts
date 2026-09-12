@@ -43,9 +43,17 @@ export type RecommendationVenue = {
 };
 
 /**
- * Represents a raw recommendation candidate before match reasons are constructed.
+ * Shared estimated timing for recommendation candidates and API responses.
  */
-export type RecommendationCandidate = {
+export type RecommendationTiming = {
+  /** Estimated outward and return walking time, or zero without a venue. */
+  commuteMinutes: number;
+  /** Activity duration plus estimated round-trip walking time. */
+  totalMinutes: number;
+};
+
+/** Raw recommendation candidate before match reasons are constructed. */
+export type RecommendationCandidate = RecommendationTiming & {
   /** Unique mission identifier. */
   missionId: string;
   /** Activity title. */
@@ -104,7 +112,7 @@ export type FallbackRecommendationQuery = Omit<
 /**
  * Complete recommendation response object including activity details, match reasons, and venue.
  */
-export type Recommendation = {
+export type Recommendation = RecommendationTiming & {
   /** Unique mission identifier. */
   missionId: string;
   /** Activity title. */

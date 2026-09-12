@@ -117,6 +117,8 @@ describe("result-search lib utilities", () => {
           ageBands: ["5-7"],
           description: "Test description",
           durationMinutes: 30,
+          commuteMinutes: 0,
+          totalMinutes: 30,
           equipmentNeeded: null,
           instructionText: null,
           missionId: "m1",
