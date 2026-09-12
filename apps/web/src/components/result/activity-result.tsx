@@ -16,6 +16,8 @@ function ActivityResult({
     dailyGoalPercentage,
     directionsUrl,
     formattedDuration,
+    formattedTotalDuration,
+    formattedCommuteDuration,
     formattedSupervision,
     goalAriaText,
     locationLabel,
@@ -29,13 +31,15 @@ function ActivityResult({
     >
       <ActivityHeader
         agesLabel={agesLabel}
-        formattedDuration={formattedDuration}
+        formattedDuration={formattedCommuteDuration !== null ? `${formattedTotalDuration} total (est.)` : formattedDuration}
         formattedSupervision={formattedSupervision}
         reasons={recommendation.reasons}
         title={recommendation.title}
       />
 
       <ActivityDetails
+        formattedTotalDuration={formattedTotalDuration}
+        formattedCommuteDuration={formattedCommuteDuration}
         formattedDuration={formattedDuration}
         locationLabel={locationLabel}
       />

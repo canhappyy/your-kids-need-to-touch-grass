@@ -2,12 +2,16 @@ import { MapPin, Timer } from "lucide-react"
 
 type ActivityDetailsProps = {
   locationLabel: string
+  formattedTotalDuration: string
+  formattedCommuteDuration: string | null
   formattedDuration: string
 }
 
 export function ActivityDetails({
   locationLabel,
   formattedDuration,
+  formattedTotalDuration,
+  formattedCommuteDuration,
 }: ActivityDetailsProps) {
   return (
     <dl className="mt-7 space-y-6">
@@ -35,11 +39,19 @@ export function ActivityDetails({
         />
         <div className="col-start-2 text-center">
           <dt className="text-xs font-medium tracking-wide text-zinc-500 uppercase">
-            Duration
+            {formattedCommuteDuration !== null ? "Estimated total time" : "Duration"}
           </dt>
           <dd className="mt-1 text-lg leading-tight font-semibold text-zinc-900">
-            {formattedDuration}
+            {formattedTotalDuration}
           </dd>
+          {formattedCommuteDuration !== null && (
+            <dd className="mt-2 space-y-1 text-sm text-zinc-600">
+              <p>{formattedDuration} activity · ~{formattedCommuteDuration} round-trip walk</p>
+              <p className="text-xs text-zinc-500">
+                Walking estimate from selected suburb/postcode, including the return trip.
+              </p>
+            </dd>
+          )}
         </div>
       </div>
     </dl>
