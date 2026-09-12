@@ -166,6 +166,18 @@ export type RecommendationInputBase = PlayPreferences & {
  */
 export type RecommendationInput = RecommendationInputBase &
   (
-    | { locationMode: "nearby"; location: string }
-    | { locationMode: "home"; location?: never }
+    | {
+        locationMode: "nearby";
+        location: string;
+        /** Optional device latitude if acquired from geolocation. */
+        latitude?: number;
+        /** Optional device longitude if acquired from geolocation. */
+        longitude?: number;
+      }
+    | {
+        locationMode: "home";
+        location?: never;
+        latitude?: never;
+        longitude?: never;
+      }
   );

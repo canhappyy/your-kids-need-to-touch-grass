@@ -38,6 +38,10 @@ export type HomeSearchValues = PlayPreferences & {
   hours?: number;
   /** Available duration minutes (15-90 in 15-min increments). */
   minutes: number;
+  /** Optional device latitude if acquired from geolocation. */
+  latitude?: number;
+  /** Optional device longitude if acquired from geolocation. */
+  longitude?: number;
 };
 
 /**

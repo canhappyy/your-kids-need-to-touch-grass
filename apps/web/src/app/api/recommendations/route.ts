@@ -53,6 +53,8 @@ export function parseRecommendationQuery(
     canSupervise: searchParams.get("canSupervise") ?? undefined,
     locationMode: searchParams.get("locationMode") ?? "nearby",
     location: searchParams.get("location") ?? undefined,
+    lat: searchParams.get("lat") ?? undefined,
+    lng: searchParams.get("lng") ?? undefined,
     ageMin: searchParams.get("ageMin"),
     ageMax: searchParams.get("ageMax"),
     durationMinutes: searchParams.get("durationMinutes"),

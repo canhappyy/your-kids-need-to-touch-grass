@@ -26,10 +26,19 @@ export function readSwapsUsed(value: string | null): number {
 export function buildSearchQuery(
   params: Pick<
     ResultSearchParams,
-    "locationMode" | "location" | "ageMin" | "ageMax" | "hours" | "minutes" | "playStyle" | "canSupervise"
+    | "locationMode"
+    | "location"
+    | "ageMin"
+    | "ageMax"
+    | "hours"
+    | "minutes"
+    | "playStyle"
+    | "canSupervise"
+    | "lat"
+    | "lng"
   >
 ): URLSearchParams {
-  return new URLSearchParams({
+  const query = new URLSearchParams({
     ...playPreferenceParams(params),
     locationMode: params.locationMode,
     ...(params.locationMode === "nearby" ? { location: params.location } : {}),
@@ -38,6 +47,13 @@ export function buildSearchQuery(
     hours: params.hours,
     minutes: params.minutes,
   })
+
+  if (params.locationMode === "nearby" && params.lat && params.lng) {
+    query.set("lat", params.lat)
+    query.set("lng", params.lng)
+  }
+
+  return query
 }
 
 /**
@@ -57,7 +73,16 @@ export function mapLocationErrorCode(
 export function buildRecommendationApiUrl(
   searchParams: Pick<
     ResultSearchParams,
-    "locationMode" | "location" | "ageMin" | "ageMax" | "hours" | "minutes" | "playStyle" | "canSupervise"
+    | "locationMode"
+    | "location"
+    | "ageMin"
+    | "ageMax"
+    | "hours"
+    | "minutes"
+    | "playStyle"
+    | "canSupervise"
+    | "lat"
+    | "lng"
   >,
   request: RecommendationRequest = {}
 ): string {
@@ -74,6 +99,15 @@ export function buildRecommendationApiUrl(
     ageMax: searchParams.ageMax,
     durationMinutes: String(durationMinutes),
   })
+
+  if (
+    searchParams.locationMode === "nearby" &&
+    searchParams.lat &&
+    searchParams.lng
+  ) {
+    params.set("lat", searchParams.lat)
+    params.set("lng", searchParams.lng)
+  }
 
   request.excludeMissionIds?.forEach((excludedMissionId) =>
     params.append("excludeMissionId", excludedMissionId)

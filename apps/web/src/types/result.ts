@@ -21,6 +21,10 @@ export type ResultSearchParams = PlayPreferences & {
   locationMode: "nearby" | "home";
   /** Postcode string when locationMode is "nearby". */
   location: string;
+  /** Optional device latitude string if acquired from geolocation. */
+  lat?: string;
+  /** Optional device longitude string if acquired from geolocation. */
+  lng?: string;
   /** Minimum child age string. */
   ageMin: string;
   /** Maximum child age string. */

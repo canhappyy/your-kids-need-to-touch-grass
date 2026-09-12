@@ -209,4 +209,29 @@ describe("getRecommendation", () => {
 
     expect(exhausted).not.toBeNull();
   });
+
+  it("uses provided device GPS coordinates as origin when available", async () => {
+    const deps = dependencies();
+    const gpsCoords = { latitude: -37.8136, longitude: 144.9631 };
+    const result = await getRecommendation(
+      { ...input, ...gpsCoords },
+      deps,
+    );
+
+    expect(result).not.toBeNull();
+    expect(deps.repository.findLocationBased).toHaveBeenCalledWith({
+      playStyle: "solo",
+      canSupervise: false,
+      latitude: gpsCoords.latitude,
+      longitude: gpsCoords.longitude,
+      ageMin: 6,
+      ageMax: 10,
+      durationMinutes: 120,
+      excludeMissionIds: undefined,
+    });
+    expect(result?.reasons).toContainEqual({
+      kind: "location",
+      label: "Near Clayton, Notting Hill 3168",
+    });
+  });
 });

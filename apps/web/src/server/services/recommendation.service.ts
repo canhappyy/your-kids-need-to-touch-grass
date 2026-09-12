@@ -141,8 +141,8 @@ export async function getRecommendation(
 
   const location = await deps.resolveLocation(input.location);
   const candidate = await deps.repository.findLocationBased({
-    latitude: location.latitude,
-    longitude: location.longitude,
+    latitude: input.latitude ?? location.latitude,
+    longitude: input.longitude ?? location.longitude,
     ageMin: input.ageMin,
     ageMax: input.ageMax,
     durationMinutes: input.durationMinutes,

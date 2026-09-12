@@ -10,6 +10,15 @@ const integerString = z
   .pipe(z.number().int().safe());
 
 /**
+ * Parses and validates an optional floating-point coordinate number.
+ */
+const coordinateNumber = z
+  .string()
+  .trim()
+  .transform(Number)
+  .pipe(z.number().finite());
+
+/**
  * Validates a single mission identifier string (1 to 50 characters).
  */
 const missionId = z.string().trim().min(1).max(50);
@@ -22,9 +31,10 @@ const missionId = z.string().trim().min(1).max(50);
  *    - `playStyle`: optional enum (`"solo"` | `"group"`), defaults to `"solo"`.
  *    - `canSupervise`: optional string boolean (`"true"` | `"false"`), defaults to `"false"`, transformed into a boolean.
  *
- * 2. Mode and Location (`locationMode` & `location`):
+ * 2. Mode and Location (`locationMode`, `location`, `lat`, & `lng`):
  *    - `locationMode`: must be either `"nearby"` (venue/park-based) or `"home"` (indoor/home-based).
  *    - `location`: optional trimmed string; required (1 to 100 characters) when `locationMode` is `"nearby"`.
+ *    - `lat` / `lng`: optional finite coordinates; if provided, both must be supplied together.
  *
  * 3. Age Bounds (`ageMin` & `ageMax`):
  *    - Accepts numeric strings between 5 and 12.
@@ -40,14 +50,19 @@ const missionId = z.string().trim().min(1).max(50);
  *
  * Transformations:
  * 1. Deduplication: removes any duplicate IDs from `excludeMissionIds`.
- * 2. Discriminated output: guarantees `location` is present when `locationMode` is `"nearby"`, and omits it for `"home"`.
+ * 2. Discriminated output: guarantees `location` is present when `locationMode` is `"nearby"`, along with optional `latitude`/`longitude`, and omits them for `"home"`.
  */
 export const recommendationQuerySchema = z
   .object({
     playStyle: z.enum(["solo", "group"]).default("solo"),
-    canSupervise: z.enum(["true", "false"]).default("false").transform(value => value === "true"),
+    canSupervise: z
+      .enum(["true", "false"])
+      .default("false")
+      .transform((value) => value === "true"),
     locationMode: z.enum(["nearby", "home"]),
     location: z.string().trim().optional(),
+    lat: coordinateNumber.optional(),
+    lng: coordinateNumber.optional(),
     ageMin: integerString.pipe(z.number().min(5).max(12)),
     ageMax: integerString.pipe(z.number().min(5).max(12)),
     durationMinutes: integerString.pipe(
@@ -65,6 +80,17 @@ export const recommendationQuerySchema = z
         code: "custom",
         message: "Location is required for nearby recommendations.",
         path: ["location"],
+      });
+    }
+
+    if (
+      (value.lat !== undefined && value.lng === undefined) ||
+      (value.lat === undefined && value.lng !== undefined)
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "Both latitude and longitude must be provided together.",
+        path: [value.lat === undefined ? "lat" : "lng"],
       });
     }
 
@@ -97,11 +123,17 @@ export const recommendationQuerySchema = z
       ...(value.missionId ? { missionId: value.missionId } : {}),
     };
 
+    const hasCoords =
+      value.locationMode === "nearby" &&
+      value.lat !== undefined &&
+      value.lng !== undefined;
+
     return value.locationMode === "home"
       ? { ...common, locationMode: "home" as const }
       : {
           ...common,
           locationMode: "nearby" as const,
           location: value.location!,
+          ...(hasCoords ? { latitude: value.lat, longitude: value.lng } : {}),
         };
   });

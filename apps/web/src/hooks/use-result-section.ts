@@ -59,6 +59,8 @@ export function useResultSection() {
   const locationMode =
     searchParams.get("locationMode") === "home" ? "home" : "nearby"
   const location = searchParams.get("location") || ""
+  const lat = searchParams.get("lat") || undefined
+  const lng = searchParams.get("lng") || undefined
   const ageMin = searchParams.get("ageMin") || "6"
   const ageMax = searchParams.get("ageMax") || "10"
   const hours = searchParams.get("hours") || "2"
@@ -83,6 +85,8 @@ export function useResultSection() {
       ageMin,
       hours,
       location,
+      lat,
+      lng,
       locationMode,
       minutes,
       playStyle,
@@ -96,6 +100,8 @@ export function useResultSection() {
       ageMin,
       hours,
       location,
+      lat,
+      lng,
       locationMode,
       minutes,
       playStyle,
@@ -119,12 +125,25 @@ export function useResultSection() {
       ageMin,
       hours,
       location,
+      lat,
+      lng,
       locationMode,
       minutes,
       playStyle,
       canSupervise,
     })
-  }, [ageMax, ageMin, hours, location, locationMode, minutes, playStyle, canSupervise])
+  }, [
+    ageMax,
+    ageMin,
+    hours,
+    location,
+    lat,
+    lng,
+    locationMode,
+    minutes,
+    playStyle,
+    canSupervise,
+  ])
 
   const returnToSearchWithError = useCallback(
     (code: string) => {
@@ -144,6 +163,8 @@ export function useResultSection() {
           ageMin,
           hours,
           location,
+          lat,
+          lng,
           locationMode,
           minutes,
           playStyle,
@@ -182,6 +203,8 @@ export function useResultSection() {
       ageMin,
       hours,
       location,
+      lat,
+      lng,
       locationMode,
       minutes,
       playStyle,

@@ -48,6 +48,18 @@ export function useHomeSearchForm({
     initialValues.locationMode,
   );
   const [location, setLocation] = useState(initialValues.location);
+  const [deviceCoords, setDeviceCoords] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(
+    initialValues.latitude !== undefined &&
+      initialValues.longitude !== undefined
+      ? {
+          latitude: initialValues.latitude,
+          longitude: initialValues.longitude,
+        }
+      : null,
+  );
   const [selectedBuckets, setSelectedBuckets] = useState<AgeBucketId[]>(
     initialValues.selectedBuckets ?? [],
   );
@@ -66,6 +78,7 @@ export function useHomeSearchForm({
   const showGpsFallback = useCallback(() => {
     setIsLocating(false);
     setGpsStatus("");
+    setDeviceCoords(null);
     setLocationError(
       "We couldn't use your location. Enter your postcode or suburb.",
     );
@@ -86,6 +99,10 @@ export function useHomeSearchForm({
         }
 
         setLocation(postcode);
+        setDeviceCoords({
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+        });
         setLocationError("");
         setGpsStatus(`Using postcode ${postcode}.`);
         setIsLocating(false);
@@ -121,11 +138,15 @@ export function useHomeSearchForm({
 
   const handleLocationModeChange = useCallback((mode: LocationMode) => {
     setLocationMode(mode);
+    if (mode === "home") {
+      setDeviceCoords(null);
+    }
     setLocationError("");
   }, []);
 
   const handleLocationChange = useCallback((value: string) => {
     setLocation(value);
+    setDeviceCoords(null);
     setGpsStatus("");
     setLocationError("");
   }, []);
@@ -165,16 +186,34 @@ export function useHomeSearchForm({
         canSupervise,
         hours,
         location: locationMode === "nearby" ? location.trim() : "",
+        latitude:
+          locationMode === "nearby" && deviceCoords
+            ? deviceCoords.latitude
+            : undefined,
+        longitude:
+          locationMode === "nearby" && deviceCoords
+            ? deviceCoords.longitude
+            : undefined,
         locationMode,
         minutes,
         selectedBuckets,
       });
     },
-    [hours, location, locationMode, minutes, onValidSubmit, selectedBuckets,
-      playStyle, canSupervise],
+    [
+      canSupervise,
+      deviceCoords,
+      hours,
+      location,
+      locationMode,
+      minutes,
+      onValidSubmit,
+      playStyle,
+      selectedBuckets,
+    ],
   );
 
   return {
+    deviceCoords,
     playStyle,
     canSupervise,
     setPlayStyle,
