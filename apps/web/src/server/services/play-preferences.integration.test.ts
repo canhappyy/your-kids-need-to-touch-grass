@@ -66,7 +66,8 @@ describe.each(["Location-Based", "Home-Based", "Location-Agnostic"])(
           location: "Clayton 3168",
           ageMin: 6,
           ageMax: 10,
-          durationMinutes: 30,
+          // 90 minutes budget accommodates the 15m activity plus round-trip walking commute (~48m to the nearest 1.22km park)
+          durationMinutes: 90,
           playStyle: preferences.playStyle,
           canSupervise: preferences.canSupervise,
           missionId: `TEST-PREFERENCES-${missionType}-${index}`,

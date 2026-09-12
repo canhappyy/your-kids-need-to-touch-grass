@@ -92,7 +92,7 @@ function mapAgeBands(row: Record<string, unknown>): AgeBand[] {
 }
 
 /**
- * Searches for a location-based activity candidate within 1km of coordinates matching age, duration, supervision level, and play style.
+ * Searches for a location-based activity candidate within 2km of coordinates matching age, duration, supervision level, and play style.
  *
  * How this query works:
  * 1. Great-Circle Distance Calculation (`WITH open_space_distances AS MATERIALIZED (...)`):
@@ -113,7 +113,7 @@ function mapAgeBands(row: Record<string, unknown>): AgeBand[] {
  *    - Play Style Variety Tag: Uses `EXISTS` on `activity_variety_tag` (`$9`) to match
  *      `['Pairs', 'Group/Family']` for group play or `['Solo']` for solo play.
  *    - Verifies activity plus estimated round-trip walking fits within available time.
- *    - Restricts venues to within 1 km (`distance_km <= 1`).
+ *    - Restricts venues to within 2 km (`distance_km <= 2`).
  *    - Checks age band overlap: ensures the user's child age range (`[$3, $4]`) intersects with
  *      at least one enabled age band (`age_5_7`, `age_8_9`, or `age_10_12`).
  *    - Optionally filters for a specific mission (`$7`) if provided.
@@ -195,7 +195,7 @@ export async function findLocationBasedRecommendation(
           WHERE avt.mission_id = a.mission_id AND avt.tag_name = ANY($9::text[])
         )
         AND a.duration_minutes + os.commute_minutes <= $5
-        AND os.distance_km <= 1
+        AND os.distance_km <= 2
         AND (
           ($3 <= 7 AND $4 >= 5 AND a.age_5_7 = 'Y')
           OR ($3 <= 9 AND $4 >= 8 AND a.age_8_9 = 'Y')

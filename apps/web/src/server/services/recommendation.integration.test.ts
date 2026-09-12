@@ -94,7 +94,7 @@ describe("seeded recommendation flow", () => {
       ],
     });
     expect(recommendation?.totalMinutes).toBeLessThanOrEqual(120);
-    expect(recommendation?.venue?.distanceKm).toBeLessThanOrEqual(10);
+    expect(recommendation?.venue?.distanceKm).toBeLessThanOrEqual(2);
 
     const match = await pool.query(
       `
