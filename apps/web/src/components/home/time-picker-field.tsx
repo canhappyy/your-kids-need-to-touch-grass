@@ -47,7 +47,6 @@ export function TimePickerField({
           </SelectContent>
         </Select>
       </div>
-      <p className="mt-2 text-xs text-zinc-500">15-90 minutes (15 min steps)</p>
       {timeError && (
         <p className="mt-2 text-sm text-destructive" role="alert">
           {timeError}
