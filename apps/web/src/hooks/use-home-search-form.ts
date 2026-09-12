@@ -51,6 +51,10 @@ export function useHomeSearchForm({
   const [selectedBuckets, setSelectedBuckets] = useState<AgeBucketId[]>(
     initialValues.selectedBuckets ?? [],
   );
+  const [playStyle, setPlayStyle] = useState(initialValues.playStyle ?? "solo");
+  const [canSupervise, setCanSupervise] = useState(
+    initialValues.canSupervise ?? false,
+  );
   const [hours, setHours] = useState(initialValues.hours);
   const [minutes, setMinutes] = useState(initialValues.minutes);
   const [locationError, setLocationError] = useState(initialLocationError);
@@ -157,6 +161,8 @@ export function useHomeSearchForm({
       if (!validation.isValid) return;
 
       onValidSubmit({
+        playStyle,
+        canSupervise,
         hours,
         location: locationMode === "nearby" ? location.trim() : "",
         locationMode,
@@ -164,10 +170,15 @@ export function useHomeSearchForm({
         selectedBuckets,
       });
     },
-    [hours, location, locationMode, minutes, onValidSubmit, selectedBuckets],
+    [hours, location, locationMode, minutes, onValidSubmit, selectedBuckets,
+      playStyle, canSupervise],
   );
 
   return {
+    playStyle,
+    canSupervise,
+    setPlayStyle,
+    setCanSupervise,
     gpsStatus,
     handleHoursChange,
     handleLocationChange,

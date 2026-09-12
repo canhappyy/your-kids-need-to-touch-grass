@@ -1,5 +1,6 @@
 "use client";
 
+import { readPlayPreferences, playPreferenceParams } from "@/lib/play-preferences";
 import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
@@ -57,6 +58,7 @@ export function HomeSearchSection() {
   }
 
   const initialValues: HomeSearchValues = {
+    ...readPlayPreferences(searchParams),
     locationMode:
       searchParams.get("locationMode") === "home"
         ? "home"
@@ -76,7 +78,7 @@ export function HomeSearchSection() {
   const locationErrorCode = searchParams.get("locationError") || "";
 
   const handleSubmit = (values: HomeSearchValues) => {
-    const params = new URLSearchParams();
+    const params = new URLSearchParams(playPreferenceParams(values));
     params.set("locationMode", values.locationMode);
     if (values.locationMode === "nearby") {
       params.set("location", values.location);

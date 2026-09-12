@@ -1,3 +1,4 @@
+import { defaultPlayPreferences } from "@/lib/play-preferences";
 import type {
   AgeBucketId,
   AgeBucketOption,
@@ -49,6 +50,7 @@ export const minuteOptions = [15, 30, 45, 60, 75, 90].map((minute) => ({
 }));
 
 export const defaultHomeSearchValues: HomeSearchValues = {
+  ...defaultPlayPreferences,
   hours: 0,
   location: "",
   locationMode: "nearby",

@@ -53,6 +53,8 @@ describe("home-search lib utilities", () => {
 
     it("has valid default values", () => {
       expect(defaultHomeSearchValues).toEqual({
+        playStyle: "solo",
+        canSupervise: false,
         hours: 0,
         location: "",
         locationMode: "nearby",

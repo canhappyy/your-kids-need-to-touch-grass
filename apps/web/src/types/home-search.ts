@@ -1,3 +1,4 @@
+import type { PlayPreferences } from "@/types/play-preferences";
 /**
  * Search mode for activities: "nearby" (outdoor/local open spaces) or "home" (indoor/at-home activities).
  */
@@ -26,7 +27,7 @@ export type AgeBucketOption = {
 /**
  * Search form field values submitted by the user on the home search page.
  */
-export type HomeSearchValues = {
+export type HomeSearchValues = PlayPreferences & {
   /** Selected location mode ("nearby" or "home"). */
   locationMode: LocationMode;
   /** User-entered location (4-digit postcode or suburb name). Empty when locationMode is "home". */
