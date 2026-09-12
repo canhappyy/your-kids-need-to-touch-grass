@@ -56,15 +56,13 @@ export function LocationInputField({
                 : undefined
           }
           aria-invalid={Boolean(locationError)}
-          autoComplete="postal-code"
+          autoComplete="off"
           className="h-[52px] rounded-xl border-zinc-200 bg-[#F0B6A31F] px-4 text-base placeholder:text-zinc-500 focus-visible:border-[#E4633C] focus-visible:ring-[#E4633C]/20 md:text-base"
           id="location"
-          inputMode="numeric"
-          maxLength={4}
+          maxLength={50}
           name="location"
           onChange={(event) => onLocationChange(event.target.value)}
-          pattern="[0-9]{4}"
-          placeholder="Postcode, e.g. 3168"
+          placeholder="Postcode or suburb, e.g. Clayton"
           ref={inputRef}
           required
           type="text"

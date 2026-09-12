@@ -29,7 +29,7 @@ export type AgeBucketOption = {
 export type HomeSearchValues = {
   /** Selected location mode ("nearby" or "home"). */
   locationMode: LocationMode;
-  /** User-entered location (4-digit postcode). Empty when locationMode is "home". */
+  /** User-entered location (4-digit postcode or suburb name). Empty when locationMode is "home". */
   location: string;
   /** Selected child age range [minAge, maxAge]. */
   ageRange: AgeRange;
