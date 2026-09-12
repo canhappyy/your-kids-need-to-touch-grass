@@ -3,6 +3,11 @@
 import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
+  calculateRangeFromBuckets,
+  getInitialBuckets,
+} from "@/lib/home-search";
+import type { AgeBucketId } from "@/types/home-search";
+import {
   HomeSearchForm,
   type HomeSearchValues,
   type LocationMode,
@@ -29,13 +34,35 @@ export function HomeSearchSection() {
     ? totalMinutesFromQuery
     : 45;
 
+  const hasAgeParams =
+    searchParams.has("ageMin") || searchParams.has("ageMax");
+  const ageBucketsParam = searchParams.get("ageBuckets");
+
+  let initialSelectedBuckets: AgeBucketId[] = [];
+
+  if (ageBucketsParam !== null) {
+    initialSelectedBuckets = ageBucketsParam
+      ? (ageBucketsParam.split(",") as AgeBucketId[])
+      : [];
+  } else if (hasAgeParams) {
+    const min = getNumberParam("ageMin", 5);
+    const max = getNumberParam("ageMax", 12);
+    if (min === 5 && max === 12) {
+      initialSelectedBuckets = [];
+    } else {
+      initialSelectedBuckets = getInitialBuckets([min, max]);
+    }
+  } else {
+    initialSelectedBuckets = [];
+  }
+
   const initialValues: HomeSearchValues = {
     locationMode:
       searchParams.get("locationMode") === "home"
         ? "home"
         : ("nearby" as LocationMode),
     location: searchParams.get("location") || "",
-    ageRange: [getNumberParam("ageMin", 7), getNumberParam("ageMax", 9)],
+    selectedBuckets: initialSelectedBuckets,
     hours: 0,
     minutes: initialMinutes,
   };
@@ -54,8 +81,12 @@ export function HomeSearchSection() {
     if (values.locationMode === "nearby") {
       params.set("location", values.location);
     }
-    params.set("ageMin", values.ageRange[0].toString());
-    params.set("ageMax", values.ageRange[1].toString());
+    const [ageMin, ageMax] = calculateRangeFromBuckets(values.selectedBuckets);
+    params.set("ageMin", ageMin.toString());
+    params.set("ageMax", ageMax.toString());
+    if (values.selectedBuckets.length > 0) {
+      params.set("ageBuckets", values.selectedBuckets.join(","));
+    }
     params.set("hours", (values.hours ?? 0).toString());
     params.set("minutes", values.minutes.toString());
     router.push(`/result?${params.toString()}`);

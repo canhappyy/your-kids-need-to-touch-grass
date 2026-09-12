@@ -1,57 +1,36 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
-import {
-  AGE_BUCKETS,
-  calculateRangeFromBuckets,
-  getInitialBuckets,
-} from "@/lib/home-search";
-import type { AgeBucketId, AgeRange } from "@/types/home-search";
+import { AGE_BUCKETS } from "@/lib/home-search";
+import type { AgeBucketId } from "@/types/home-search";
 
 import { AgeRangePill } from "./age-range-pill";
 
 export type AgeRangeSelectorProps = {
-  value: AgeRange;
-  onValueChange: (value: AgeRange) => void;
+  selectedBuckets?: AgeBucketId[];
+  onValueChange: (buckets: AgeBucketId[]) => void;
 };
 
 export function AgeRangeSelector({
-  value,
+  selectedBuckets: controlledBuckets,
   onValueChange,
 }: AgeRangeSelectorProps) {
-  const [selectedBucketIds, setSelectedBucketIds] = useState<AgeBucketId[]>(() =>
-    getInitialBuckets(value)
+  const [internalBucketIds, setInternalBucketIds] = useState<AgeBucketId[]>(
+    () => controlledBuckets ?? [],
   );
 
-  const prevValueRef = useRef(value);
-
-  useEffect(() => {
-    if (
-      prevValueRef.current[0] !== value[0] ||
-      prevValueRef.current[1] !== value[1]
-    ) {
-      prevValueRef.current = value;
-      setSelectedBucketIds(getInitialBuckets(value));
-    }
-  }, [value]);
+  const activeBucketIds = controlledBuckets ?? internalBucketIds;
 
   const handleToggle = (bucketId: AgeBucketId) => {
-    let nextBuckets: AgeBucketId[];
-    if (selectedBucketIds.includes(bucketId)) {
-      // Keep at least one selected per "SELECT ONE OR MORE" requirement
-      if (selectedBucketIds.length === 1) {
-        return;
-      }
-      nextBuckets = selectedBucketIds.filter((id) => id !== bucketId);
-    } else {
-      nextBuckets = [...selectedBucketIds, bucketId];
-    }
+    const nextBuckets = activeBucketIds.includes(bucketId)
+      ? activeBucketIds.filter((id) => id !== bucketId)
+      : [...activeBucketIds, bucketId];
 
-    setSelectedBucketIds(nextBuckets);
-    const nextRange = calculateRangeFromBuckets(nextBuckets);
-    prevValueRef.current = nextRange;
-    onValueChange(nextRange);
+    if (controlledBuckets === undefined) {
+      setInternalBucketIds(nextBuckets);
+    }
+    onValueChange(nextBuckets);
   };
 
   return (
@@ -59,7 +38,7 @@ export function AgeRangeSelector({
       {AGE_BUCKETS.map((bucket) => (
         <AgeRangePill
           bucket={bucket}
-          isSelected={selectedBucketIds.includes(bucket.id)}
+          isSelected={activeBucketIds.includes(bucket.id)}
           key={bucket.id}
           onToggle={handleToggle}
         />

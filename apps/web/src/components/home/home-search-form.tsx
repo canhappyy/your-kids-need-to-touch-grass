@@ -19,12 +19,11 @@ function HomeSearchForm({
   onValidSubmit,
 }: HomeSearchFormProps) {
   const {
-    ageRange,
     gpsStatus,
-    handleAgeRangeChange,
     handleLocationChange,
     handleLocationModeChange,
     handleMinutesChange,
+    handleSelectedBucketsChange,
     handleSubmit,
     handleUseMyLocation,
     isLocating,
@@ -33,6 +32,7 @@ function HomeSearchForm({
     locationInputRef,
     locationMode,
     minutes,
+    selectedBuckets,
     timeError,
   } = useHomeSearchForm({
     initialLocationError,
@@ -63,7 +63,10 @@ function HomeSearchForm({
         />
       )}
 
-      <AgeRangeField onChange={handleAgeRangeChange} value={ageRange} />
+      <AgeRangeField
+        onChange={handleSelectedBucketsChange}
+        selectedBuckets={selectedBuckets}
+      />
 
       <TimePickerField
         minutes={minutes}

@@ -31,8 +31,8 @@ export type HomeSearchValues = {
   locationMode: LocationMode;
   /** User-entered location (4-digit postcode or suburb name). Empty when locationMode is "home". */
   location: string;
-  /** Selected child age range [minAge, maxAge]. */
-  ageRange: AgeRange;
+  /** Selected age bucket IDs (e.g. ['5-6']). Empty when no bucket is selected. */
+  selectedBuckets: AgeBucketId[];
   /** Available duration hours (0-12, optional). */
   hours?: number;
   /** Available duration minutes (15-90 in 15-min increments). */

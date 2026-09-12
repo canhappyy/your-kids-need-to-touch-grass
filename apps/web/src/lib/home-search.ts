@@ -27,10 +27,11 @@ export function getInitialBuckets(range: AgeRange): AgeBucketId[] {
 
 /**
  * Calculates the combined age range [min, max] from one or more selected bucket IDs.
+ * Returns the widest range [5, 12] when no buckets are selected.
  */
 export function calculateRangeFromBuckets(bucketIds: AgeBucketId[]): AgeRange {
   const selected = AGE_BUCKETS.filter((b) => bucketIds.includes(b.id));
-  if (selected.length === 0) return [7, 9];
+  if (selected.length === 0) return [5, 12];
   return [
     Math.min(...selected.map((b) => b.min)),
     Math.max(...selected.map((b) => b.max)),
@@ -48,11 +49,11 @@ export const minuteOptions = [15, 30, 45, 60, 75, 90].map((minute) => ({
 }));
 
 export const defaultHomeSearchValues: HomeSearchValues = {
-  ageRange: [7, 9],
   hours: 0,
   location: "",
   locationMode: "nearby",
   minutes: 45,
+  selectedBuckets: [],
 };
 
 /**

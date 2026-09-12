@@ -28,7 +28,7 @@ describe("home-search lib utilities", () => {
       expect(calculateRangeFromBuckets(["5-6", "7-9", "10-12"])).toEqual([
         5, 12,
       ]);
-      expect(calculateRangeFromBuckets([])).toEqual([7, 9]);
+      expect(calculateRangeFromBuckets([])).toEqual([5, 12]);
     });
   });
 
@@ -51,11 +51,11 @@ describe("home-search lib utilities", () => {
 
     it("has valid default values", () => {
       expect(defaultHomeSearchValues).toEqual({
-        ageRange: [7, 9],
         hours: 0,
         location: "",
         locationMode: "nearby",
         minutes: 45,
+        selectedBuckets: [],
       });
     });
   });
