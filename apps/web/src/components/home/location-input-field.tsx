@@ -28,7 +28,7 @@ export function LocationInputField({
     <div className="mt-5">
       <Button
         aria-describedby={gpsStatus ? "location-status" : undefined}
-        className="h-[52px] w-full rounded-xl border-zinc-300 bg-[#F0B6A31F] text-base font-semibold text-zinc-900 hover:bg-[#F0B6A333] focus-visible:border-[#E4633C] focus-visible:ring-[#E4633C]/20"
+        className="h-[52px] w-full rounded-xl border-[#93AB63] bg-[#93AB63]/15 text-base font-semibold text-[#93AB63] hover:bg-[#93AB63]/25 hover:text-[#93AB63] focus-visible:border-[#93AB63] focus-visible:ring-[#93AB63]/20"
         disabled={isLocating}
         onClick={onUseMyLocation}
         type="button"
