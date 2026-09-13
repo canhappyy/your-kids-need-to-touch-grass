@@ -1,7 +1,23 @@
 import type { HourlyWeather, MissionWeather } from "@/types/weather";
 
+/**
+ * Time-to-live (TTL) for cached weather forecast data in seconds (1,800 seconds = 30 minutes).
+ * Weather forecasts are updated frequently enough to stay accurate while preventing unnecessary external API calls.
+ */
 export const WEATHER_TTL_SECONDS = 1800;
 
+/**
+ * Calculates a geographical cache cell and unique cache key for a given latitude and longitude.
+ *
+ * Why this is needed:
+ * Rather than caching weather by exact coordinates or individual park IDs, coordinates are snapped
+ * to a ~2.2 km × 2.2 km grid (0.02 degrees). Venues located in the same neighborhood will share
+ * the exact same weather forecast, dramatically reducing external API requests to Open-Meteo.
+ *
+ * @param latitude - The venue's latitude coordinate in decimal degrees.
+ * @param longitude - The venue's longitude coordinate in decimal degrees.
+ * @returns An object containing the cache key and the normalized grid coordinates to query.
+ */
 export function getWeatherCell(latitude: number, longitude: number) {
   const latIndex = Math.round(latitude / 0.02);
   const lonIndex = Math.round(longitude / 0.02);
@@ -12,6 +28,13 @@ export function getWeatherCell(latitude: number, longitude: number) {
   };
 }
 
+/**
+ * Lookup table mapping World Meteorological Organization (WMO) weather interpretation codes (0–99)
+ * to parent-friendly text labels and severity priority scores.
+ *
+ * When an outing spans multiple hours with differing conditions, the condition with the highest
+ * `priority` is featured in the summary (e.g. rain takes precedence over partly cloudy).
+ */
 const conditions: Record<number, { label: string; priority: number }> = {
   0: { label: "Clear skies", priority: 0 },
   1: { label: "Mainly clear", priority: 1 },
@@ -43,6 +66,29 @@ const conditions: Record<number, { label: string; priority: number }> = {
   99: { label: "Thunderstorms with hail expected", priority: 21 },
 };
 
+/**
+ * Summarizes raw hourly weather forecast measurements into a concise, parent-friendly outing report.
+ *
+ * How this complex function works in natural English:
+ * 1. Overlapping Hours Selection: Finds all hourly forecast slots from Open-Meteo that overlap
+ *    with the planned outing (from departure time `start` to return time `end`).
+ * 2. Continuity & Quality Check: Validates that data exists for every hour of the outing without
+ *    gaps or invalid numbers. If any hour is missing or corrupted, it safely marks the weather as unavailable.
+ * 3. Most Prominent Weather: Examines the weather condition codes for each hour and selects the one with
+ *    the highest priority (e.g. thunderstorm or rain will take precedence over clear skies).
+ * 4. Severe Hazard Detection:
+ *    - Storms: WMO codes 95, 96, 99 indicate thunderstorms.
+ *    - Wind: Wind gusts >= 50 km/h indicate strong winds that could affect outdoor play.
+ *    Either hazard escalates the outing's severity status to `"severe"`.
+ * 5. Practical Advice:
+ *    - Sunscreen: Suggested if the UV index is 3 or higher, in line with Australian SunSmart guidelines.
+ *    - Rain gear: Suggested if the probability of precipitation reaches 30% or higher.
+ *
+ * @param hourly - Raw hourly weather forecast data.
+ * @param start - Outing start time in epoch milliseconds.
+ * @param end - Outing end time in epoch milliseconds (including commute).
+ * @returns A `MissionWeather` object with status, human-readable summary, severity, and time bounds.
+ */
 export function summarizeWeather(
   hourly: HourlyWeather,
   start: number,
