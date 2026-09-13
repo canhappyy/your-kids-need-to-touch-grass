@@ -1,6 +1,9 @@
 "use client";
 
-import { readPlayPreferences, playPreferenceParams } from "@/lib/play-preferences";
+import {
+  readPlayPreferences,
+  playPreferenceParams,
+} from "@/lib/play-preferences";
 import { TopNav } from "@/components/layout/top-nav";
 import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -36,8 +39,7 @@ export function HomeSearchSection() {
     ? totalMinutesFromQuery
     : 45;
 
-  const hasAgeParams =
-    searchParams.has("ageMin") || searchParams.has("ageMax");
+  const hasAgeParams = searchParams.has("ageMin") || searchParams.has("ageMax");
   const ageBucketsParam = searchParams.get("ageBuckets");
 
   let initialSelectedBuckets: AgeBucketId[] = [];
