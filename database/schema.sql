@@ -22,7 +22,8 @@ DROP TABLE IF EXISTS
     equipment_required_tag,
     indoor_outdoor_tag,
     location_category,
-    postcode
+    postcode,
+    social_tag
 CASCADE;
 
 -- 1. Lookup Tables
@@ -84,7 +85,12 @@ INSERT INTO VARIETY_TAG (tag_name) VALUES
 ('Quiet'), ('Water Play'), ('Throwing & Catching'), ('Solo'), ('Pairs'), ('Group/Family');
 -- Descriptive play-style tags. An activity can have more than one.
  
- 
+ CREATE TABLE SOCIAL_TAG (
+    tag_name VARCHAR(50) PRIMARY KEY
+);
+INSERT INTO SOCIAL_TAG (tag_name) VALUES ('Solo'), ('Group/Family'), ('social_agnostic');
+-- Whether an activity is solo, group/family, or works either way.
+
 -- 2. Core Entities
 -- The two main things the app works with: real places, and activities.
  
@@ -116,17 +122,20 @@ CREATE TABLE ACTIVITY (
     supervision_level VARCHAR(50) NULL,
     mission_type VARCHAR(50) NULL,
     weather_dependency VARCHAR(50) NULL,
+    social_tag VARCHAR(50) NULL,
     
     CONSTRAINT fk_act_indoor_outdoor FOREIGN KEY (indoor_outdoor_tag) REFERENCES INDOOR_OUTDOOR_TAG(tag_name) ON UPDATE CASCADE ON DELETE SET NULL,
     CONSTRAINT fk_act_equipment FOREIGN KEY (equipment_required_tag) REFERENCES EQUIPMENT_REQUIRED_TAG(tag_name) ON UPDATE CASCADE ON DELETE SET NULL,
     CONSTRAINT fk_act_supervision FOREIGN KEY (supervision_level) REFERENCES SUPERVISION_LEVEL(level_name) ON UPDATE CASCADE ON DELETE SET NULL,
     CONSTRAINT fk_act_mission_type FOREIGN KEY (mission_type) REFERENCES MISSION_TYPE(type_name) ON UPDATE CASCADE ON DELETE SET NULL,
+    CONSTRAINT fk_act_social FOREIGN KEY (social_tag) REFERENCES SOCIAL_TAG(tag_name) ON UPDATE CASCADE ON DELETE SET NULL,
     CONSTRAINT fk_act_weather FOREIGN KEY (weather_dependency) REFERENCES WEATHER_DEPENDENCY(dependency_name) ON UPDATE CASCADE ON DELETE SET NULL
 );
 -- One row per activity variant (e.g. a 30-min and a 45-min version
 -- of the same activity are two separate rows). Each activity is
 -- tagged with the lookup values above; tags are optional (NULL
 -- allowed) since not every activity fits every dimension.
+ 
  
  
 -- 3. Junction Tables

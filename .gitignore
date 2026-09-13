@@ -1,5 +1,9 @@
 ﻿# pipeline data - regenerate via pipeline scripts, don't commit
 pipeline/data/raw/*
+pipeline/src/australian_postcodes.csv
+pipeline/src/open_space.geojson
+pipeline/src/open_space_location_db.csv
+pipeline/src/postcode_location_db.csv
 pipeline/data/processed/*
 !pipeline/data/raw/.gitkeep
 !pipeline/data/processed/.gitkeep

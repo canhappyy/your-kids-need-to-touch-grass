@@ -33,21 +33,24 @@ CREATE TEMP TABLE staging_activity (
     supervision_level       VARCHAR(50),
     mission_type            VARCHAR(50),
     weather_dependency      VARCHAR(50),
-    variety_tags            TEXT
+    variety_tags            TEXT,
+    social_tag              VARCHAR(50)
 );
 \copy staging_activity FROM '/csvdata/activities_db.csv' WITH (FORMAT csv, HEADER true, NULL '')
  
 INSERT INTO activity (
     mission_id, activity_title, description, equipment_needed, instruction_text,
     duration_minutes, age_5_7, age_8_9, age_10_12,
-    indoor_outdoor_tag, equipment_required_tag, supervision_level, mission_type, weather_dependency
+    indoor_outdoor_tag, equipment_required_tag, supervision_level, mission_type, weather_dependency,
+    social_tag
 )
 SELECT
     mission_id, activity_title, description, equipment_needed, instruction_text,
     duration_minutes, age_5_7, age_8_9, age_10_12,
-    indoor_outdoor_tag, equipment_required_tag, supervision_level, mission_type, weather_dependency
+    indoor_outdoor_tag, equipment_required_tag, supervision_level, mission_type, weather_dependency,
+    social_tag
 FROM staging_activity;
- 
+ s
 INSERT INTO activity_variety_tag (mission_id, tag_name)
 SELECT mission_id, unnest(string_to_array(variety_tags, '|'))
 FROM staging_activity
