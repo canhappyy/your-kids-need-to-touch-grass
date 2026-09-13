@@ -11,7 +11,6 @@ import type { ActivityResultProps } from "@/types/activity"
 function ActivityResult({
   recommendation,
   isRetrying = false,
-  onBackToSearch,
   onTryAnother,
 }: ActivityResultProps) {
   const {
@@ -64,7 +63,6 @@ function ActivityResult({
           completionControl={<MissionCompletion recommendation={recommendation} isRetrying={isRetrying} />}
           directionsUrl={directionsUrl}
           isRetrying={isRetrying}
-          onBackToSearch={onBackToSearch}
           onTryAnother={onTryAnother}
         />
         <MissionInstructionsDialog

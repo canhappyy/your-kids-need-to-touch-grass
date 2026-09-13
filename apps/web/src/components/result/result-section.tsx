@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { History } from "lucide-react"
+import { ArrowLeft, History } from "lucide-react"
 import { ActivityResult } from "./activity-result"
 import { EmptyActivityResult } from "./empty-activity-result"
 import { ResultErrorState } from "./result-error-state"
@@ -25,21 +25,33 @@ export function ResultSection() {
     return null
   }
 
-  const historyLink = (
-    <Link
-      href="/history"
-      aria-label="Completed missions history"
-      title="History"
-      className="absolute top-4 right-4 z-20 flex size-11 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63] sm:top-6 sm:right-6"
-    >
-      <History className="size-6" />
-    </Link>
+  const topNav = (
+    <>
+      <button
+        type="button"
+        onClick={handleBackToSearch}
+        aria-label="Back to search"
+        title="Back to search"
+        className="absolute top-4 left-4 z-20 flex size-11 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63] sm:top-6 sm:left-6"
+      >
+        <ArrowLeft className="size-6" />
+      </button>
+
+      <Link
+        href="/history"
+        aria-label="Completed missions history"
+        title="History"
+        className="absolute top-4 right-4 z-20 flex size-11 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63] sm:top-6 sm:right-6"
+      >
+        <History className="size-6" />
+      </Link>
+    </>
   )
 
   if (error) {
     return (
       <>
-        {historyLink}
+        {topNav}
         <ResultErrorState
           error={error}
           onBackToSearch={handleBackToSearch}
@@ -52,7 +64,7 @@ export function ResultSection() {
   if (recommendation === undefined) {
     return (
       <>
-        {historyLink}
+        {topNav}
         <ResultLoadingState />
       </>
     )
@@ -61,7 +73,7 @@ export function ResultSection() {
   if (recommendation === null) {
     return (
       <>
-        {historyLink}
+        {topNav}
         <EmptyActivityResult
           description={
             locationMode === "home"
@@ -77,7 +89,7 @@ export function ResultSection() {
 
   return (
     <>
-      {historyLink}
+      {topNav}
       <ActivityResult
         isRetrying={isRetrying}
         onBackToSearch={handleBackToSearch}
