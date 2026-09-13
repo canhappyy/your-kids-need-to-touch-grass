@@ -115,7 +115,7 @@ export function HomeSearchSection() {
         href="/history"
         aria-label="Completed missions history"
         title="History"
-        className="fixed top-4 right-4 z-20 flex size-11 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63] sm:top-6 sm:right-6"
+        className="absolute top-4 right-4 z-20 flex size-11 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63] sm:top-6 sm:right-6"
       >
         <History className="size-6" />
       </Link>
