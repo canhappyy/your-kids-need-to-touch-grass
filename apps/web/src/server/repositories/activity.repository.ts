@@ -92,6 +92,7 @@ export async function findActivityById(missionId: string) {
       a.supervision_level,
       a.mission_type,
       a.weather_dependency,
+      a.social_tag,
 
       COALESCE(
         ARRAY_AGG(DISTINCT alc.category_name)

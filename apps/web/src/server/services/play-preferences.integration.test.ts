@@ -5,7 +5,7 @@ import { getRecommendation } from "./recommendation.service";
 const combinations = [
   { playStyle: "solo", canSupervise: false, tag: "Solo" },
   { playStyle: "solo", canSupervise: true, tag: "Solo" },
-  { playStyle: "group", canSupervise: false, tag: "Pairs" },
+  { playStyle: "group", canSupervise: false, tag: "Group/Family" },
   { playStyle: "group", canSupervise: true, tag: "Group/Family" },
 ] as const;
 const ids: string[] = [];
@@ -20,20 +20,17 @@ beforeAll(async () => {
       const id = `TEST-PREFERENCES-${missionType}-${index}`;
       ids.push(id);
       await pool.query(
-        `INSERT INTO activity (mission_id, activity_title, duration_minutes, age_5_7, age_8_9, age_10_12, equipment_required_tag, supervision_level, mission_type)
-         VALUES ($1, 'Preference fixture', 15, 'Y', 'Y', 'Y', 'None', $2, $3)`,
+        `INSERT INTO activity (mission_id, activity_title, duration_minutes, age_5_7, age_8_9, age_10_12, equipment_required_tag, supervision_level, mission_type, social_tag)
+         VALUES ($1, 'Preference fixture', 15, 'Y', 'Y', 'Y', 'None', $2, $3, $4)`,
         [
           id,
           preference.canSupervise
             ? "Needs Supervision"
             : "Independent-Play-Safe",
           missionType,
+          preference.tag,
         ],
       );
-      await pool.query("INSERT INTO activity_variety_tag VALUES ($1, $2)", [
-        id,
-        preference.tag,
-      ]);
       if (missionType === "Location-Based") {
         await pool.query(
           "INSERT INTO activity_location_category (mission_id, category_name) VALUES ($1, 'park')",
@@ -108,25 +105,26 @@ describe.each(["Location-Based", "Home-Based", "Location-Agnostic"])(
         expect(swapped?.supervisionLevel).toBe(
           input.canSupervise ? "Needs Supervision" : "Independent-Play-Safe",
         );
-        const tags = await pool.query(
-          "SELECT tag_name FROM activity_variety_tag WHERE mission_id = $1",
+        const actRes = await pool.query(
+          "SELECT social_tag FROM activity WHERE mission_id = $1",
           [swapped?.missionId],
         );
         const allowed =
-          input.playStyle === "solo" ? ["Solo"] : ["Pairs", "Group/Family"];
-        expect(tags.rows.some((row) => allowed.includes(row.tag_name))).toBe(
-          true,
-        );
+          input.playStyle === "solo"
+            ? ["Solo", "social_agnostic"]
+            : ["Group/Family", "social_agnostic"];
+        expect(allowed.includes(actRes.rows[0]?.social_tag)).toBe(true);
       },
     );
   },
 );
 
-it("excludes missions without a play-style tag", async () => {
+it("excludes missions with mismatched social_tag", async () => {
   const missionId = "TEST-PREFERENCES-Home-Based-0";
-  await pool.query("DELETE FROM activity_variety_tag WHERE mission_id = $1", [
-    missionId,
-  ]);
+  await pool.query(
+    "UPDATE activity SET social_tag = 'Group/Family' WHERE mission_id = $1",
+    [missionId],
+  );
   expect(
     await getRecommendation({
       locationMode: "home",
