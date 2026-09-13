@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { type RefObject } from "react";
 
 type HistoryHeaderProps = {
@@ -7,13 +6,7 @@ type HistoryHeaderProps = {
 
 export function HistoryHeader({ headingRef }: HistoryHeaderProps) {
   return (
-    <header className="space-y-6">
-      <Link
-        className="inline-flex min-h-11 items-center underline underline-offset-4"
-        href="/"
-      >
-        Find a mission
-      </Link>
+    <header className="space-y-2">
       <h1
         ref={headingRef}
         tabIndex={-1}
