@@ -50,7 +50,6 @@ SELECT
     indoor_outdoor_tag, equipment_required_tag, supervision_level, mission_type, weather_dependency,
     social_tag
 FROM staging_activity;
- s
 INSERT INTO activity_variety_tag (mission_id, tag_name)
 SELECT mission_id, unnest(string_to_array(variety_tags, '|'))
 FROM staging_activity
