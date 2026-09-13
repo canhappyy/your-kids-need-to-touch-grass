@@ -1,3 +1,5 @@
+import Link from "next/link"
+import type { ReactNode } from "react"
 import { DialogTrigger } from "@/components/ui/dialog"
 import { BookOpen, Dices } from "lucide-react"
 
@@ -5,6 +7,7 @@ import { Button, buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 type ActivityActionsProps = {
+  completionControl: ReactNode
   directionsUrl: string | null
   isRetrying?: boolean
   swapsRemaining?: number
@@ -13,6 +16,7 @@ type ActivityActionsProps = {
 }
 
 export function ActivityActions({
+  completionControl,
   directionsUrl,
   isRetrying = false,
   onTryAnother,
@@ -20,6 +24,7 @@ export function ActivityActions({
 }: ActivityActionsProps) {
   return (
     <div className="mt-auto pt-6 space-y-3">
+      {completionControl}
       <DialogTrigger
         render={<Button size="lg" type="button" variant="outline" />}
         className="h-12 w-full rounded-full border-[#93AB63] bg-white px-6 text-base font-bold text-[#93AB63] hover:bg-zinc-50 hover:text-[#93AB63] focus-visible:border-[#93AB63] focus-visible:ring-[#93AB63]/20"
@@ -60,6 +65,7 @@ export function ActivityActions({
       >
         Back to Search
       </Button>
+      <Link href="/history" className="flex min-h-11 items-center justify-center underline underline-offset-4">History</Link>
     </div>
   )
 }

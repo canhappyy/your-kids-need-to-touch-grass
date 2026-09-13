@@ -1,3 +1,4 @@
+import { MissionCompletion } from "./mission-completion"
 import { Dialog, DialogTrigger } from "@/components/ui/dialog"
 import { MissionInstructionsDialog } from "./mission-instructions-dialog"
 import { ActivityActions } from "./activity-actions"
@@ -60,6 +61,7 @@ function ActivityResult({
         />
 
         <ActivityActions
+          completionControl={<MissionCompletion recommendation={recommendation} isRetrying={isRetrying} />}
           directionsUrl={directionsUrl}
           isRetrying={isRetrying}
           onBackToSearch={onBackToSearch}
