@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { readCompletedMissions, saveCompletedMission, clearCompletedMissions, HISTORY_KEY } from "./completed-missions"
+import {
+  readCompletedMissions,
+  saveCompletedMission,
+  clearCompletedMissions,
+  formatCompletionDate,
+  HISTORY_KEY,
+} from "./completed-missions"
 
 function storage() {
   const values = new Map<string, string>()
@@ -46,5 +52,9 @@ describe("local completion history", () => {
     expect(() => readCompletedMissions(store)).toThrow()
     expect(() => saveCompletedMission(first, { ...store, getItem: () => null })).toThrow()
     expect(() => clearCompletedMissions(store)).toThrow()
+  })
+  it("formats completion date with medium date and short time", () => {
+    const formatted = formatCompletionDate("2026-09-13T10:30:00.000Z", "en-US")
+    expect(formatted).toMatch(/Sep 13, 2026/)
   })
 })

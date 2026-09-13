@@ -28,3 +28,10 @@ export function saveCompletedMission(record: CompletedMission, store: HistorySto
 export function clearCompletedMissions(store: HistoryStorage = window.localStorage): void {
   store.removeItem(HISTORY_KEY)
 }
+
+export function formatCompletionDate(completedAt: string, locale?: string): string {
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(completedAt))
+}
