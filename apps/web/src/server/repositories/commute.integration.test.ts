@@ -14,9 +14,9 @@ beforeAll(async () => {
   );
   await pool.query(
     `INSERT INTO activity (mission_id, activity_title, duration_minutes,
-       age_5_7, age_8_9, age_10_12, supervision_level, mission_type)
+       age_5_7, age_8_9, age_10_12, supervision_level, mission_type, social_tag)
      VALUES ($1, 'Return Walk Mission', 20, 'Y', 'Y', 'N',
-       'Independent-Play-Safe', 'Location-Based')`,
+       'Independent-Play-Safe', 'Location-Based', 'Solo')`,
     [missionId],
   );
   await pool.query(
@@ -32,7 +32,9 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await pool.query("DELETE FROM activity WHERE mission_id = $1", [missionId]);
-  await pool.query("DELETE FROM open_space WHERE open_space_id = $1", [openSpaceId]);
+  await pool.query("DELETE FROM open_space WHERE open_space_id = $1", [
+    openSpaceId,
+  ]);
   await pool.end();
 });
 
@@ -45,28 +47,34 @@ describe("round-trip walking budget", () => {
     // About 0.514 km: displayed as 0.51, but needs 11 minutes each way.
     { latitude: 0.00462, budget: 42, commute: 22, fits: true },
     { latitude: 0.00462, budget: 41, commute: 22, fits: false },
-  ])("latitude $latitude, budget $budget: fits $fits", async ({ latitude, budget, commute, fits }) => {
-    await pool.query("UPDATE open_space SET latitude = $1 WHERE open_space_id = $2", [latitude, openSpaceId]);
-    const result = await findLocationBasedRecommendation({
-      latitude: 0,
-      longitude: 0,
-      ageMin: 6,
-      ageMax: 10,
-      durationMinutes: budget,
-      playStyle: "solo",
-      canSupervise: false,
-      missionId,
-    });
+  ])(
+    "latitude $latitude, budget $budget: fits $fits",
+    async ({ latitude, budget, commute, fits }) => {
+      await pool.query(
+        "UPDATE open_space SET latitude = $1 WHERE open_space_id = $2",
+        [latitude, openSpaceId],
+      );
+      const result = await findLocationBasedRecommendation({
+        latitude: 0,
+        longitude: 0,
+        ageMin: 6,
+        ageMax: 10,
+        durationMinutes: budget,
+        playStyle: "solo",
+        canSupervise: false,
+        missionId,
+      });
 
-    if (!fits) {
-      expect(result).toBeNull();
-      return;
-    }
-    expect(result).toMatchObject({
-      missionId,
-      durationMinutes: 20,
-      commuteMinutes: commute,
-      totalMinutes: 20 + commute,
-    });
-  });
+      if (!fits) {
+        expect(result).toBeNull();
+        return;
+      }
+      expect(result).toMatchObject({
+        missionId,
+        durationMinutes: 20,
+        commuteMinutes: commute,
+        totalMinutes: 20 + commute,
+      });
+    },
+  );
 });

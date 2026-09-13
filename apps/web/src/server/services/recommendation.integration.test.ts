@@ -150,10 +150,11 @@ describe("seeded recommendation flow", () => {
           age_8_9,
           age_10_12,
           supervision_level,
-          mission_type
+          mission_type,
+          social_tag
         )
         VALUES ($1, 'Nearest Park Mission', 20, 'Y', 'Y', 'N',
-          'Independent-Play-Safe', 'Location-Based')
+          'Independent-Play-Safe', 'Location-Based', 'Solo')
         `,
         [missionId],
       );
@@ -165,7 +166,10 @@ describe("seeded recommendation flow", () => {
         [missionId],
       );
 
-      await pool.query("INSERT INTO activity_variety_tag (mission_id, tag_name) VALUES ($1, 'Solo')", [missionId]);
+      await pool.query(
+        "INSERT INTO activity_variety_tag (mission_id, tag_name) VALUES ($1, 'Solo')",
+        [missionId],
+      );
 
       const recommendation = await getRecommendation({
         ...input,
@@ -217,18 +221,22 @@ describe("seeded recommendation flow", () => {
           age_10_12,
           equipment_required_tag,
           supervision_level,
-          mission_type
+          mission_type,
+          social_tag
         )
         VALUES
           ($1, 'No-Equipment Fallback', 20, 'Y', 'Y', 'N', 'None',
-            'Independent-Play-Safe', 'Location-Agnostic'),
+            'Independent-Play-Safe', 'Location-Agnostic', 'Solo'),
           ($2, 'Equipment Fallback', 20, 'Y', 'Y', 'N', 'Household Items',
-            'Independent-Play-Safe', 'Home-Based')
+            'Independent-Play-Safe', 'Home-Based', 'Solo')
         `,
         missionIds,
       );
 
-      await pool.query("INSERT INTO activity_variety_tag (mission_id, tag_name) SELECT unnest($1::text[]), 'Solo'", [missionIds]);
+      await pool.query(
+        "INSERT INTO activity_variety_tag (mission_id, tag_name) SELECT unnest($1::text[]), 'Solo'",
+        [missionIds],
+      );
 
       await expect(
         getRecommendation({ ...input, missionId: equipmentMissionId }),
@@ -349,7 +357,8 @@ describe("seeded recommendation flow", () => {
           age_10_12,
           equipment_required_tag,
           supervision_level,
-          mission_type
+          mission_type,
+          social_tag
         )
         VALUES (
           $1,
@@ -360,13 +369,17 @@ describe("seeded recommendation flow", () => {
           'N',
           'None',
           'Independent-Play-Safe',
-          'Home-Based'
+          'Home-Based',
+          'Solo'
         )
         `,
         [missionId],
       );
 
-      await pool.query("INSERT INTO activity_variety_tag (mission_id, tag_name) VALUES ($1, 'Solo')", [missionId]);
+      await pool.query(
+        "INSERT INTO activity_variety_tag (mission_id, tag_name) VALUES ($1, 'Solo')",
+        [missionId],
+      );
 
       const recommendation = await getRecommendation({
         playStyle: "solo" as const,
