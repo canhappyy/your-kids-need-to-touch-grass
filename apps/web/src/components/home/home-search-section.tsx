@@ -2,6 +2,7 @@
 
 import { readPlayPreferences, playPreferenceParams } from "@/lib/play-preferences";
 import Image from "next/image";
+import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   calculateRangeFromBuckets,
@@ -120,6 +121,8 @@ export function HomeSearchSection() {
           />
         </h1>
       </header>
+
+      <Link href="/history" className="mt-4 flex min-h-11 items-center justify-center underline underline-offset-4">History</Link>
 
       <HomeSearchForm
         initialLocationError={locationErrorMessages[locationErrorCode]}
