@@ -1,3 +1,4 @@
+import type { MissionWeather } from "./weather";
 import type { PlayPreferences } from "@/types/play-preferences";
 /**
  * Explanatory reason badge displayed on an activity recommendation.
@@ -113,6 +114,8 @@ export type FallbackRecommendationQuery = Omit<
  * Complete recommendation response object including activity details, match reasons, and venue.
  */
 export type Recommendation = RecommendationTiming & {
+  /** Added by the API after selection; absent on unenriched service results. */
+  weather?: MissionWeather;
   /** Unique mission identifier. */
   missionId: string;
   /** Activity title. */
