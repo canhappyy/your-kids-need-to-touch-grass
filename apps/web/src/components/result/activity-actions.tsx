@@ -1,19 +1,18 @@
-import Link from "next/link"
-import type { ReactNode } from "react"
-import { DialogTrigger } from "@/components/ui/dialog"
-import { BookOpen, Dices } from "lucide-react"
+import type { ReactNode } from "react";
+import { DialogTrigger } from "@/components/ui/dialog";
+import { BookOpen, Dices } from "lucide-react";
 
-import { Button, buttonVariants } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 type ActivityActionsProps = {
-  completionControl: ReactNode
-  directionsUrl: string | null
-  isRetrying?: boolean
-  swapsRemaining?: number
-  onTryAnother: () => void
-  onBackToSearch: () => void
-}
+  completionControl: ReactNode;
+  directionsUrl: string | null;
+  isRetrying?: boolean;
+  swapsRemaining?: number;
+  onTryAnother: () => void;
+  onBackToSearch: () => void;
+};
 
 export function ActivityActions({
   completionControl,
@@ -36,7 +35,7 @@ export function ActivityActions({
         <a
           className={cn(
             buttonVariants({ size: "lg" }),
-            "h-12 w-full rounded-full bg-[#E4633C] px-6 text-base font-bold text-white hover:bg-[#c95330] focus-visible:border-[#c95330] focus-visible:ring-[#E4633C]/30"
+            "h-12 w-full rounded-full bg-[#E4633C] px-6 text-base font-bold text-white hover:bg-[#c95330] focus-visible:border-[#c95330] focus-visible:ring-[#E4633C]/30",
           )}
           href={directionsUrl}
           rel="noopener noreferrer"
@@ -65,7 +64,6 @@ export function ActivityActions({
       >
         Back to Search
       </Button>
-      <Link href="/history" className="flex min-h-11 items-center justify-center underline underline-offset-4">History</Link>
     </div>
-  )
+  );
 }
