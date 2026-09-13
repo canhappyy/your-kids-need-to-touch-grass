@@ -1,6 +1,7 @@
 "use client";
 
 import { readPlayPreferences, playPreferenceParams } from "@/lib/play-preferences";
+import { History } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -110,7 +111,7 @@ export function HomeSearchSection() {
 
   return (
     <>
-      <header className="flex justify-center">
+      <header className="relative flex items-center justify-center">
         <h1>
           <Image
             src="/playgo.svg"
@@ -120,9 +121,16 @@ export function HomeSearchSection() {
             priority
           />
         </h1>
-      </header>
 
-      <Link href="/history" className="mt-4 flex min-h-11 items-center justify-center underline underline-offset-4">History</Link>
+        <Link
+          href="/history"
+          aria-label="Completed missions history"
+          title="History"
+          className="absolute right-0 flex size-11 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63]"
+        >
+          <History className="size-6" />
+        </Link>
+      </header>
 
       <HomeSearchForm
         initialLocationError={locationErrorMessages[locationErrorCode]}
