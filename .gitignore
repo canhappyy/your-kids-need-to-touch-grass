@@ -2,6 +2,8 @@
 pipeline/data/raw/*
 pipeline/data/src/australian_postcodes.csv
 pipeline/data/src/open_space.geojson
+pipeline/data/src/open_space_location_db.csv
+pipeline/data/src/postcode_locaation_db.csv
 pipeline/data/processed/*
 !pipeline/data/raw/.gitkeep
 !pipeline/data/processed/.gitkeep
