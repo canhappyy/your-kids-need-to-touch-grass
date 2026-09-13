@@ -57,6 +57,13 @@ export function HomeSearchSection() {
     initialSelectedBuckets = [];
   }
 
+  const queryLat = searchParams.get("lat");
+  const queryLng = searchParams.get("lng");
+  const parsedLat = queryLat ? parseFloat(queryLat) : undefined;
+  const parsedLng = queryLng ? parseFloat(queryLng) : undefined;
+  const initialLat = Number.isFinite(parsedLat) ? parsedLat : undefined;
+  const initialLng = Number.isFinite(parsedLng) ? parsedLng : undefined;
+
   const initialValues: HomeSearchValues = {
     ...readPlayPreferences(searchParams),
     locationMode:
@@ -64,6 +71,8 @@ export function HomeSearchSection() {
         ? "home"
         : ("nearby" as LocationMode),
     location: searchParams.get("location") || "",
+    latitude: initialLat,
+    longitude: initialLng,
     selectedBuckets: initialSelectedBuckets,
     hours: 0,
     minutes: initialMinutes,
@@ -82,6 +91,10 @@ export function HomeSearchSection() {
     params.set("locationMode", values.locationMode);
     if (values.locationMode === "nearby") {
       params.set("location", values.location);
+      if (values.latitude !== undefined && values.longitude !== undefined) {
+        params.set("lat", values.latitude.toString());
+        params.set("lng", values.longitude.toString());
+      }
     }
     const [ageMin, ageMax] = calculateRangeFromBuckets(values.selectedBuckets);
     params.set("ageMin", ageMin.toString());

@@ -32,6 +32,10 @@ export type ActivityResultViewModel = {
   goalAriaText: string;
   /** Formatted duration string (e.g. "45 minutes", "1 hour", "1 hour 30 minutes"). */
   formattedDuration: string;
+  /** Formatted activity plus round-trip walking duration. */
+  formattedTotalDuration: string;
+  /** Formatted round-trip walking estimate, or null without a venue. */
+  formattedCommuteDuration: string | null;
   /** Formatted supervision string ("Independent play" or "Adult supervision"). */
   formattedSupervision: string;
   /** Formatted age bands label (e.g. "5-7, 8-9"). */

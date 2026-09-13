@@ -66,6 +66,24 @@ describe("result-search lib utilities", () => {
       expect(query.get("locationMode")).toBe("home")
       expect(query.get("location")).toBeNull()
     })
+
+    it("includes lat and lng when provided in nearby mode", () => {
+      const query = buildSearchQuery({
+        ageMax: "10",
+        ageMin: "6",
+        hours: "1",
+        location: "3168",
+        lat: "-37.915",
+        lng: "145.123",
+        playStyle: "solo",
+        canSupervise: false,
+        locationMode: "nearby",
+        minutes: "30",
+      })
+
+      expect(query.get("lat")).toBe("-37.915")
+      expect(query.get("lng")).toBe("145.123")
+    })
   })
 
   describe("mapLocationErrorCode", () => {
@@ -85,9 +103,11 @@ describe("result-search lib utilities", () => {
           ageMin: "6",
           hours: "1",
           location: "3168",
+          lat: "-37.915",
+          lng: "145.123",
           playStyle: "group",
           canSupervise: true,
-        locationMode: "nearby",
+          locationMode: "nearby",
           minutes: "15",
         },
         {
@@ -102,6 +122,8 @@ describe("result-search lib utilities", () => {
       expect(parsedUrl.searchParams.get("canSupervise")).toBe("true")
       expect(parsedUrl.searchParams.get("durationMinutes")).toBe("75")
       expect(parsedUrl.searchParams.get("location")).toBe("3168")
+      expect(parsedUrl.searchParams.get("lat")).toBe("-37.915")
+      expect(parsedUrl.searchParams.get("lng")).toBe("145.123")
       expect(parsedUrl.searchParams.get("missionId")).toBe("m3")
       expect(parsedUrl.searchParams.getAll("excludeMissionId")).toEqual([
         "m1",
@@ -117,6 +139,8 @@ describe("result-search lib utilities", () => {
           ageBands: ["5-7"],
           description: "Test description",
           durationMinutes: 30,
+          commuteMinutes: 0,
+          totalMinutes: 30,
           equipmentNeeded: null,
           instructionText: null,
           missionId: "m1",

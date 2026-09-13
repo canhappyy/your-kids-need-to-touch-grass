@@ -108,7 +108,7 @@ function buildReasons(
  * Searches for Home-Based, zero-equipment activities matching the age, duration, play style, and supervision criteria.
  *
  * For `"nearby"` mode:
- * Resolves location, attempts to find a location-based activity within 10km matching criteria, and falls back to
+ * Resolves location, attempts to find a location-based activity within 2km matching criteria, and falls back to
  * Home-Based or Location-Agnostic activities if no nearby activity is found.
  *
  * @param input - Search criteria including age range, duration, location mode, play style, and supervision availability.
@@ -141,8 +141,8 @@ export async function getRecommendation(
 
   const location = await deps.resolveLocation(input.location);
   const candidate = await deps.repository.findLocationBased({
-    latitude: location.latitude,
-    longitude: location.longitude,
+    latitude: input.latitude ?? location.latitude,
+    longitude: input.longitude ?? location.longitude,
     ageMin: input.ageMin,
     ageMax: input.ageMax,
     durationMinutes: input.durationMinutes,

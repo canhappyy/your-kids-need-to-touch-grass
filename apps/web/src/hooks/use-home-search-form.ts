@@ -19,25 +19,28 @@ import type {
  * How this hook works:
  * 1. Form State Management:
  *    Initializes and tracks state for location mode (nearby vs home), location text,
- *    target age range, available time (hours and minutes), and validation errors.
+ *    device GPS coordinates (`deviceCoords`), selected age buckets, available time (hours and minutes),
+ *    play preferences (play style and supervision availability), and validation errors.
  *
  * 2. Browser Geolocation & Reverse Geocoding (`handleUseMyLocation`):
  *    - Requests current GPS coordinates using the browser's `navigator.geolocation` API.
  *    - Calls `fetchNearestPostcode` to resolve GPS coordinates into the closest Victoria postcode.
- *    - Automatically updates the location field and provides status feedback if successful.
- *    - Gracefully falls back to manual postcode input and auto-focuses the text field if GPS is denied or fails.
+ *    - Automatically updates the location field, stores exact GPS coordinates in `deviceCoords`, and provides status feedback.
+ *    - Clears `deviceCoords` and falls back to database lookup if the user manually types or edits the location field.
+ *    - Gracefully falls back to manual postcode or suburb input and auto-focuses the text field if GPS is denied or fails.
  *
  * 3. Reactive Field Handlers:
  *    Provides stable `useCallback` handlers for all form inputs (mode toggle, location text,
- *    age slider, hours, and minutes) that automatically clear relevant error messages when modified.
+ *    age bucket selection, hours, minutes, and play preferences) that automatically clear relevant error messages when modified.
  *
  * 4. Client-Side Validation & Submission (`handleSubmit`):
- *    - Validates that total duration is greater than 0 minutes.
- *    - Validates that a non-empty location is provided when in `"nearby"` mode.
- *    - If valid, invokes `onValidSubmit` with trimmed and normalized search criteria (omitting location when in `"home"` mode).
+ *    - Validates that total duration is at least 15 minutes.
+ *    - Validates that a valid 4-digit postcode or suburb name is provided when in `"nearby"` mode.
+ *    - If valid, invokes `onValidSubmit` with trimmed and normalized search criteria, including play preferences
+ *      and device GPS coordinates (omitting location and coordinates when in `"home"` mode).
  *
  * @param props - Configuration props including `initialValues`, `initialLocationError`, and the `onValidSubmit` callback.
- * @returns An object containing all form values, field change handlers, validation errors, and GPS state.
+ * @returns An object containing all form values, field change handlers, validation errors, GPS state, and device coordinates.
  */
 export function useHomeSearchForm({
   initialValues = defaultHomeSearchValues,
@@ -48,6 +51,18 @@ export function useHomeSearchForm({
     initialValues.locationMode,
   );
   const [location, setLocation] = useState(initialValues.location);
+  const [deviceCoords, setDeviceCoords] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(
+    initialValues.latitude !== undefined &&
+      initialValues.longitude !== undefined
+      ? {
+          latitude: initialValues.latitude,
+          longitude: initialValues.longitude,
+        }
+      : null,
+  );
   const [selectedBuckets, setSelectedBuckets] = useState<AgeBucketId[]>(
     initialValues.selectedBuckets ?? [],
   );
@@ -66,6 +81,7 @@ export function useHomeSearchForm({
   const showGpsFallback = useCallback(() => {
     setIsLocating(false);
     setGpsStatus("");
+    setDeviceCoords(null);
     setLocationError(
       "We couldn't use your location. Enter your postcode or suburb.",
     );
@@ -86,6 +102,10 @@ export function useHomeSearchForm({
         }
 
         setLocation(postcode);
+        setDeviceCoords({
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+        });
         setLocationError("");
         setGpsStatus(`Using postcode ${postcode}.`);
         setIsLocating(false);
@@ -121,11 +141,15 @@ export function useHomeSearchForm({
 
   const handleLocationModeChange = useCallback((mode: LocationMode) => {
     setLocationMode(mode);
+    if (mode === "home") {
+      setDeviceCoords(null);
+    }
     setLocationError("");
   }, []);
 
   const handleLocationChange = useCallback((value: string) => {
     setLocation(value);
+    setDeviceCoords(null);
     setGpsStatus("");
     setLocationError("");
   }, []);
@@ -165,16 +189,34 @@ export function useHomeSearchForm({
         canSupervise,
         hours,
         location: locationMode === "nearby" ? location.trim() : "",
+        latitude:
+          locationMode === "nearby" && deviceCoords
+            ? deviceCoords.latitude
+            : undefined,
+        longitude:
+          locationMode === "nearby" && deviceCoords
+            ? deviceCoords.longitude
+            : undefined,
         locationMode,
         minutes,
         selectedBuckets,
       });
     },
-    [hours, location, locationMode, minutes, onValidSubmit, selectedBuckets,
-      playStyle, canSupervise],
+    [
+      canSupervise,
+      deviceCoords,
+      hours,
+      location,
+      locationMode,
+      minutes,
+      onValidSubmit,
+      playStyle,
+      selectedBuckets,
+    ],
   );
 
   return {
+    deviceCoords,
     playStyle,
     canSupervise,
     setPlayStyle,

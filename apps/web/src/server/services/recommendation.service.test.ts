@@ -32,6 +32,8 @@ const venueMission = {
   equipmentNeeded: "Basketball",
   instructionText: "Find a hoop.",
   durationMinutes: 60,
+  commuteMinutes: 24,
+  totalMinutes: 84,
   missionType: "Location-Based" as const,
   ageBands: ["5-7", "8-9"] as AgeBand[],
   supervisionLevel: "Independent-Play-Safe" as const,
@@ -51,6 +53,8 @@ const fallbackMission = {
   title: "Living Room Obstacle Course",
   missionType: "Home-Based" as const,
   venue: null,
+  commuteMinutes: 0,
+  totalMinutes: 60,
 };
 
 function dependencies(
@@ -204,5 +208,30 @@ describe("getRecommendation", () => {
     );
 
     expect(exhausted).not.toBeNull();
+  });
+
+  it("uses provided device GPS coordinates as origin when available", async () => {
+    const deps = dependencies();
+    const gpsCoords = { latitude: -37.8136, longitude: 144.9631 };
+    const result = await getRecommendation(
+      { ...input, ...gpsCoords },
+      deps,
+    );
+
+    expect(result).not.toBeNull();
+    expect(deps.repository.findLocationBased).toHaveBeenCalledWith({
+      playStyle: "solo",
+      canSupervise: false,
+      latitude: gpsCoords.latitude,
+      longitude: gpsCoords.longitude,
+      ageMin: 6,
+      ageMax: 10,
+      durationMinutes: 120,
+      excludeMissionIds: undefined,
+    });
+    expect(result?.reasons).toContainEqual({
+      kind: "location",
+      label: "Near Clayton, Notting Hill 3168",
+    });
   });
 });

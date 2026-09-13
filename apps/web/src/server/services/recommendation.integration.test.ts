@@ -31,6 +31,10 @@ describe("seeded recommendation flow", () => {
     expect(response.status).toBe(200);
     expect(body.recommendation).not.toBeNull();
     expect(Array.isArray(body.recommendation)).toBe(false);
+    expect(body.recommendation.totalMinutes).toBeLessThanOrEqual(120);
+    expect(body.recommendation.totalMinutes).toBe(
+      body.recommendation.durationMinutes + body.recommendation.commuteMinutes,
+    );
     expect(performance.now() - startedAt).toBeLessThan(3_000);
   });
 
@@ -89,8 +93,8 @@ describe("seeded recommendation flow", () => {
         { kind: "location", label: "Near Clayton, Notting Hill 3168" },
       ],
     });
-    expect(recommendation?.durationMinutes).toBeLessThanOrEqual(120);
-    expect(recommendation?.venue?.distanceKm).toBeLessThanOrEqual(10);
+    expect(recommendation?.totalMinutes).toBeLessThanOrEqual(120);
+    expect(recommendation?.venue?.distanceKm).toBeLessThanOrEqual(2);
 
     const match = await pool.query(
       `
@@ -251,6 +255,8 @@ describe("seeded recommendation flow", () => {
       fallback?.missionType,
     );
     expect(fallback?.venue).toBeNull();
+    expect(fallback?.commuteMinutes).toBe(0);
+    expect(fallback?.totalMinutes).toBe(fallback?.durationMinutes);
     expect(fallback?.reasons.map((reason) => reason.kind)).toEqual([
       "age",
       "time",

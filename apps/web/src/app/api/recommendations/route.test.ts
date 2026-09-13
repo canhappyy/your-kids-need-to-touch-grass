@@ -82,6 +82,24 @@ describe("GET /api/recommendations", () => {
     expect(getRecommendation).toHaveBeenCalledWith(expect.objectContaining({ playStyle: "group", canSupervise: true }));
   });
 
+  it("parses valid lat and lng coordinates for nearby mode", async () => {
+    const response = await GET(
+      request({ lat: "-37.915", lng: "145.123" }),
+    );
+    expect(response.status).toBe(200);
+    expect(getRecommendation).toHaveBeenCalledWith(
+      expect.objectContaining({
+        latitude: -37.915,
+        longitude: 145.123,
+      }),
+    );
+  });
+
+  it("rejects when only lat is provided without lng", async () => {
+    const response = await GET(request({ lat: "-37.915" }));
+    expect(response.status).toBe(400);
+  });
+
   it("ignores an irrelevant location in home mode", async () => {
     const response = await GET(
       request({ locationMode: "home", location: "a".repeat(101) }),

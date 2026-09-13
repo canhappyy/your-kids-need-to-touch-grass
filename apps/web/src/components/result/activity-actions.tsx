@@ -1,4 +1,5 @@
-import { Dices } from "lucide-react"
+import { DialogTrigger } from "@/components/ui/dialog"
+import { BookOpen, Dices } from "lucide-react"
 
 import { Button, buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -19,6 +20,13 @@ export function ActivityActions({
 }: ActivityActionsProps) {
   return (
     <div className="mt-auto pt-6 space-y-3">
+      <DialogTrigger
+        render={<Button size="lg" type="button" variant="outline" />}
+        className="h-12 w-full rounded-full border-[#93AB63] bg-white px-6 text-base font-bold text-[#93AB63] hover:bg-zinc-50 hover:text-[#93AB63] focus-visible:border-[#93AB63] focus-visible:ring-[#93AB63]/20"
+      >
+        <BookOpen aria-hidden="true" />
+        How to Play
+      </DialogTrigger>
       {directionsUrl && (
         <a
           className={cn(

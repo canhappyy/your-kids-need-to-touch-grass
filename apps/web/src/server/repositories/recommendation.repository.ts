@@ -1,4 +1,5 @@
 import pool from "@/lib/db";
+import { WALKING_SPEED_KMH, WALKING_DETOUR_FACTOR } from "@/lib/commute";
 import type {
   AgeBand,
   FallbackRecommendationQuery,
@@ -31,6 +32,8 @@ function mapLocationCandidate(
     instructionText:
       row.instruction_text === null ? null : String(row.instruction_text),
     durationMinutes: Number(row.duration_minutes),
+    commuteMinutes: Number(row.commute_minutes),
+    totalMinutes: Number(row.total_minutes),
     missionType: "Location-Based",
     ageBands: mapAgeBands(row),
     supervisionLevel: String(row.supervision_level) as SupervisionLevel,
@@ -63,6 +66,8 @@ function mapFallbackCandidate(
     instructionText:
       row.instruction_text === null ? null : String(row.instruction_text),
     durationMinutes: Number(row.duration_minutes),
+    commuteMinutes: 0,
+    totalMinutes: Number(row.duration_minutes),
     missionType: String(row.mission_type) as "Home-Based" | "Location-Agnostic",
     ageBands: mapAgeBands(row),
     supervisionLevel: String(row.supervision_level) as SupervisionLevel,
@@ -87,7 +92,7 @@ function mapAgeBands(row: Record<string, unknown>): AgeBand[] {
 }
 
 /**
- * Searches for a location-based activity candidate within 10km of coordinates matching age, duration, supervision level, and play style.
+ * Searches for a location-based activity candidate within 2km of coordinates matching age, duration, supervision level, and play style.
  *
  * How this query works:
  * 1. Great-Circle Distance Calculation (`WITH open_space_distances AS MATERIALIZED (...)`):
@@ -107,8 +112,8 @@ function mapAgeBands(row: Record<string, unknown>): AgeBand[] {
  *      (`'Needs Supervision'` when `canSupervise` is true, or `'Independent-Play-Safe'` when false).
  *    - Play Style Variety Tag: Uses `EXISTS` on `activity_variety_tag` (`$9`) to match
  *      `['Pairs', 'Group/Family']` for group play or `['Solo']` for solo play.
- *    - Verifies the activity fits within available time (`duration_minutes <= $5`).
- *    - Restricts venues to within 10 km (`distance_km <= 10`).
+ *    - Verifies activity plus estimated round-trip walking fits within available time.
+ *    - Restricts venues to within 2 km (`distance_km <= 2`).
  *    - Checks age band overlap: ensures the user's child age range (`[$3, $4]`) intersects with
  *      at least one enabled age band (`age_5_7`, `age_8_9`, or `age_10_12`).
  *    - Optionally filters for a specific mission (`$7`) if provided.
@@ -144,6 +149,12 @@ export async function findLocationBasedRecommendation(
         ) / 1000.0 AS distance_km
       FROM open_space AS os
     ),
+    open_space_travel AS (
+      SELECT *,
+        (2 * ceil(distance_km * $10::double precision / $11::double precision * 60))::int
+          AS commute_minutes
+      FROM open_space_distances
+    ),
     nearest_per_mission AS (
       SELECT DISTINCT ON (a.mission_id)
         a.mission_id,
@@ -152,6 +163,8 @@ export async function findLocationBasedRecommendation(
         a.equipment_needed,
         a.instruction_text,
         a.duration_minutes,
+        os.commute_minutes,
+        a.duration_minutes + os.commute_minutes AS total_minutes,
         a.age_5_7,
         a.age_8_9,
         a.age_10_12,
@@ -165,7 +178,7 @@ export async function findLocationBasedRecommendation(
       FROM activity AS a
       INNER JOIN activity_location_category AS alc
         ON alc.mission_id = a.mission_id
-      INNER JOIN open_space_distances AS os
+      INNER JOIN open_space_travel AS os
         ON (
           alc.open_space_ref_id IS NOT NULL
           AND os.open_space_id = alc.open_space_ref_id
@@ -181,8 +194,8 @@ export async function findLocationBasedRecommendation(
           SELECT 1 FROM activity_variety_tag avt
           WHERE avt.mission_id = a.mission_id AND avt.tag_name = ANY($9::text[])
         )
-        AND a.duration_minutes <= $5
-        AND os.distance_km <= 10
+        AND a.duration_minutes + os.commute_minutes <= $5
+        AND os.distance_km <= 2
         AND (
           ($3 <= 7 AND $4 >= 5 AND a.age_5_7 = 'Y')
           OR ($3 <= 9 AND $4 >= 8 AND a.age_8_9 = 'Y')
@@ -207,6 +220,8 @@ export async function findLocationBasedRecommendation(
       input.missionId ?? null,
       input.canSupervise ? "Needs Supervision" : "Independent-Play-Safe",
       input.playStyle === "group" ? ["Pairs", "Group/Family"] : ["Solo"],
+      WALKING_DETOUR_FACTOR,
+      WALKING_SPEED_KMH,
     ],
   );
 

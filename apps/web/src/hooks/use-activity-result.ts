@@ -47,6 +47,10 @@ export function useActivityResult(
       dailyGoalPercentage,
       directionsUrl: getDirectionsUrl(recommendation.venue),
       formattedDuration: formatDuration(recommendation.durationMinutes),
+      formattedTotalDuration: formatDuration(recommendation.totalMinutes),
+      formattedCommuteDuration: recommendation.venue
+        ? formatDuration(recommendation.commuteMinutes)
+        : null,
       formattedSupervision: formatSupervision(recommendation.supervisionLevel),
       goalAriaText,
       locationLabel: getLocationLabel(recommendation),
