@@ -41,14 +41,16 @@ describe("home-search lib utilities", () => {
       expect(hourOptions[12]).toEqual({ label: "12 hr", value: 12 });
     });
 
-    it("generates 6 minute options from 15 to 90 minutes in 15-minute increments", () => {
-      expect(minuteOptions).toHaveLength(6);
+    it("generates 8 minute options from 15 to 120 minutes in 15-minute increments", () => {
+      expect(minuteOptions).toHaveLength(8);
       expect(minuteOptions[0]).toEqual({ label: "15 min", value: 15 });
       expect(minuteOptions[1]).toEqual({ label: "30 min", value: 30 });
       expect(minuteOptions[2]).toEqual({ label: "45 min", value: 45 });
       expect(minuteOptions[3]).toEqual({ label: "60 min", value: 60 });
       expect(minuteOptions[4]).toEqual({ label: "75 min", value: 75 });
       expect(minuteOptions[5]).toEqual({ label: "90 min", value: 90 });
+      expect(minuteOptions[6]).toEqual({ label: "105 min", value: 105 });
+      expect(minuteOptions[7]).toEqual({ label: "120 min", value: 120 });
     });
 
     it("has valid default values", () => {

@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import { Slider as SliderPrimitive } from "@base-ui/react/slider"
+import { Slider as SliderPrimitive } from "@base-ui/react/slider";
 
-type AgeRange = [number, number]
+type AgeRange = [number, number];
 
 type AgeRangeSliderProps = {
-  value: AgeRange
-  onValueChange: (value: AgeRange) => void
-  min?: number
-  max?: number
-}
+  value: AgeRange;
+  onValueChange: (value: AgeRange) => void;
+  min?: number;
+  max?: number;
+};
 
 function AgeRangeSlider({
   value,
@@ -24,9 +24,7 @@ function AgeRangeSlider({
       min={min}
       max={max}
       minStepsBetweenValues={1}
-      onValueChange={(nextValue) =>
-        onValueChange([nextValue[0], nextValue[1]])
-      }
+      onValueChange={(nextValue) => onValueChange([nextValue[0], nextValue[1]])}
       step={1}
       thumbCollisionBehavior="none"
       value={value}
@@ -57,7 +55,7 @@ function AgeRangeSlider({
         <span>{max} yrs</span>
       </div>
     </SliderPrimitive.Root>
-  )
+  );
 }
 
-export { AgeRangeSlider, type AgeRange }
+export { AgeRangeSlider, type AgeRange };

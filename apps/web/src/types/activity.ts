@@ -8,8 +8,8 @@ export type ActivityResultProps = {
   recommendation: Recommendation;
   /** Whether a retry/swap operation is currently in flight. */
   isRetrying?: boolean;
-  /** Callback to navigate back to the home search page. */
-  onBackToSearch: () => void;
+  /** Optional callback to navigate back to the home search page. */
+  onBackToSearch?: () => void;
   /** Callback to request another activity swap. */
   onTryAnother: () => void;
   /** Number of swaps remaining for this session (out of MAX_SWAPS). */

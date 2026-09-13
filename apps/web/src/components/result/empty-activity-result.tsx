@@ -42,7 +42,7 @@ export function EmptyActivityResult({
 
       <div className="mt-auto space-y-3">
         <Button
-          className="h-16 w-full rounded-full bg-[#E4633C] px-6 text-lg font-bold text-white hover:bg-[#c95330] focus-visible:border-[#c95330] focus-visible:ring-[#E4633C]/30"
+          className="h-12 w-full rounded-full bg-[#E4633C] px-6 text-base font-bold text-white hover:bg-[#c95330] focus-visible:border-[#c95330] focus-visible:ring-[#E4633C]/30"
           onClick={onAdjustFilters}
           size="lg"
           type="button"
@@ -50,7 +50,7 @@ export function EmptyActivityResult({
           Adjust Filters
         </Button>
         <Button
-          className="h-16 w-full rounded-full border-[#93AB63] bg-white px-6 text-lg font-bold text-[#93AB63] hover:bg-zinc-50 hover:text-[#93AB63] focus-visible:border-[#93AB63] focus-visible:ring-[#93AB63]/20"
+          className="h-12 w-full rounded-full border-[#93AB63] bg-white px-6 text-base font-bold text-[#93AB63] hover:bg-zinc-50 hover:text-[#93AB63] focus-visible:border-[#93AB63] focus-visible:ring-[#93AB63]/20"
           onClick={onBackToSearch}
           size="lg"
           type="button"

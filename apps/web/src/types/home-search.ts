@@ -36,7 +36,7 @@ export type HomeSearchValues = PlayPreferences & {
   selectedBuckets: AgeBucketId[];
   /** Available duration hours (0-12, optional). */
   hours?: number;
-  /** Available duration minutes (15-90 in 15-min increments). */
+  /** Available duration minutes (15-120 in 15-min increments). */
   minutes: number;
   /** Optional device latitude if acquired from geolocation. */
   latitude?: number;

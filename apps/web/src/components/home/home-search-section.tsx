@@ -1,11 +1,16 @@
 "use client";
 
-import { readPlayPreferences, playPreferenceParams } from "@/lib/play-preferences";
+import {
+  readPlayPreferences,
+  playPreferenceParams,
+} from "@/lib/play-preferences";
+import { TopNav } from "@/components/layout/top-nav";
 import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   calculateRangeFromBuckets,
   getInitialBuckets,
+  minuteOptions,
 } from "@/lib/home-search";
 import type { AgeBucketId } from "@/types/home-search";
 import {
@@ -29,14 +34,13 @@ export function HomeSearchSection() {
   const queryMinutes = getNumberParam("minutes", 0);
   const totalMinutesFromQuery =
     queryHours > 0 && queryMinutes === 0 ? queryHours * 60 : queryMinutes || 45;
-  const initialMinutes = [15, 30, 45, 60, 75, 90].includes(
-    totalMinutesFromQuery,
+  const initialMinutes = minuteOptions.some(
+    (option) => option.value === totalMinutesFromQuery,
   )
     ? totalMinutesFromQuery
     : 45;
 
-  const hasAgeParams =
-    searchParams.has("ageMin") || searchParams.has("ageMax");
+  const hasAgeParams = searchParams.has("ageMin") || searchParams.has("ageMax");
   const ageBucketsParam = searchParams.get("ageBuckets");
 
   let initialSelectedBuckets: AgeBucketId[] = [];
@@ -109,6 +113,8 @@ export function HomeSearchSection() {
 
   return (
     <>
+      <TopNav showHistory />
+
       <header className="flex justify-center">
         <h1>
           <Image

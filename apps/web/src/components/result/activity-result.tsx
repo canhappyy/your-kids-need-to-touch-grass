@@ -1,16 +1,16 @@
-import { Dialog, DialogTrigger } from "@/components/ui/dialog"
-import { MissionInstructionsDialog } from "./mission-instructions-dialog"
-import { ActivityActions } from "./activity-actions"
-import { ActivityDetails } from "./activity-details"
-import { ActivityHeader } from "./activity-header"
-import { ActivityProgress } from "./activity-progress"
-import { useActivityResult } from "@/hooks/use-activity-result"
-import type { ActivityResultProps } from "@/types/activity"
+import { MissionCompletion } from "./mission-completion";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { MissionInstructionsDialog } from "./mission-instructions-dialog";
+import { ActivityActions } from "./activity-actions";
+import { ActivityDetails } from "./activity-details";
+import { ActivityHeader } from "./activity-header";
+import { ActivityProgress } from "./activity-progress";
+import { useActivityResult } from "@/hooks/use-activity-result";
+import type { ActivityResultProps } from "@/types/activity";
 
 function ActivityResult({
   recommendation,
   isRetrying = false,
-  onBackToSearch,
   onTryAnother,
 }: ActivityResultProps) {
   const {
@@ -24,7 +24,7 @@ function ActivityResult({
     goalAriaText,
     locationLabel,
     progressValue,
-  } = useActivityResult(recommendation)
+  } = useActivityResult(recommendation);
 
   return (
     <section
@@ -39,7 +39,11 @@ function ActivityResult({
           />
           <ActivityHeader
             agesLabel={agesLabel}
-            formattedDuration={formattedCommuteDuration !== null ? `${formattedTotalDuration} total (est.)` : formattedDuration}
+            formattedDuration={
+              formattedCommuteDuration !== null
+                ? `${formattedTotalDuration} total (est.)`
+                : formattedDuration
+            }
             formattedSupervision={formattedSupervision}
             reasons={recommendation.reasons}
             title={recommendation.title}
@@ -60,9 +64,14 @@ function ActivityResult({
         />
 
         <ActivityActions
+          completionControl={
+            <MissionCompletion
+              recommendation={recommendation}
+              isRetrying={isRetrying}
+            />
+          }
           directionsUrl={directionsUrl}
           isRetrying={isRetrying}
-          onBackToSearch={onBackToSearch}
           onTryAnother={onTryAnother}
         />
         <MissionInstructionsDialog
@@ -71,7 +80,7 @@ function ActivityResult({
         />
       </Dialog>
     </section>
-  )
+  );
 }
 
-export { ActivityResult, type ActivityResultProps }
+export { ActivityResult, type ActivityResultProps };
