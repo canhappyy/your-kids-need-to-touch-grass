@@ -44,10 +44,12 @@ export const hourOptions = Array.from({ length: 13 }, (_, hour) => ({
   value: hour,
 }));
 
-export const minuteOptions = [15, 30, 45, 60, 75, 90].map((minute) => ({
-  label: `${minute} min`,
-  value: minute,
-}));
+export const minuteOptions = [15, 30, 45, 60, 75, 90, 105, 120].map(
+  (minute) => ({
+    label: `${minute} min`,
+    value: minute,
+  }),
+);
 
 export const defaultHomeSearchValues: HomeSearchValues = {
   ...defaultPlayPreferences,
