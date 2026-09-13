@@ -33,8 +33,8 @@ export function ClearHistoryDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       {showTrigger && (
         <AlertDialogTrigger
-          render={<Button variant="outline" />}
-          className="min-h-11 w-full"
+          render={<Button size="lg" type="button" variant="destructive" />}
+          className="h-12 w-full rounded-full border border-destructive px-6 text-base font-bold"
         >
           Clear history
         </AlertDialogTrigger>
@@ -53,8 +53,12 @@ export function ClearHistoryDialog({
           </p>
         )}
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction variant="destructive" onClick={onConfirmClear}>
+          <AlertDialogCancel className="rounded-full">Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            className="rounded-full border border-destructive"
+            variant="destructive"
+            onClick={onConfirmClear}
+          >
             Clear history
           </AlertDialogAction>
         </AlertDialogFooter>
