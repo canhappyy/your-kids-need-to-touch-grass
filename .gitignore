@@ -5,3 +5,4 @@ pipeline/data/processed/*
 !pipeline/data/processed/.gitkeep
 pipeline/docs/.Rhistory
 AGENTS.md
+ai_recommendation/models/*
