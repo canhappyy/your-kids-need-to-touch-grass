@@ -1,14 +1,27 @@
 import { Badge } from "@/components/ui/badge";
 import type { MatchReason } from "@/types/recommendation";
 
-type ActivityHeaderProps = {
+/**
+ * Props for the `ActivityHeader` component.
+ */
+export type ActivityHeaderProps = {
+  /** The title of the recommended activity mission. */
   title: string;
+  /** Array of structured match reason badges explaining why this activity fits search criteria. */
   reasons: MatchReason[];
+  /** Human-readable age suitability label (e.g. "Ages 5-7, 8-9"). */
   agesLabel: string;
+  /** Formatted duration label (e.g. "30 minutes"). */
   formattedDuration: string;
+  /** Formatted supervision label ("Independent play" or "Adult supervision"). */
   formattedSupervision: string;
 };
 
+/**
+ * Header section of the activity result view displaying match reason badges, mission title, and key metadata.
+ *
+ * @param props - Component properties configuring title, badges, and metadata labels.
+ */
 export function ActivityHeader({
   title,
   reasons,

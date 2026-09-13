@@ -8,6 +8,13 @@ type RouteContext = {
   }>;
 };
 
+/**
+ * Handles GET requests to retrieve location coordinates and suburbs for a 4-digit Victorian postcode.
+ *
+ * @param request - Incoming HTTP request.
+ * @param context - Route context containing async route parameters (postcode).
+ * @returns JSON response with postcode coordinates and suburbs, 400 for invalid format, 404 if not found, or 500 on server error.
+ */
 export async function GET(request: Request, context: RouteContext) {
   try {
     const params = postcodeParamsSchema.safeParse(await context.params);

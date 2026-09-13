@@ -1,3 +1,6 @@
+/**
+ * Accessible loading indicator displayed while fetching activity recommendations.
+ */
 export function ResultLoadingState() {
   return (
     <div
@@ -7,5 +10,5 @@ export function ResultLoadingState() {
     >
       Finding a mission…
     </div>
-  )
+  );
 }

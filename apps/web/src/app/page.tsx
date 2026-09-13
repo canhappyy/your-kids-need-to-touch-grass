@@ -1,12 +1,18 @@
-import type { Metadata } from "next"
-import { Suspense } from "react"
-import { HomeSearchSection } from "@/components/home/home-search-section"
+import type { Metadata } from "next";
+import { Suspense } from "react";
+import { HomeSearchSection } from "@/components/home/home-search-section";
 
+/**
+ * Page metadata for the home search view.
+ */
 export const metadata: Metadata = {
   title: "PlayGo",
   description: "Find something fun for your child, fast.",
-}
+};
 
+/**
+ * Main landing page component rendering the activity search form.
+ */
 export default function Home() {
   return (
     <main className="relative min-h-svh bg-[#FDF6EA] px-6 pt-16 pb-10 text-zinc-900 sm:px-8">
@@ -16,5 +22,5 @@ export default function Home() {
         </Suspense>
       </div>
     </main>
-  )
+  );
 }

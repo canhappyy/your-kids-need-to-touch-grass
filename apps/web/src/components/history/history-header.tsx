@@ -1,9 +1,17 @@
 import { type RefObject } from "react";
 
+/**
+ * Props for the {@link HistoryHeader} component.
+ */
 type HistoryHeaderProps = {
+  /** Optional reference to the header element, used to restore focus after closing modals. */
   headingRef?: RefObject<HTMLHeadingElement | null>;
 };
 
+/**
+ * Header section for the history page, displaying the main page title
+ * and an informative subtext clarifying that records are stored locally on the device.
+ */
 export function HistoryHeader({ headingRef }: HistoryHeaderProps) {
   return (
     <header className="space-y-2">

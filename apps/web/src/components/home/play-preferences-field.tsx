@@ -1,6 +1,11 @@
 import { Switch } from "@/components/ui/switch";
 import type { PlayPreferencesFieldProps } from "@/types/play-preferences";
 
+/**
+ * Form fieldset containing toggle switches for play style (Solo vs Group) and supervision level.
+ *
+ * @param props - Component properties configuring play style, supervision state, and toggle handlers.
+ */
 export function PlayPreferencesField({
   playStyle,
   canSupervise,

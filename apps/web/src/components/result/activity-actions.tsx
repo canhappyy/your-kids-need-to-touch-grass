@@ -5,14 +5,27 @@ import { BookOpen, Dices } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-type ActivityActionsProps = {
+/**
+ * Props for the `ActivityActions` action buttons bar.
+ */
+export type ActivityActionsProps = {
+  /** React node rendering the completion button control. */
   completionControl: ReactNode;
+  /** Google Maps directions URL for walking to the venue, or null without a venue. */
   directionsUrl: string | null;
+  /** Whether a swap retry request is currently in flight. */
   isRetrying?: boolean;
+  /** Number of activity swaps remaining for this session. */
   swapsRemaining?: number;
+  /** Callback fired when the user requests a new activity recommendation. */
   onTryAnother: () => void;
 };
 
+/**
+ * Action button footer providing controls to view instructions, get walking directions, mark completion, or swap missions.
+ *
+ * @param props - Component properties configuring action buttons and callbacks.
+ */
 export function ActivityActions({
   completionControl,
   directionsUrl,

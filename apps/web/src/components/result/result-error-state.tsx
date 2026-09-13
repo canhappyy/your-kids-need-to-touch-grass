@@ -1,11 +1,22 @@
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 
-type ResultErrorStateProps = {
-  error: string
-  onTryAgain: () => void
-  onBackToSearch: () => void
-}
+/**
+ * Props for the `ResultErrorState` view component.
+ */
+export type ResultErrorStateProps = {
+  /** Error message text to display. */
+  error: string;
+  /** Callback fired when the user clicks "Try Again" to retry the recommendation fetch. */
+  onTryAgain: () => void;
+  /** Callback fired when the user clicks "Back to Search" to return to form inputs. */
+  onBackToSearch: () => void;
+};
 
+/**
+ * Error state screen presented when recommendation queries fail unexpectedly.
+ *
+ * @param props - Component properties configuring error text and recovery callbacks.
+ */
 export function ResultErrorState({
   error,
   onTryAgain,
@@ -33,5 +44,5 @@ export function ResultErrorState({
         Back to Search
       </Button>
     </section>
-  )
+  );
 }

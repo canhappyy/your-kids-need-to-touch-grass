@@ -16,6 +16,13 @@ function errorResponse(status: number, code: ErrorCode, message: string) {
   );
 }
 
+/**
+ * Handles POST requests to resolve geographic GPS coordinates (latitude, longitude)
+ * to the nearest Victorian postcode using great-circle distance.
+ *
+ * @param request - HTTP request with JSON body containing `{ latitude, longitude }`.
+ * @returns JSON response with the nearest postcode and suburbs, 400 for invalid coordinates, 404 if out of range, or 500 on error.
+ */
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as unknown;

@@ -7,14 +7,27 @@ import {
 } from "@/components/ui/select";
 import { minuteOptions } from "@/lib/home-search";
 
-type TimePickerFieldProps = {
+/**
+ * Props for the `TimePickerField` duration selection component.
+ */
+export type TimePickerFieldProps = {
+  /** Optional hours component of available duration. */
   hours?: number;
+  /** Selected duration in minutes. */
   minutes: number;
+  /** Validation error message for duration (e.g. minimum 15 minutes). */
   timeError: string;
+  /** Optional callback for changing duration hours. */
   onHoursChange?: (value: number) => void;
+  /** Callback fired when the parent changes the duration minutes select option. */
   onMinutesChange: (value: number) => void;
 };
 
+/**
+ * Dropdown selector field for choosing available activity time in minutes.
+ *
+ * @param props - Component properties configuring selected duration and error feedback.
+ */
 export function TimePickerField({
   minutes,
   timeError,

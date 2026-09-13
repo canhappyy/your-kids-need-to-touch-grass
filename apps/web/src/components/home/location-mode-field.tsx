@@ -1,7 +1,12 @@
 import type { LocationMode } from "@/types/home-search";
 
-type LocationModeFieldProps = {
+/**
+ * Props for the `LocationModeField` radio button component.
+ */
+export type LocationModeFieldProps = {
+  /** Current location mode: "nearby" for outdoor venues or "home" for indoor/backyard activities. */
   value: LocationMode;
+  /** Callback fired when the parent switches location mode. */
   onChange: (value: LocationMode) => void;
 };
 
@@ -10,6 +15,11 @@ const locationModes: Array<{ label: string; value: LocationMode }> = [
   { label: "At home", value: "home" },
 ];
 
+/**
+ * Radio button selector field allowing parents to toggle between outdoor ("Near me") and home-based ("At home") missions.
+ *
+ * @param props - Component properties configuring selected mode and change handler.
+ */
 export function LocationModeField({ value, onChange }: LocationModeFieldProps) {
   return (
     <fieldset>

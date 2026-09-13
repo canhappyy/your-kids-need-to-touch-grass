@@ -19,6 +19,12 @@ import {
   type LocationMode,
 } from "./home-search-form";
 
+/**
+ * Top-level container component for the home search page.
+ *
+ * Reads initial URL query parameters to pre-populate form fields, handles GPS coordinates,
+ * and navigates to the result page with serialized search parameters upon form submission.
+ */
 export function HomeSearchSection() {
   const router = useRouter();
   const searchParams = useSearchParams();

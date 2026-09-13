@@ -12,6 +12,11 @@ type TopNavProps = {
   showHistory?: boolean;
 };
 
+/**
+ * Top navigation bar providing back navigation and a completed mission history link.
+ *
+ * @param props - Component properties configuring navigation targets and history button visibility.
+ */
 export function TopNav({
   onBack,
   backHref,
