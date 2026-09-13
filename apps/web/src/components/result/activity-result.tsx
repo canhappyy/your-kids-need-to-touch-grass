@@ -1,3 +1,4 @@
+import { MissionWeather } from "./mission-weather";
 import { MissionCompletion } from "./mission-completion";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { MissionInstructionsDialog } from "./mission-instructions-dialog";
@@ -56,6 +57,8 @@ function ActivityResult({
             locationLabel={locationLabel}
           />
         </div>
+
+        <MissionWeather weather={recommendation.weather} />
 
         <ActivityProgress
           dailyGoalPercentage={dailyGoalPercentage}
