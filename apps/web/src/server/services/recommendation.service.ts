@@ -105,7 +105,7 @@ function buildReasons(
  * Core recommendation engine method that matches activities based on age, time, location, and play preferences.
  *
  * For `"home"` mode:
- * Searches for Home-Based, zero-equipment activities matching the age, duration, play style, and supervision criteria.
+ * Searches for Home-Based or Location-Agnostic zero-equipment activities matching the age, duration, play style, and supervision criteria.
  *
  * For `"nearby"` mode:
  * Resolves location, attempts to find a location-based activity within 2km matching criteria, and falls back to
@@ -130,7 +130,7 @@ export async function getRecommendation(
       canSupervise: input.canSupervise,
       excludeMissionIds: input.excludeMissionIds,
       missionId: input.missionId,
-      missionTypes: ["Home-Based"],
+      missionTypes: ["Home-Based", "Location-Agnostic"],
       equipmentRequiredTag: "None",
     });
 
