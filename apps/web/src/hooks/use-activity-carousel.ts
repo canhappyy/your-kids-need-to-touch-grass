@@ -6,20 +6,24 @@ import type { Recommendation } from "@/types/recommendation";
 import type { ChainState } from "@/types/result";
 
 export type UseActivityCarouselOptions = {
+  primaryMissionId?: string;
   secondaryRecommendation: Recommendation | null;
   canChain?: boolean;
   chainStatus?: ChainState["status"];
+  isRetrying?: boolean;
   onAddActivity?: () => void;
 };
 
 /**
  * Manages carousel API state, active slide tracking, gesture-based activity addition,
- * and slide transitions for single and chained missions.
+ * and slide transitions for single, chained, and swapped missions.
  */
 export function useActivityCarousel({
+  primaryMissionId,
   secondaryRecommendation,
   canChain = false,
   chainStatus = "idle",
+  isRetrying = false,
   onAddActivity,
 }: UseActivityCarouselOptions) {
   const [api, setApi] = useState<CarouselApi>();
@@ -59,6 +63,7 @@ export function useActivityCarousel({
       !secondaryRecommendation &&
       canChain &&
       chainStatus === "idle" &&
+      !isRetrying &&
       !triggeredRef.current
     ) {
       triggeredRef.current = true;
@@ -69,6 +74,7 @@ export function useActivityCarousel({
     secondaryRecommendation,
     canChain,
     chainStatus,
+    isRetrying,
     onAddActivity,
   ]);
 
@@ -87,6 +93,26 @@ export function useActivityCarousel({
       api.scrollTo(0);
     }
   }, [chainStatus, api]);
+
+  // Return to Slide 1 when swapping to another recommendation or during retry
+  useEffect(() => {
+    if (isRetrying && api) {
+      api.scrollTo(0);
+    }
+  }, [isRetrying, api]);
+
+  const prevPrimaryRef = useRef<string | undefined>(primaryMissionId);
+  useEffect(() => {
+    if (
+      primaryMissionId &&
+      prevPrimaryRef.current &&
+      primaryMissionId !== prevPrimaryRef.current &&
+      api
+    ) {
+      api.scrollTo(0);
+    }
+    prevPrimaryRef.current = primaryMissionId;
+  }, [primaryMissionId, api]);
 
   return {
     api,

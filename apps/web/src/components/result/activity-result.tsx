@@ -30,11 +30,18 @@ function ActivityResult({
     recommendation.venue !== null && recommendation.durationMinutes < 60;
 
   const { api, setApi, currentSlide } = useActivityCarousel({
+    primaryMissionId: recommendation.missionId,
     secondaryRecommendation,
     canChain,
     chainStatus: chainState.status,
+    isRetrying,
     onAddActivity,
   });
+
+  const handleTryAnother = () => {
+    api?.scrollTo(0);
+    onTryAnother();
+  };
 
   const { directionsUrl } = useActivityResult(recommendation);
 
@@ -106,7 +113,7 @@ function ActivityResult({
         directionsUrl={directionsUrl}
         isRetrying={isRetrying}
         isDisabled={isBusy}
-        onTryAnother={onTryAnother}
+        onTryAnother={handleTryAnother}
         showHowToPlay={false}
       />
     </>
