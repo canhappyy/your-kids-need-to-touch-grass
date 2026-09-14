@@ -108,13 +108,16 @@ describe("ActivityResult chained outing", () => {
     expect(markup).toContain('aria-label="Next activity"');
   });
 
-  it("renders a single-slide carousel without slide navigation tabs when single", () => {
+  it("renders a single-slide carousel with slide navigation tab when single", () => {
     const markup = render({ status: "idle" });
 
     expect(markup).toContain('data-slot="carousel"');
     expect(markup).toContain('id="activity-slide-1"');
     expect(markup).not.toContain('id="activity-slide-2"');
-    expect(markup).not.toContain('aria-label="Activity selection"');
+    expect(markup).toContain('aria-label="Activity selection"');
+    expect(markup).toContain("Activity 1");
+    expect(markup).toContain("1 of 1");
+    expect(markup).not.toContain("Activity 2");
     expect(markup).not.toContain('aria-label="Previous activity"');
     expect(markup).not.toContain('aria-label="Next activity"');
   });

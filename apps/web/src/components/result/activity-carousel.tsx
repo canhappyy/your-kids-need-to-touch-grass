@@ -38,28 +38,28 @@ export function ActivityCarousel({
 }: ActivityCarouselProps) {
   return (
     <div className="relative w-full">
-      {secondaryRecommendation && (
-        <div className="mb-3 flex items-center justify-between px-1">
-          <div
-            className="flex items-center gap-1.5"
-            role="tablist"
-            aria-label="Activity selection"
+      <div className="mb-3 flex items-center justify-between px-1">
+        <div
+          className="flex items-center gap-1.5"
+          role="tablist"
+          aria-label="Activity selection"
+        >
+          <button
+            type="button"
+            role="tab"
+            aria-selected={currentSlide === 0}
+            aria-controls="activity-slide-1"
+            onClick={() => api?.scrollTo(0)}
+            className={cn(
+              "cursor-pointer rounded-full px-3.5 py-1 text-xs font-bold tracking-wide transition-all",
+              currentSlide === 0
+                ? "bg-[#93AB63] text-white shadow-xs"
+                : "bg-zinc-200/80 text-zinc-600 hover:bg-zinc-300",
+            )}
           >
-            <button
-              type="button"
-              role="tab"
-              aria-selected={currentSlide === 0}
-              aria-controls="activity-slide-1"
-              onClick={() => api?.scrollTo(0)}
-              className={cn(
-                "cursor-pointer rounded-full px-3.5 py-1 text-xs font-bold tracking-wide transition-all",
-                currentSlide === 0
-                  ? "bg-[#93AB63] text-white shadow-xs"
-                  : "bg-zinc-200/80 text-zinc-600 hover:bg-zinc-300",
-              )}
-            >
-              Activity 1
-            </button>
+            Activity 1
+          </button>
+          {secondaryRecommendation && (
             <button
               type="button"
               role="tab"
@@ -75,15 +75,12 @@ export function ActivityCarousel({
             >
               Activity 2
             </button>
-          </div>
-          <span
-            className="text-xs font-medium text-zinc-500"
-            aria-live="polite"
-          >
-            {currentSlide + 1} of 2
-          </span>
+          )}
         </div>
-      )}
+        <span className="text-xs font-medium text-zinc-500" aria-live="polite">
+          {secondaryRecommendation ? `${currentSlide + 1} of 2` : "1 of 1"}
+        </span>
+      </div>
 
       <Carousel setApi={setApi} opts={{ loop: false }} className="w-full">
         <CarouselContent className="items-stretch">
