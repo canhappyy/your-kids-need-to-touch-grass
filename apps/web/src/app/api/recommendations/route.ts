@@ -46,7 +46,7 @@ function errorResponse(
  * @param searchParams - The URL search parameters from the request.
  * @returns A validated `RecommendationInput` object, or `null` if validation fails.
  */
-export function parseRecommendationQuery(
+function parseRecommendationQuery(
   searchParams: URLSearchParams,
 ): RecommendationInput | null {
   const result = recommendationQuerySchema.safeParse({
