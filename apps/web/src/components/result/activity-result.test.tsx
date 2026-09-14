@@ -98,4 +98,26 @@ describe("ActivityResult chained outing", () => {
       "Add another activity here",
     );
   });
+
+  it("renders a carousel with navigation tabs and slide controls for chained activities", () => {
+    const markup = render({ status: "loaded", recommendation: secondary });
+
+    expect(markup).toContain('data-slot="carousel"');
+    expect(markup).toContain('id="activity-slide-1"');
+    expect(markup).toContain('id="activity-slide-2"');
+    expect(markup).toContain('aria-label="Activity selection"');
+    expect(markup).toContain('aria-label="Previous activity"');
+    expect(markup).toContain('aria-label="Next activity"');
+  });
+
+  it("renders a single-slide carousel without slide navigation tabs when single", () => {
+    const markup = render({ status: "idle" });
+
+    expect(markup).toContain('data-slot="carousel"');
+    expect(markup).toContain('id="activity-slide-1"');
+    expect(markup).not.toContain('id="activity-slide-2"');
+    expect(markup).not.toContain('aria-label="Activity selection"');
+    expect(markup).not.toContain('aria-label="Previous activity"');
+    expect(markup).not.toContain('aria-label="Next activity"');
+  });
 });

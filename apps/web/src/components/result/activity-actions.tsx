@@ -9,8 +9,8 @@ import { cn } from "@/lib/utils";
  * Props for the `ActivityActions` action buttons bar.
  */
 export type ActivityActionsProps = {
-  /** React node rendering the completion button control. */
-  completionControl: ReactNode;
+  /** Optional React node rendering the completion button control. */
+  completionControl?: ReactNode;
   /** Google Maps directions URL for walking to the venue, or null without a venue. */
   directionsUrl: string | null;
   /** Whether a swap retry request is currently in flight. */
@@ -21,6 +21,8 @@ export type ActivityActionsProps = {
   swapsRemaining?: number;
   /** Callback fired when the user requests a new activity recommendation. */
   onTryAnother: () => void;
+  /** Whether to render the 'How to Play' button. Defaults to true. */
+  showHowToPlay?: boolean;
 };
 
 /**
@@ -34,17 +36,20 @@ export function ActivityActions({
   isRetrying = false,
   isDisabled = false,
   onTryAnother,
+  showHowToPlay = true,
 }: ActivityActionsProps) {
   return (
     <div className="mt-auto pt-6 space-y-3">
       {completionControl}
-      <DialogTrigger
-        render={<Button size="lg" type="button" variant="outline" />}
-        className="h-12 w-full rounded-full border-[#93AB63] bg-white px-6 text-base font-bold text-[#93AB63] hover:bg-zinc-50 hover:text-[#93AB63] focus-visible:border-[#93AB63] focus-visible:ring-[#93AB63]/20"
-      >
-        <BookOpen aria-hidden="true" />
-        How to Play
-      </DialogTrigger>
+      {showHowToPlay && (
+        <DialogTrigger
+          render={<Button size="lg" type="button" variant="outline" />}
+          className="h-12 w-full rounded-full border-[#93AB63] bg-white px-6 text-base font-bold text-[#93AB63] hover:bg-zinc-50 hover:text-[#93AB63] focus-visible:border-[#93AB63] focus-visible:ring-[#93AB63]/20"
+        >
+          <BookOpen aria-hidden="true" />
+          How to Play
+        </DialogTrigger>
+      )}
       {directionsUrl && (
         <a
           className={cn(

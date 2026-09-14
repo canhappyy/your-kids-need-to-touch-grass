@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { useActivityResult } from "@/hooks/use-activity-result";
+import { cn } from "@/lib/utils";
 import type { Recommendation } from "@/types/recommendation";
 import { ActivityDetails } from "./activity-details";
 import { ActivityHeader } from "./activity-header";
@@ -13,12 +14,14 @@ import { MissionInstructionsDialog } from "./mission-instructions-dialog";
 type ChainedActivityCardProps = {
   recommendation: Recommendation;
   isBusy: boolean;
+  className?: string;
 };
 
 /** Displays Activity 2 with independent instructions and completion history. */
 export function ChainedActivityCard({
   recommendation,
   isBusy,
+  className,
 }: ChainedActivityCardProps) {
   const {
     agesLabel,
@@ -28,7 +31,7 @@ export function ChainedActivityCard({
   } = useActivityResult(recommendation);
 
   return (
-    <Card className="mt-6 bg-white">
+    <Card className={cn("bg-white", className)}>
       <CardContent className="space-y-5 py-5 sm:px-6">
         <p className="text-center text-sm font-bold tracking-wide text-[#E4633C] uppercase">
           Activity 2
