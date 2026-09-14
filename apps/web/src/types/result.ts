@@ -13,6 +13,30 @@ export type RecommendationRequest = {
   signal?: AbortSignal;
 };
 
+/** Request details for loading or replaying a second activity. */
+export type ChainedRecommendationRequest = {
+  primaryMissionId: string;
+  openSpaceId: number;
+  missionId?: string;
+  signal?: AbortSignal;
+};
+
+/** Client lifecycle for a chained recommendation request. */
+export type ChainState =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "loaded"; recommendation: Recommendation }
+  | { status: "unavailable" }
+  | { status: "error" };
+
+/** Events accepted by the chained recommendation state machine. */
+export type ChainAction =
+  | { type: "start" }
+  | { type: "success"; recommendation: Recommendation }
+  | { type: "unavailable" }
+  | { type: "failure" }
+  | { type: "reset" };
+
 /**
  * Parsed search URL parameters for the Result page.
  */
@@ -35,6 +59,8 @@ export type ResultSearchParams = PlayPreferences & {
   minutes: string;
   /** Selected mission ID if viewing a specific mission from URL. */
   selectedMissionId?: string;
+  /** Selected second mission ID if replaying a chained outing. */
+  selectedSecondaryMissionId?: string;
   /** Number of swaps used so far. */
   swapsUsed: number;
   /** Array of previously shown mission IDs to avoid immediate repeats. */

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import {
   buildRecommendationApiUrl,
+  buildChainedRecommendationApiUrl,
   buildSearchQuery,
   mapLocationErrorCode,
   parseRecommendationApiResponse,
@@ -129,6 +130,38 @@ describe("result-search lib utilities", () => {
         "m1",
         "m2",
       ])
+    })
+  })
+
+  describe("buildChainedRecommendationApiUrl", () => {
+    it("keeps original preferences and exact venue", () => {
+      const url = buildChainedRecommendationApiUrl(
+        {
+          ageMax: "9",
+          ageMin: "6",
+          location: "3168",
+          lat: "-37.915",
+          lng: "145.123",
+          playStyle: "group",
+          canSupervise: true,
+        },
+        {
+          primaryMissionId: "MIS-001",
+          openSpaceId: 42,
+          missionId: "MIS-002",
+        },
+      )
+
+      const parsed = new URL(url, "http://localhost")
+      expect(parsed.pathname).toBe("/api/recommendations/chain")
+      expect(parsed.searchParams.get("location")).toBe("3168")
+      expect(parsed.searchParams.get("lat")).toBe("-37.915")
+      expect(parsed.searchParams.get("lng")).toBe("145.123")
+      expect(parsed.searchParams.get("playStyle")).toBe("group")
+      expect(parsed.searchParams.get("canSupervise")).toBe("true")
+      expect(parsed.searchParams.get("primaryMissionId")).toBe("MIS-001")
+      expect(parsed.searchParams.get("openSpaceId")).toBe("42")
+      expect(parsed.searchParams.get("secondaryMissionId")).toBe("MIS-002")
     })
   })
 

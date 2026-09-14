@@ -1,16 +1,18 @@
 "use client"
 
 import { readPlayPreferences } from "@/lib/play-preferences";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 
 import {
   buildRecommendationApiUrl,
+  buildChainedRecommendationApiUrl,
   buildSearchQuery as buildSearchQueryUtil,
   mapLocationErrorCode,
   parseRecommendationApiResponse,
   readSwapsUsed,
 } from "@/lib/result-search"
+import { chainReducer, initialChainState } from "@/lib/chained-mission"
 import type { Recommendation, RecommendationResponse } from "@/types/recommendation"
 import type {
   ApiErrorResponse,
@@ -66,6 +68,8 @@ export function useResultSection() {
   const hours = searchParams.get("hours") || "2"
   const minutes = searchParams.get("minutes") || "0"
   const selectedMissionId = searchParams.get("missionId") || undefined
+  const selectedSecondaryMissionId =
+    searchParams.get("secondaryMissionId") || undefined
   const swapsUsed = readSwapsUsed(searchParams.get("swapsUsed"))
 
   const shownMissionIds = useMemo(() => {
@@ -92,6 +96,7 @@ export function useResultSection() {
       playStyle,
       canSupervise,
       selectedMissionId,
+      selectedSecondaryMissionId,
       shownMissionIds,
       swapsUsed,
     }),
@@ -107,17 +112,24 @@ export function useResultSection() {
       playStyle,
       canSupervise,
       selectedMissionId,
+      selectedSecondaryMissionId,
       shownMissionIds,
       swapsUsed,
     ]
   )
 
   const currentMissionId = useRef<string | null>(null)
+  const currentSecondaryMissionId = useRef<string | null>(null)
+  const chainRequestInFlight = useRef(false)
   const [recommendation, setRecommendation] = useState<
     Recommendation | null | undefined
   >()
   const [error, setError] = useState("")
   const [isRetrying, setIsRetrying] = useState(false)
+  const [chainState, dispatchChain] = useReducer(
+    chainReducer,
+    initialChainState,
+  )
 
   const buildSearchQuery = useCallback(() => {
     return buildSearchQueryUtil({
@@ -213,6 +225,42 @@ export function useResultSection() {
     ]
   )
 
+  const requestChainedRecommendation = useCallback(
+    async (
+      primary: Recommendation,
+      missionId?: string,
+      signal?: AbortSignal,
+    ) => {
+      if (!primary.venue) return null
+
+      const url = buildChainedRecommendationApiUrl(
+        {
+          ageMax,
+          ageMin,
+          location,
+          lat,
+          lng,
+          playStyle,
+          canSupervise,
+        },
+        {
+          primaryMissionId: primary.missionId,
+          openSpaceId: primary.venue.openSpaceId,
+          missionId,
+          signal,
+        },
+      )
+      const response = await fetch(url, { cache: "no-store", signal })
+      const body = (await response.json()) as
+        | RecommendationResponse
+        | ApiErrorResponse
+
+      if (!response.ok) throw new Error("Chained recommendation failed")
+      return (body as RecommendationResponse).recommendation
+    },
+    [ageMax, ageMin, canSupervise, lat, lng, location, playStyle],
+  )
+
   useEffect(() => {
     if (locationMode === "nearby" && !location) {
       router.replace("/")
@@ -276,6 +324,94 @@ export function useResultSection() {
     selectedMissionId,
   ])
 
+  useEffect(() => {
+    if (!selectedSecondaryMissionId) {
+      currentSecondaryMissionId.current = null
+      chainRequestInFlight.current = false
+      dispatchChain({ type: "reset" })
+      return
+    }
+    if (
+      !recommendation?.venue ||
+      recommendation.durationMinutes >= 60 ||
+      currentSecondaryMissionId.current === selectedSecondaryMissionId
+    ) {
+      return
+    }
+
+    const controller = new AbortController()
+    chainRequestInFlight.current = true
+    dispatchChain({ type: "start" })
+
+    void requestChainedRecommendation(
+      recommendation,
+      selectedSecondaryMissionId,
+      controller.signal,
+    )
+      .then((result) => {
+        currentSecondaryMissionId.current = selectedSecondaryMissionId
+        dispatchChain(
+          result
+            ? { type: "success", recommendation: result }
+            : { type: "unavailable" },
+        )
+      })
+      .catch((requestError) => {
+        if (requestError instanceof Error && requestError.name === "AbortError") {
+          return
+        }
+        dispatchChain({ type: "failure" })
+      })
+      .finally(() => {
+        chainRequestInFlight.current = false
+      })
+
+    return () => controller.abort()
+  }, [
+    recommendation,
+    requestChainedRecommendation,
+    selectedSecondaryMissionId,
+  ])
+
+  const handleAddActivity = useCallback(async () => {
+    if (
+      chainRequestInFlight.current ||
+      isRetrying ||
+      !recommendation?.venue ||
+      recommendation.durationMinutes >= 60
+    ) {
+      return
+    }
+
+    const sourceMissionId = recommendation.missionId
+    chainRequestInFlight.current = true
+    dispatchChain({ type: "start" })
+
+    try {
+      const result = await requestChainedRecommendation(recommendation)
+      const currentParams = new URL(window.location.href).searchParams
+      if (currentParams.get("missionId") !== sourceMissionId) return
+
+      if (!result) {
+        dispatchChain({ type: "unavailable" })
+        return
+      }
+
+      currentSecondaryMissionId.current = result.missionId
+      dispatchChain({ type: "success", recommendation: result })
+      currentParams.set("secondaryMissionId", result.missionId)
+      window.history.pushState(
+        null,
+        "",
+        `/result?${currentParams.toString()}`,
+      )
+    } catch {
+      dispatchChain({ type: "failure" })
+    } finally {
+      chainRequestInFlight.current = false
+    }
+  }, [isRetrying, recommendation, requestChainedRecommendation])
+
   const handleTryAgain = useCallback(async () => {
     try {
       const result = await requestRecommendation({
@@ -300,7 +436,7 @@ export function useResultSection() {
   }, [buildSearchQuery, requestRecommendation, selectedMissionId])
 
   const handleTryAnother = useCallback(async () => {
-    if (isRetrying || !recommendation) return
+    if (isRetrying || chainRequestInFlight.current || !recommendation) return
 
     const sourceMissionId = recommendation.missionId
     const sourceShownMissionIds = shownMissionIds
@@ -320,6 +456,8 @@ export function useResultSection() {
         setError("")
         setRecommendation(result)
         currentMissionId.current = result.missionId
+        currentSecondaryMissionId.current = null
+        dispatchChain({ type: "reset" })
 
         const params = buildSearchQuery()
         params.set("missionId", result.missionId)
@@ -359,11 +497,14 @@ export function useResultSection() {
 
   return {
     error,
+    chainState,
+    handleAddActivity,
     handleAdjustFilters,
     handleBackToSearch,
     handleTryAgain,
     handleTryAnother,
     isRetrying,
+    isBusy: isRetrying || chainState.status === "loading",
     location,
     locationMode,
     recommendation,
