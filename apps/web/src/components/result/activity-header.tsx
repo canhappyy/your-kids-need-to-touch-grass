@@ -15,6 +15,12 @@ export type ActivityHeaderProps = {
   formattedDuration: string;
   /** Formatted supervision label ("Independent play" or "Adult supervision"). */
   formattedSupervision: string;
+  /** Heading element used for the mission title. */
+  headingLevel?: "h1" | "h2";
+  /** DOM identifier used by the surrounding labelled region. */
+  titleId?: string;
+  /** Uses smaller spacing inside a chained activity card. */
+  compact?: boolean;
 };
 
 /**
@@ -28,7 +34,12 @@ export function ActivityHeader({
   agesLabel,
   formattedDuration,
   formattedSupervision,
+  headingLevel = "h1",
+  titleId = "activity-title",
+  compact = false,
 }: ActivityHeaderProps) {
+  const Heading = headingLevel;
+
   return (
     <div className="text-center">
       <div
@@ -45,12 +56,16 @@ export function ActivityHeader({
           </Badge>
         ))}
       </div>
-      <h1
-        className="mt-6 text-4xl font-bold tracking-tight text-zinc-900"
-        id="activity-title"
+      <Heading
+        className={
+          compact
+            ? "mt-4 text-2xl font-bold tracking-tight text-zinc-900"
+            : "mt-6 text-4xl font-bold tracking-tight text-zinc-900"
+        }
+        id={titleId}
       >
         {title}
-      </h1>
+      </Heading>
       <div
         aria-label="Mission details"
         className="mt-4 flex flex-wrap justify-center gap-2"

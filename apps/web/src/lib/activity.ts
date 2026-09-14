@@ -15,7 +15,8 @@ export function formatDuration(durationMinutes: number): string {
   if (!hours) return `${minutes} minutes`
 
   const hourLabel = `${hours} ${hours === 1 ? "hour" : "hours"}`
-  return minutes ? `${hourLabel} ${minutes} minutes` : hourLabel
+  const minuteLabel = `${minutes} ${minutes === 1 ? "minute" : "minutes"}`
+  return minutes ? `${hourLabel} ${minuteLabel}` : hourLabel
 }
 
 /**

@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { PlayPreferencesField } from "./play-preferences-field";
 import { AgeRangeField } from "./age-range-field";
 import { LocationInputField } from "./location-input-field";
@@ -94,10 +96,12 @@ function HomeSearchForm({
         >
           Generate an Activity
         </Button>
-        <p className="mt-7 text-sm text-zinc-500">
-          Tap for a random activity idea{" "}
-          {locationMode === "home" ? "at home" : "near you"}
-        </p>
+        <Link
+          className="mt-7 inline-block text-sm text-zinc-500 underline underline-offset-4 transition-colors hover:text-zinc-800 focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63] focus-visible:ring-offset-2"
+          href="/data-governance"
+        >
+          Learn more about our data
+        </Link>
       </div>
     </form>
   );

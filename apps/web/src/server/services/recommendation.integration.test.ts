@@ -309,7 +309,7 @@ describe("seeded recommendation flow", () => {
     expect(repeat).not.toBeNull();
   });
 
-  it("replays the same Home-Based mission for a home search", async () => {
+  it("replays the same eligible mission for an at-home search", async () => {
     const homeInput = {
       playStyle: "solo" as const,
       canSupervise: false,
@@ -324,10 +324,12 @@ describe("seeded recommendation flow", () => {
       missionId: first?.missionId,
     });
 
-    expect(first?.missionType).toBe("Home-Based");
+    expect(["Home-Based", "Location-Agnostic"]).toContain(
+      first?.missionType,
+    );
     expect(replay).toMatchObject({
       missionId: first?.missionId,
-      missionType: "Home-Based",
+      missionType: first?.missionType,
     });
   });
 
@@ -345,7 +347,7 @@ describe("seeded recommendation flow", () => {
     ).resolves.toBeNull();
   });
 
-  it("returns no-equipment home mission details for matching ages", async () => {
+  it("returns a no-equipment location-agnostic mission for an at-home search", async () => {
     const missionId = "TEST-US31-HOME-DETAILS";
 
     await pool.query("DELETE FROM activity WHERE mission_id = $1", [missionId]);
@@ -374,7 +376,7 @@ describe("seeded recommendation flow", () => {
           'N',
           'None',
           'Independent-Play-Safe',
-          'Home-Based',
+          'Location-Agnostic',
           'Solo'
         )
         `,
@@ -398,7 +400,7 @@ describe("seeded recommendation flow", () => {
 
       expect(recommendation).toMatchObject({
         missionId,
-        missionType: "Home-Based",
+        missionType: "Location-Agnostic",
         ageBands: ["5-7", "8-9"],
         supervisionLevel: "Independent-Play-Safe",
       });

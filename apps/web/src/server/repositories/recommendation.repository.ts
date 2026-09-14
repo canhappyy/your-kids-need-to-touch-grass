@@ -2,6 +2,8 @@ import pool from "@/lib/db";
 import { WALKING_SPEED_KMH, WALKING_DETOUR_FACTOR } from "@/lib/commute";
 import type {
   AgeBand,
+  ChainedRecommendationCandidate,
+  ChainedRecommendationQuery,
   FallbackRecommendationQuery,
   RecommendationCandidate,
   RecommendationQuery,
@@ -9,10 +11,136 @@ import type {
 } from "@/types/recommendation";
 
 export type {
+  ChainedRecommendationQuery,
   FallbackRecommendationQuery,
   RecommendationCandidate,
   RecommendationQuery,
 };
+
+/**
+ * Looks in the database for a second activity at the exact same park or venue
+ * when a family's first mission is under 60 minutes.
+ *
+ * Why this exists:
+ * If the primary activity is short (e.g. 20 minutes), parents can add a compatible
+ * second activity at the same park to help kids reach the 60-minute daily active
+ * play goal without needing to travel somewhere else.
+ *
+ * How it picks the activity:
+ * 1. Checks the venue of the first activity (such as a specific playground or park).
+ * 2. Makes sure the first activity is an outdoor venue mission under 60 minutes.
+ * 3. Filters available activities at that venue by the child's age range, supervision level, and play style.
+ * 4. Ensures the second activity is different from the first one.
+ * 5. Chooses the shortest matching activity that brings the combined outing time to at least 60 minutes,
+ *    preventing the day's plan from becoming overly long or tiring.
+ *
+ * @param input - The search requirements, including the primary mission, venue ID, GPS coordinates, and child age/preferences.
+ * @returns The best matching second activity and total combined outing minutes, or `null` if no compatible mission exists at this venue.
+ */
+export async function findChainedRecommendation(
+  input: ChainedRecommendationQuery,
+): Promise<ChainedRecommendationCandidate | null> {
+  const result = await pool.query(
+    `
+    WITH venue AS MATERIALIZED (
+      SELECT
+        os.open_space_id,
+        os.name,
+        os.latitude,
+        os.longitude,
+        os.category,
+        earth_distance(
+          ll_to_earth($3, $4),
+          ll_to_earth(os.latitude, os.longitude)
+        ) / 1000.0 AS distance_km
+      FROM open_space AS os
+      WHERE os.open_space_id = $2
+    ),
+    primary_mission AS (
+      SELECT a.mission_id, a.duration_minutes
+      FROM activity AS a
+      INNER JOIN activity_location_category AS alc
+        ON alc.mission_id = a.mission_id
+      INNER JOIN venue AS os
+        ON (
+          alc.open_space_ref_id = os.open_space_id
+          OR (alc.open_space_ref_id IS NULL AND alc.category_name = os.category)
+        )
+      WHERE a.mission_id = $1
+        AND a.mission_type = 'Location-Based'
+        AND a.duration_minutes > 0
+        AND a.duration_minutes < 60
+      LIMIT 1
+    )
+    SELECT
+      a.mission_id,
+      a.activity_title,
+      a.description,
+      a.equipment_needed,
+      a.instruction_text,
+      a.duration_minutes,
+      0 AS commute_minutes,
+      a.duration_minutes AS total_minutes,
+      a.age_5_7,
+      a.age_8_9,
+      a.age_10_12,
+      a.supervision_level,
+      os.open_space_id,
+      os.name AS open_space_name,
+      os.category,
+      os.latitude,
+      os.longitude,
+      os.distance_km,
+      pm.duration_minutes + a.duration_minutes
+        + (2 * ceil(os.distance_km * $10::double precision / $11::double precision * 60))::int
+        AS outing_total_minutes
+    FROM primary_mission AS pm
+    CROSS JOIN venue AS os
+    INNER JOIN activity_location_category AS alc
+      ON (
+        alc.open_space_ref_id = os.open_space_id
+        OR (alc.open_space_ref_id IS NULL AND alc.category_name = os.category)
+      )
+    INNER JOIN activity AS a ON a.mission_id = alc.mission_id
+    WHERE a.mission_type = 'Location-Based'
+      AND a.mission_id <> pm.mission_id
+      AND ($9::text IS NULL OR a.mission_id = $9)
+      AND a.duration_minutes >= 60 - pm.duration_minutes
+      AND a.supervision_level = $7
+      AND a.social_tag = ANY($8::text[])
+      AND os.distance_km <= 2
+      AND (
+        ($5 <= 7 AND $6 >= 5 AND a.age_5_7 = 'Y')
+        OR ($5 <= 9 AND $6 >= 8 AND a.age_8_9 = 'Y')
+        OR ($5 <= 12 AND $6 >= 10 AND a.age_10_12 = 'Y')
+      )
+    ORDER BY a.duration_minutes, random()
+    LIMIT 1
+    `,
+    [
+      input.primaryMissionId,
+      input.openSpaceId,
+      input.latitude,
+      input.longitude,
+      input.ageMin,
+      input.ageMax,
+      input.canSupervise ? "Needs Supervision" : "Independent-Play-Safe",
+      input.playStyle === "group"
+        ? ["Group/Family", "social_agnostic"]
+        : ["Solo", "social_agnostic"],
+      input.missionId ?? null,
+      WALKING_DETOUR_FACTOR,
+      WALKING_SPEED_KMH,
+    ],
+  );
+
+  if (!result.rows[0]) return null;
+
+  return {
+    recommendation: mapLocationCandidate(result.rows[0]),
+    outingTotalMinutes: Number(result.rows[0].outing_total_minutes),
+  };
+}
 
 /**
  * Maps a database row into a `RecommendationCandidate` with venue information.

@@ -16,11 +16,14 @@ import { useResultSection } from "@/hooks/use-result-section";
 export function ResultSection() {
   const {
     error,
+    chainState,
+    handleAddActivity,
     handleAdjustFilters,
     handleBackToSearch,
     handleTryAgain,
     handleTryAnother,
     isRetrying,
+    isBusy,
     location,
     locationMode,
     recommendation,
@@ -75,7 +78,10 @@ export function ResultSection() {
     <>
       {topNav}
       <ActivityResult
+        chainState={chainState}
+        isBusy={isBusy}
         isRetrying={isRetrying}
+        onAddActivity={handleAddActivity}
         onBackToSearch={handleBackToSearch}
         onTryAnother={handleTryAnother}
         recommendation={recommendation}

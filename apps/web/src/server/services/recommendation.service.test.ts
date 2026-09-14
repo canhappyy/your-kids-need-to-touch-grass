@@ -119,7 +119,7 @@ describe("getRecommendation", () => {
     );
   });
 
-  it("selects only Home-Based missions without resolving a location", async () => {
+  it("selects Home-Based or Location-Agnostic missions without resolving a location", async () => {
     const deps = dependencies(null, fallbackMission);
     const result = await getRecommendation(
       {
@@ -151,7 +151,7 @@ describe("getRecommendation", () => {
       durationMinutes: 45,
       excludeMissionIds: undefined,
       missionId: undefined,
-      missionTypes: ["Home-Based"],
+      missionTypes: ["Home-Based", "Location-Agnostic"],
       equipmentRequiredTag: "None",
     });
   });

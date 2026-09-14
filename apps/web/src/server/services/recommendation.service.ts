@@ -1,6 +1,10 @@
 import type { ResolvedLocation } from "@/types/location";
 import type {
   FallbackRecommendationQuery,
+  ChainedRecommendationCandidate,
+  ChainedRecommendationInput,
+  ChainedRecommendationQuery,
+  ChainedRecommendationResult,
   MatchReason,
   Recommendation,
   RecommendationCandidate,
@@ -10,6 +14,14 @@ import type {
 } from "@/types/recommendation";
 
 export type { RecommendationInput, RecommendationInputBase };
+
+/** Dependencies used to find a second activity at an existing venue. */
+export type ChainedRecommendationDependencies = {
+  resolveLocation(input: string): Promise<ResolvedLocation>;
+  findChained(
+    input: ChainedRecommendationQuery,
+  ): Promise<ChainedRecommendationCandidate | null>;
+};
 
 /**
  * Repository contract required by the recommendation service.
@@ -53,6 +65,18 @@ async function loadDefaultDependencies(): Promise<RecommendationDependencies> {
         recommendationRepository.findLocationBasedRecommendation,
       findFallback: recommendationRepository.findFallbackRecommendation,
     },
+  };
+}
+
+async function loadDefaultChainedDependencies(): Promise<ChainedRecommendationDependencies> {
+  const [locationService, recommendationRepository] = await Promise.all([
+    import("@/server/services/location.service"),
+    import("@/server/repositories/recommendation.repository"),
+  ]);
+
+  return {
+    resolveLocation: locationService.resolveRecommendationLocation,
+    findChained: recommendationRepository.findChainedRecommendation,
   };
 }
 
@@ -102,10 +126,62 @@ function buildReasons(
 }
 
 /**
+ * Finds a second activity at the same park to pair with the first mission,
+ * helping kids reach their 60-minute daily active play goal during one outing.
+ *
+ * How it works:
+ * 1. Resolves where the family is (using either GPS coordinates or a postcode).
+ * 2. Asks the database for a compatible activity at the same park that fits the child's age,
+ *    supervision level, and play style.
+ * 3. Attaches clear, parent-friendly match tags explaining why this activity was chosen
+ *    (e.g., "Ages 6-10", "Reaches the 60-minute goal", "Also at Clayton Reserve").
+ * 4. Calculates the new combined outing time (commute + both activities).
+ *
+ * @param input - The family's search criteria, including the first mission, park venue ID, and child preferences.
+ * @param dependencies - Optional helper overrides used during automated testing.
+ * @returns The second activity recommendation with combined outing minutes, or `null` if nothing suitable is available at this park.
+ */
+export async function getChainedRecommendation(
+  input: ChainedRecommendationInput,
+  dependencies?: ChainedRecommendationDependencies,
+): Promise<ChainedRecommendationResult | null> {
+  const deps = dependencies ?? (await loadDefaultChainedDependencies());
+  const location = await deps.resolveLocation(input.location);
+  const candidate = await deps.findChained({
+    primaryMissionId: input.primaryMissionId,
+    openSpaceId: input.openSpaceId,
+    latitude: input.latitude ?? location.latitude,
+    longitude: input.longitude ?? location.longitude,
+    ageMin: input.ageMin,
+    ageMax: input.ageMax,
+    playStyle: input.playStyle,
+    canSupervise: input.canSupervise,
+    missionId: input.missionId,
+  });
+
+  if (!candidate) return null;
+
+  return {
+    outingTotalMinutes: candidate.outingTotalMinutes,
+    recommendation: {
+      ...candidate.recommendation,
+      reasons: [
+        { kind: "age", label: `Ages ${input.ageMin}-${input.ageMax}` },
+        { kind: "time", label: "Reaches the 60-minute goal" },
+        {
+          kind: "location",
+          label: `Also at ${candidate.recommendation.venue?.name}`,
+        },
+      ],
+    },
+  };
+}
+
+/**
  * Core recommendation engine method that matches activities based on age, time, location, and play preferences.
  *
  * For `"home"` mode:
- * Searches for Home-Based, zero-equipment activities matching the age, duration, play style, and supervision criteria.
+ * Searches for Home-Based or Location-Agnostic zero-equipment activities matching the age, duration, play style, and supervision criteria.
  *
  * For `"nearby"` mode:
  * Resolves location, attempts to find a location-based activity within 2km matching criteria, and falls back to
@@ -130,7 +206,7 @@ export async function getRecommendation(
       canSupervise: input.canSupervise,
       excludeMissionIds: input.excludeMissionIds,
       missionId: input.missionId,
-      missionTypes: ["Home-Based"],
+      missionTypes: ["Home-Based", "Location-Agnostic"],
       equipmentRequiredTag: "None",
     });
 

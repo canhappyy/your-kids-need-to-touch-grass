@@ -4,8 +4,20 @@ import type {
   ApiErrorResponse,
   FetchRecommendationResult,
   RecommendationRequest,
+  ChainedRecommendationRequest,
   ResultSearchParams,
 } from "@/types/result";
+
+type ChainedSearchParams = Pick<
+  ResultSearchParams,
+  | "location"
+  | "ageMin"
+  | "ageMax"
+  | "playStyle"
+  | "canSupervise"
+  | "lat"
+  | "lng"
+>;
 
 /**
  * Maximum number of activity swaps ("Try another") permitted per search session.
@@ -119,6 +131,40 @@ export function buildRecommendationApiUrl(
   if (request.missionId) params.set("missionId", request.missionId);
 
   return `/api/recommendations?${params.toString()}`;
+}
+
+/**
+ * Constructs the API endpoint URL for requesting a chained secondary recommendation at the primary venue.
+ *
+ * Encodes age range, user play preferences, geolocation coordinates, and target open space identifiers
+ * into the `/api/recommendations/chain` query string.
+ *
+ * @param searchParams - User search filters including location, age range, and play preferences.
+ * @param request - Chained request identifiers including `primaryMissionId`, `openSpaceId`, and optional `missionId`.
+ * @returns The formatted URL string for the chained recommendations API endpoint.
+ */
+export function buildChainedRecommendationApiUrl(
+  searchParams: ChainedSearchParams,
+  request: ChainedRecommendationRequest,
+): string {
+  const params = new URLSearchParams({
+    ...playPreferenceParams(searchParams),
+    location: searchParams.location,
+    ageMin: searchParams.ageMin,
+    ageMax: searchParams.ageMax,
+    primaryMissionId: request.primaryMissionId,
+    openSpaceId: String(request.openSpaceId),
+  });
+
+  if (searchParams.lat && searchParams.lng) {
+    params.set("lat", searchParams.lat);
+    params.set("lng", searchParams.lng);
+  }
+  if (request.missionId) {
+    params.set("secondaryMissionId", request.missionId);
+  }
+
+  return `/api/recommendations/chain?${params.toString()}`;
 }
 
 /**

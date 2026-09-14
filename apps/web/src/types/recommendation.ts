@@ -97,6 +97,44 @@ export type RecommendationQuery = PlayPreferences & {
   missionId?: string;
 };
 
+/** Query criteria for adding a compatible activity at an existing venue. */
+export type ChainedRecommendationQuery = PlayPreferences & {
+  primaryMissionId: string;
+  openSpaceId: number;
+  latitude: number;
+  longitude: number;
+  ageMin: number;
+  ageMax: number;
+  /** Optional secondary mission ID used when replaying a result URL. */
+  missionId?: string;
+};
+
+/** Repository result containing the second mission and complete outing time. */
+export type ChainedRecommendationCandidate = {
+  recommendation: RecommendationCandidate;
+  /** Primary activity, secondary activity, and one round-trip commute. */
+  outingTotalMinutes: number;
+};
+
+/** Client criteria for finding a second mission at the primary venue. */
+export type ChainedRecommendationInput = PlayPreferences & {
+  location: string;
+  latitude?: number;
+  longitude?: number;
+  ageMin: number;
+  ageMax: number;
+  primaryMissionId: string;
+  openSpaceId: number;
+  /** Optional secondary mission ID used for URL replay. */
+  missionId?: string;
+};
+
+/** Service result before the API adds weather for the full outing. */
+export type ChainedRecommendationResult = {
+  recommendation: Recommendation;
+  outingTotalMinutes: number;
+};
+
 /**
  * Query criteria for finding a home-based or location-agnostic fallback recommendation.
  */
