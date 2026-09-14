@@ -61,8 +61,12 @@ function render(chainState: ChainState, recommendation = primary) {
 }
 
 describe("ActivityResult chained outing", () => {
-  it("offers another activity for a short venue mission", () => {
-    expect(render({ status: "idle" })).toContain("Add another activity here");
+  it("offers another activity for a short venue mission via slide trigger and tab plus button", () => {
+    const markup = render({ status: "idle" });
+    expect(markup).toContain("Discover Another Activity");
+    expect(markup).toContain('id="activity-slide-add"');
+    expect(markup).toContain('aria-label="Add another activity"');
+    expect(markup).not.toContain("Add another activity here");
   });
 
   it("stacks the second mission and uses combined activity progress and weather", () => {
@@ -78,10 +82,14 @@ describe("ActivityResult chained outing", () => {
     expect(markup.match(/How to Play/g)?.length).toBeGreaterThanOrEqual(2);
   });
 
-  it("shows the exact unavailable message", () => {
-    expect(render({ status: "unavailable" })).toContain(
+  it("shows the exact unavailable message and does not create a card", () => {
+    const markup = render({ status: "unavailable" });
+    expect(markup).toContain(
       "No additional activity is available at this location.",
     );
+    expect(markup).not.toContain('id="activity-slide-add"');
+    expect(markup).not.toContain('id="activity-slide-2"');
+    expect(markup).not.toContain("Activity 2");
   });
 
   it("does not offer chaining for a home mission", () => {
@@ -92,9 +100,10 @@ describe("ActivityResult chained outing", () => {
       commuteMinutes: 0,
       totalMinutes: 20,
     };
-    expect(render({ status: "idle" }, home)).not.toContain(
-      "Add another activity here",
-    );
+    const markup = render({ status: "idle" }, home);
+    expect(markup).not.toContain("Discover Another Activity");
+    expect(markup).not.toContain('id="activity-slide-add"');
+    expect(markup).not.toContain('aria-label="Add another activity"');
   });
 
   it("renders a carousel with navigation tabs and slide controls for chained activities", () => {
@@ -108,16 +117,26 @@ describe("ActivityResult chained outing", () => {
     expect(markup).toContain('aria-label="Next activity"');
   });
 
-  it("renders a single-slide carousel with slide navigation tab when single", () => {
-    const markup = render({ status: "idle" });
+  it("renders a single-slide carousel when not chaining", () => {
+    const home = {
+      ...primary,
+      missionType: "Home-Based" as const,
+      venue: null,
+      commuteMinutes: 0,
+      totalMinutes: 20,
+    };
+    const markup = render({ status: "idle" }, home);
 
     expect(markup).toContain('data-slot="carousel"');
     expect(markup).toContain('id="activity-slide-1"');
     expect(markup).not.toContain('id="activity-slide-2"');
+    expect(markup).not.toContain('id="activity-slide-add"');
     expect(markup).toContain('aria-label="Activity selection"');
     expect(markup).toContain("Activity 1");
     expect(markup).toContain("1 of 1");
     expect(markup).not.toContain("Activity 2");
+    expect(markup.match(/Mark completed/g)).toHaveLength(1);
+    expect(markup.match(/How to Play/g)?.length).toBeGreaterThanOrEqual(1);
     expect(markup).not.toContain('aria-label="Previous activity"');
     expect(markup).not.toContain('aria-label="Next activity"');
   });

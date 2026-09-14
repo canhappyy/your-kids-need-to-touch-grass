@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { ChevronRight, Plus } from "lucide-react";
 
 import {
   Carousel,
@@ -12,30 +13,45 @@ import {
 } from "@/components/ui/carousel";
 import { cn } from "@/lib/utils";
 import type { Recommendation } from "@/types/recommendation";
+import type { ChainState } from "@/types/result";
 
 import { ChainedActivityCard } from "./chained-activity-card";
+import { DiscoverActivitySlide } from "./discover-activity-slide";
 
 export type ActivityCarouselProps = {
   primaryCard: ReactNode;
   secondaryRecommendation: Recommendation | null;
+  canChain?: boolean;
+  chainState?: ChainState;
+  venueName?: string | null;
   isBusy: boolean;
   currentSlide: number;
   api?: CarouselApi;
   setApi: (api: CarouselApi) => void;
+  onAddActivity?: () => void;
 };
 
 /**
  * Encapsulates the carousel viewport, slide indicators, and navigation controls
- * for single and chained activities.
+ * for single, discovery, and chained activities.
  */
 export function ActivityCarousel({
   primaryCard,
   secondaryRecommendation,
+  canChain = false,
+  chainState,
+  venueName,
   isBusy,
   currentSlide,
   api,
   setApi,
+  onAddActivity,
 }: ActivityCarouselProps) {
+  const showTriggerSlide =
+    Boolean(canChain) &&
+    !secondaryRecommendation &&
+    (chainState?.status !== "unavailable" || currentSlide !== 0);
+
   return (
     <div className="relative w-full">
       <div className="mb-3 flex items-center justify-between px-1">
@@ -59,7 +75,7 @@ export function ActivityCarousel({
           >
             Activity 1
           </button>
-          {secondaryRecommendation && (
+          {secondaryRecommendation ? (
             <button
               type="button"
               role="tab"
@@ -75,10 +91,37 @@ export function ActivityCarousel({
             >
               Activity 2
             </button>
-          )}
+          ) : showTriggerSlide ? (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={currentSlide === 1}
+              aria-controls="activity-slide-add"
+              aria-label="Add another activity"
+              onClick={() => {
+                api?.scrollTo(1);
+                if (chainState?.status === "idle") {
+                  onAddActivity?.();
+                }
+              }}
+              className={cn(
+                "inline-flex cursor-pointer items-center gap-1 rounded-full border border-dashed px-2.5 py-1 text-xs font-bold tracking-wide transition-all",
+                currentSlide === 1
+                  ? "border-[#93AB63] bg-[#93AB63] text-white shadow-xs"
+                  : "border-zinc-300 bg-white/80 text-zinc-600 hover:border-[#93AB63] hover:bg-zinc-100 hover:text-[#556B2F]",
+              )}
+            >
+              <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+              <span>Add Activity</span>
+            </button>
+          ) : null}
         </div>
         <span className="text-xs font-medium text-zinc-500" aria-live="polite">
-          {secondaryRecommendation ? `${currentSlide + 1} of 2` : "1 of 1"}
+          {secondaryRecommendation
+            ? `${currentSlide + 1} of 2`
+            : showTriggerSlide && currentSlide === 1
+              ? "2 of 2"
+              : "1 of 1"}
         </span>
       </div>
 
@@ -87,7 +130,7 @@ export function ActivityCarousel({
           <CarouselItem id="activity-slide-1" className="flex flex-col">
             {primaryCard}
           </CarouselItem>
-          {secondaryRecommendation && (
+          {secondaryRecommendation ? (
             <CarouselItem id="activity-slide-2" className="flex flex-col">
               <ChainedActivityCard
                 isBusy={isBusy}
@@ -95,7 +138,16 @@ export function ActivityCarousel({
                 className="h-full"
               />
             </CarouselItem>
-          )}
+          ) : showTriggerSlide ? (
+            <CarouselItem id="activity-slide-add" className="flex flex-col">
+              <DiscoverActivitySlide
+                chainState={chainState ?? { status: "idle" }}
+                venueName={venueName}
+                className="h-full"
+                onRetry={onAddActivity}
+              />
+            </CarouselItem>
+          ) : null}
         </CarouselContent>
 
         {secondaryRecommendation && (
@@ -112,7 +164,7 @@ export function ActivityCarousel({
         )}
       </Carousel>
 
-      {secondaryRecommendation && (
+      {secondaryRecommendation ? (
         <div className="mt-3 flex justify-center gap-1.5" aria-hidden="true">
           <button
             type="button"
@@ -133,7 +185,15 @@ export function ActivityCarousel({
             )}
           />
         </div>
-      )}
+      ) : showTriggerSlide && currentSlide === 0 ? (
+        <div
+          className="mt-3 flex items-center justify-center gap-1.5 text-xs font-medium text-zinc-500"
+          aria-hidden="true"
+        >
+          <span>Slide or tap + to discover another activity</span>
+          <ChevronRight className="h-3.5 w-3.5 animate-pulse text-[#93AB63]" />
+        </div>
+      ) : null}
     </div>
   );
 }

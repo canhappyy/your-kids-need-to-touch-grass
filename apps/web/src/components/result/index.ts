@@ -6,6 +6,7 @@ export * from "./activity-progress";
 export * from "./activity-result";
 export * from "./chained-activity-card";
 export * from "./chained-activity-prompt";
+export * from "./discover-activity-slide";
 export * from "./empty-activity-result";
 export * from "./primary-activity-card";
 export * from "./result-error-state";

@@ -1,6 +1,5 @@
 "use client";
 
-import { Dialog } from "@/components/ui/dialog";
 import { useActivityCarousel } from "@/hooks/use-activity-carousel";
 import { useActivityResult } from "@/hooks/use-activity-result";
 import { calculateDailyGoalProgress } from "@/lib/activity";
@@ -9,8 +8,6 @@ import type { ActivityResultProps } from "@/types/activity";
 import { ActivityActions } from "./activity-actions";
 import { ActivityCarousel } from "./activity-carousel";
 import { ActivityProgress } from "./activity-progress";
-import { ChainedActivityPrompt } from "./chained-activity-prompt";
-import { MissionCompletion } from "./mission-completion";
 import { MissionWeather } from "./mission-weather";
 import { PrimaryActivityCard } from "./primary-activity-card";
 
@@ -29,9 +26,15 @@ function ActivityResult({
   const secondaryRecommendation =
     chainState.status === "loaded" ? chainState.recommendation : null;
 
-  const { api, setApi, currentSlide } = useActivityCarousel(
+  const canChain =
+    recommendation.venue !== null && recommendation.durationMinutes < 60;
+
+  const { api, setApi, currentSlide } = useActivityCarousel({
     secondaryRecommendation,
-  );
+    canChain,
+    chainStatus: chainState.status,
+    onAddActivity,
+  });
 
   const { directionsUrl } = useActivityResult(recommendation);
 
@@ -48,8 +51,6 @@ function ActivityResult({
     progressValue,
   } = calculateDailyGoalProgress(combinedActivityMinutes);
 
-  const canChain =
-    recommendation.venue !== null && recommendation.durationMinutes < 60;
   const outingWeather =
     secondaryRecommendation?.weather ?? recommendation.weather;
 
@@ -60,28 +61,37 @@ function ActivityResult({
       isBusy={isBusy}
       recommendation={recommendation}
       secondaryRecommendation={secondaryRecommendation}
+      className="h-full"
     />
   );
 
   const carousel = (
     <ActivityCarousel
       api={api}
+      canChain={canChain}
+      chainState={chainState}
       currentSlide={currentSlide}
       isBusy={isBusy}
+      onAddActivity={onAddActivity}
       primaryCard={primaryCard}
       secondaryRecommendation={secondaryRecommendation}
       setApi={setApi}
+      venueName={recommendation.venue?.name}
     />
   );
 
   const sharedOutingContent = (
     <>
-      {canChain && !secondaryRecommendation && (
-        <ChainedActivityPrompt
-          chainState={chainState}
-          isBusy={isBusy}
-          onAddActivity={onAddActivity}
-        />
+      {chainState.status === "unavailable" && (
+        <p className="mt-4 text-center text-sm text-zinc-600" role="status">
+          No additional activity is available at this location.
+        </p>
+      )}
+
+      {chainState.status === "error" && (
+        <p className="mt-4 text-center text-sm text-red-700" role="alert">
+          We couldn&apos;t add another activity. Try again.
+        </p>
       )}
 
       <MissionWeather weather={outingWeather} />
@@ -93,19 +103,11 @@ function ActivityResult({
       />
 
       <ActivityActions
-        completionControl={
-          secondaryRecommendation ? null : (
-            <MissionCompletion
-              recommendation={recommendation}
-              isRetrying={isBusy}
-            />
-          )
-        }
         directionsUrl={directionsUrl}
         isRetrying={isRetrying}
         isDisabled={isBusy}
         onTryAnother={onTryAnother}
-        showHowToPlay={!secondaryRecommendation}
+        showHowToPlay={false}
       />
     </>
   );
@@ -115,17 +117,8 @@ function ActivityResult({
       aria-labelledby="activity-title"
       className="flex min-h-[calc(100svh-6.5rem)] flex-col pt-3 pb-[72px]"
     >
-      {secondaryRecommendation ? (
-        <>
-          {carousel}
-          {sharedOutingContent}
-        </>
-      ) : (
-        <Dialog key={recommendation.missionId}>
-          {carousel}
-          {sharedOutingContent}
-        </Dialog>
-      )}
+      {carousel}
+      {sharedOutingContent}
     </section>
   );
 }

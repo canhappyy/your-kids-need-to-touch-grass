@@ -45,53 +45,53 @@ export function PrimaryActivityCard({
     locationLabel,
   } = useActivityResult(recommendation);
 
-  const card = (
-    <Card
-      className={cn(
-        "flex h-full flex-1 flex-col justify-between bg-white",
-        className,
-      )}
-    >
-      <CardContent className="flex flex-1 flex-col justify-between space-y-5 py-5 sm:px-6">
-        <div className="space-y-5">
-          {secondaryRecommendation && (
-            <p className="text-center text-sm font-bold tracking-wide text-[#E4633C] uppercase">
-              Activity 1
-            </p>
-          )}
-          <div className="relative">
-            <DialogTrigger
-              aria-label={`How to Play: ${recommendation.title}`}
-              className="absolute inset-0 z-10 cursor-pointer rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63] focus-visible:ring-offset-4"
-            />
-            <ActivityHeader
-              agesLabel={agesLabel}
-              compact={Boolean(secondaryRecommendation)}
-              formattedDuration={
-                formattedCommuteDuration !== null && !secondaryRecommendation
-                  ? `${formattedTotalDuration} total (est.)`
-                  : formattedDuration
-              }
-              formattedSupervision={formattedSupervision}
-              reasons={recommendation.reasons}
-              title={recommendation.title}
-            />
+  return (
+    <Dialog key={recommendation.missionId}>
+      <Card
+        className={cn(
+          "flex h-full flex-1 flex-col justify-between bg-white",
+          className,
+        )}
+      >
+        <CardContent className="flex flex-1 flex-col justify-between space-y-5 py-5 sm:px-6">
+          <div className="space-y-5">
+            {secondaryRecommendation && (
+              <p className="text-center text-sm font-bold tracking-wide text-[#E4633C] uppercase">
+                Activity 1
+              </p>
+            )}
+            <div className="relative">
+              <DialogTrigger
+                aria-label={`How to Play: ${recommendation.title}`}
+                className="absolute inset-0 z-10 cursor-pointer rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63] focus-visible:ring-offset-4"
+              />
+              <ActivityHeader
+                agesLabel={agesLabel}
+                compact={Boolean(secondaryRecommendation)}
+                formattedDuration={
+                  formattedCommuteDuration !== null && !secondaryRecommendation
+                    ? `${formattedTotalDuration} total (est.)`
+                    : formattedDuration
+                }
+                formattedSupervision={formattedSupervision}
+                reasons={recommendation.reasons}
+                title={recommendation.title}
+              />
 
-            <ActivityDetails
-              activityCount={secondaryRecommendation ? 2 : 1}
-              formattedTotalDuration={
-                secondaryRecommendation
-                  ? formatDuration(combinedOutingMinutes)
-                  : formattedTotalDuration
-              }
-              formattedCommuteDuration={formattedCommuteDuration}
-              formattedDuration={formatDuration(combinedActivityMinutes)}
-              locationLabel={locationLabel}
-            />
+              <ActivityDetails
+                activityCount={secondaryRecommendation ? 2 : 1}
+                formattedTotalDuration={
+                  secondaryRecommendation
+                    ? formatDuration(combinedOutingMinutes)
+                    : formattedTotalDuration
+                }
+                formattedCommuteDuration={formattedCommuteDuration}
+                formattedDuration={formatDuration(combinedActivityMinutes)}
+                locationLabel={locationLabel}
+              />
+            </div>
           </div>
-        </div>
 
-        {secondaryRecommendation && (
           <div className="space-y-3 pt-2">
             <MissionCompletion
               recommendation={recommendation}
@@ -105,19 +105,13 @@ export function PrimaryActivityCard({
               How to Play
             </DialogTrigger>
           </div>
-        )}
 
-        <MissionInstructionsDialog
-          title={recommendation.title}
-          instructionText={recommendation.instructionText}
-        />
-      </CardContent>
-    </Card>
-  );
-
-  return secondaryRecommendation ? (
-    <Dialog key={recommendation.missionId}>{card}</Dialog>
-  ) : (
-    card
+          <MissionInstructionsDialog
+            title={recommendation.title}
+            instructionText={recommendation.instructionText}
+          />
+        </CardContent>
+      </Card>
+    </Dialog>
   );
 }
