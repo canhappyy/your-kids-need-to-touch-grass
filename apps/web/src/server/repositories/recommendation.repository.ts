@@ -18,8 +18,24 @@ export type {
 };
 
 /**
- * Finds the shortest compatible second mission at the exact venue that brings
- * combined activity time to at least 60 minutes.
+ * Looks in the database for a second activity at the exact same park or venue
+ * when a family's first mission is under 60 minutes.
+ *
+ * Why this exists:
+ * If the primary activity is short (e.g. 20 minutes), parents can add a compatible
+ * second activity at the same park to help kids reach the 60-minute daily active
+ * play goal without needing to travel somewhere else.
+ *
+ * How it picks the activity:
+ * 1. Checks the venue of the first activity (such as a specific playground or park).
+ * 2. Makes sure the first activity is an outdoor venue mission under 60 minutes.
+ * 3. Filters available activities at that venue by the child's age range, supervision level, and play style.
+ * 4. Ensures the second activity is different from the first one.
+ * 5. Chooses the shortest matching activity that brings the combined outing time to at least 60 minutes,
+ *    preventing the day's plan from becoming overly long or tiring.
+ *
+ * @param input - The search requirements, including the primary mission, venue ID, GPS coordinates, and child age/preferences.
+ * @returns The best matching second activity and total combined outing minutes, or `null` if no compatible mission exists at this venue.
  */
 export async function findChainedRecommendation(
   input: ChainedRecommendationQuery,
@@ -108,9 +124,7 @@ export async function findChainedRecommendation(
       input.longitude,
       input.ageMin,
       input.ageMax,
-      input.canSupervise
-        ? "Needs Supervision"
-        : "Independent-Play-Safe",
+      input.canSupervise ? "Needs Supervision" : "Independent-Play-Safe",
       input.playStyle === "group"
         ? ["Group/Family", "social_agnostic"]
         : ["Solo", "social_agnostic"],

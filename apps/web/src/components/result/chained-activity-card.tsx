@@ -11,13 +11,27 @@ import { ActivityHeader } from "./activity-header";
 import { MissionCompletion } from "./mission-completion";
 import { MissionInstructionsDialog } from "./mission-instructions-dialog";
 
-type ChainedActivityCardProps = {
+/**
+ * Props for the `ChainedActivityCard` component.
+ */
+export type ChainedActivityCardProps = {
+  /** The secondary activity recommendation payload to render on Slide 2. */
   recommendation: Recommendation;
+  /** Whether a mission completion or retry mutation is currently in flight. */
   isBusy: boolean;
+  /** Optional additional CSS class names for styling the card container. */
   className?: string;
 };
 
-/** Displays Activity 2 with independent instructions and completion history. */
+/**
+ * Renders the secondary chained activity (Activity 2) card inside the carousel.
+ *
+ * Includes dedicated mission details, match reasons, an independent "How to Play"
+ * instructions modal trigger, and a completion toggle button.
+ *
+ * @param props - Component configuration including the `recommendation` payload, `isBusy` flag, and optional `className`.
+ * @returns The React element representing the chained activity card.
+ */
 export function ChainedActivityCard({
   recommendation,
   isBusy,

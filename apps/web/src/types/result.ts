@@ -13,28 +13,48 @@ export type RecommendationRequest = {
   signal?: AbortSignal;
 };
 
-/** Request details for loading or replaying a second activity. */
+/**
+ * Payload parameters required for requesting or replaying a chained second activity.
+ */
 export type ChainedRecommendationRequest = {
+  /** Primary mission ID to pair the second activity with. */
   primaryMissionId: string;
+  /** Open space ID of the venue where the primary mission takes place. */
   openSpaceId: number;
+  /** Optional specific secondary mission ID when replaying a shared or bookmarked URL. */
   missionId?: string;
+  /** Optional `AbortSignal` for request cancellation on unmount or navigation. */
   signal?: AbortSignal;
 };
 
-/** Client lifecycle for a chained recommendation request. */
+/**
+ * State machine representing the client-side lifecycle of a chained recommendation request.
+ */
 export type ChainState =
+  /** Initial state before any chained activity has been requested. */
   | { status: "idle" }
+  /** Network request is actively in-flight. */
   | { status: "loading" }
+  /** A compatible second activity was successfully found and loaded. */
   | { status: "loaded"; recommendation: Recommendation }
+  /** Venue has no compatible second activity matching the time/age criteria. */
   | { status: "unavailable" }
+  /** A network error or unrecoverable failure occurred during fetch. */
   | { status: "error" };
 
-/** Events accepted by the chained recommendation state machine. */
+/**
+ * Action events dispatched to transition the chained recommendation state machine.
+ */
 export type ChainAction =
+  /** Dispatched when starting a new chained recommendation request. */
   | { type: "start" }
+  /** Dispatched when the request succeeds with a retrieved recommendation. */
   | { type: "success"; recommendation: Recommendation }
+  /** Dispatched when the server indicates no matching activity is available. */
   | { type: "unavailable" }
+  /** Dispatched on network or HTTP error. */
   | { type: "failure" }
+  /** Dispatched to reset the chain state back to idle (e.g. on primary activity swap). */
   | { type: "reset" };
 
 /**

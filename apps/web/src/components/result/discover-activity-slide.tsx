@@ -6,17 +6,30 @@ import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { ChainState } from "@/types/result";
 
+/**
+ * Props for the `DiscoverActivitySlide` component.
+ */
 export type DiscoverActivitySlideProps = {
+  /** Current state of the chained recommendation request machine ("idle" | "loading" | "loaded" | "unavailable" | "error"). */
   chainState: ChainState;
+  /** Name of the park or venue where the primary mission takes place, or null if unspecified. */
   venueName?: string | null;
+  /** Optional additional CSS class names for styling the card container. */
   className?: string;
+  /** Optional callback fired when the user requests a retry after a fetch failure. */
   onRetry?: () => void;
 };
 
 /**
- * Renders the discovery slide in the carousel when chaining is available,
- * displaying an inviting prompt in idle state, an animated loader during search,
- * or a retry hint upon error.
+ * Slide-to-add trigger card mounted at carousel index 1 when a venue mission is eligible for chaining.
+ *
+ * Visual States:
+ * - **Idle**: Invites parents to extend their outing at the venue, highlighting "+ Release here to create card" affordance.
+ * - **Loading**: Renders an animated spinner with contextual venue feedback ("Finding another activity at [venue]…").
+ * - **Error**: Displays an error indicator with a dedicated "Try Again" action button.
+ *
+ * @param props - Component configuration including `chainState`, optional `venueName`, and `onRetry` callback.
+ * @returns The React element rendering the discovery placeholder slide.
  */
 export function DiscoverActivitySlide({
   chainState,

@@ -18,22 +18,44 @@ import type { ChainState } from "@/types/result";
 import { ChainedActivityCard } from "./chained-activity-card";
 import { DiscoverActivitySlide } from "./discover-activity-slide";
 
+/**
+ * Props for the `ActivityCarousel` component.
+ */
 export type ActivityCarouselProps = {
+  /** React node rendering the PrimaryActivityCard (Slide 1). */
   primaryCard: ReactNode;
+  /** Secondary chained recommendation if loaded; otherwise `null`. */
   secondaryRecommendation: Recommendation | null;
+  /** Whether the primary mission is eligible for chained activity discovery. */
   canChain?: boolean;
+  /** State machine managing chained activity request lifecycle ("idle" | "loading" | "loaded" | "unavailable" | "error"). */
   chainState?: ChainState;
+  /** Name of the park/venue for contextual discovery messaging, or null if home/unspecified. */
   venueName?: string | null;
+  /** Whether an activity swap or retry is currently in flight. */
   isBusy: boolean;
+  /** Zero-based index of the active slide (0 for Activity 1, 1 for Activity 2 or Discover slide). */
   currentSlide: number;
+  /** Active Embla Carousel API instance. */
   api?: CarouselApi;
+  /** Setter function to receive the Embla Carousel API instance. */
   setApi: (api: CarouselApi) => void;
+  /** Callback fired to initiate chained activity recommendation discovery. */
   onAddActivity?: () => void;
 };
 
 /**
  * Encapsulates the carousel viewport, slide indicators, and navigation controls
  * for single, discovery, and chained activities.
+ *
+ * Features:
+ * - **Tab Navigation**: Segmented pills at the top showing `Activity 1` and either `Activity 2` or `+ Add Activity`.
+ * - **Slide-to-Add Trigger**: Mounts `<DiscoverActivitySlide>` at index 1 when chaining is available, allowing parents to slide or tap `+` to add an activity.
+ * - **Gestural Swipe**: Native hardware-accelerated touch swipe with threshold snapping.
+ * - **Slide Position Retention**: Preserves Slide 2 view once a secondary activity is loaded.
+ *
+ * @param props - Carousel configuration and slide state properties.
+ * @returns The React element rendering the mission carousel.
  */
 export function ActivityCarousel({
   primaryCard,

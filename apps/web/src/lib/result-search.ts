@@ -133,7 +133,16 @@ export function buildRecommendationApiUrl(
   return `/api/recommendations?${params.toString()}`;
 }
 
-/** Builds the exact-venue endpoint URL for a chained activity. */
+/**
+ * Constructs the API endpoint URL for requesting a chained secondary recommendation at the primary venue.
+ *
+ * Encodes age range, user play preferences, geolocation coordinates, and target open space identifiers
+ * into the `/api/recommendations/chain` query string.
+ *
+ * @param searchParams - User search filters including location, age range, and play preferences.
+ * @param request - Chained request identifiers including `primaryMissionId`, `openSpaceId`, and optional `missionId`.
+ * @returns The formatted URL string for the chained recommendations API endpoint.
+ */
 export function buildChainedRecommendationApiUrl(
   searchParams: ChainedSearchParams,
   request: ChainedRecommendationRequest,

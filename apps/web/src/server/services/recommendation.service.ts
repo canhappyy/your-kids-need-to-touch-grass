@@ -125,7 +125,22 @@ function buildReasons(
   return reasons;
 }
 
-/** Finds a compatible second activity at the primary mission's exact venue. */
+/**
+ * Finds a second activity at the same park to pair with the first mission,
+ * helping kids reach their 60-minute daily active play goal during one outing.
+ *
+ * How it works:
+ * 1. Resolves where the family is (using either GPS coordinates or a postcode).
+ * 2. Asks the database for a compatible activity at the same park that fits the child's age,
+ *    supervision level, and play style.
+ * 3. Attaches clear, parent-friendly match tags explaining why this activity was chosen
+ *    (e.g., "Ages 6-10", "Reaches the 60-minute goal", "Also at Clayton Reserve").
+ * 4. Calculates the new combined outing time (commute + both activities).
+ *
+ * @param input - The family's search criteria, including the first mission, park venue ID, and child preferences.
+ * @param dependencies - Optional helper overrides used during automated testing.
+ * @returns The second activity recommendation with combined outing minutes, or `null` if nothing suitable is available at this park.
+ */
 export async function getChainedRecommendation(
   input: ChainedRecommendationInput,
   dependencies?: ChainedRecommendationDependencies,
