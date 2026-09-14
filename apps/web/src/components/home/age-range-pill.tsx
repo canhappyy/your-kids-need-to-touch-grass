@@ -2,12 +2,23 @@
 
 import type { AgeBucketOption } from "@/types/home-search";
 
+/**
+ * Props for the `AgeRangePill` toggle button component.
+ */
 export type AgeRangePillProps = {
+  /** The age bucket option definition containing ID and label. */
   bucket: AgeBucketOption;
+  /** Whether this age bucket pill is currently selected. */
   isSelected: boolean;
+  /** Callback fired when the pill is toggled. */
   onToggle: (id: AgeBucketOption["id"]) => void;
 };
 
+/**
+ * Interactive toggle pill representing a single developmental age range bucket (e.g. "5 - 7 yrs").
+ *
+ * @param props - Component properties configuring pill label, selection state, and toggle handler.
+ */
 export function AgeRangePill({
   bucket,
   isSelected,

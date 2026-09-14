@@ -8,6 +8,13 @@ type RouteContext = {
   }>;
 };
 
+/**
+ * Handles GET requests to retrieve a single activity mission by its unique mission ID.
+ *
+ * @param request - Incoming HTTP request.
+ * @param context - Route context containing async route parameters (missionId).
+ * @returns JSON response with the activity details, 400 for invalid ID format, 404 if not found, or 500 on server error.
+ */
 export async function GET(request: Request, context: RouteContext) {
   try {
     const result = activityParamsSchema.safeParse(await context.params);

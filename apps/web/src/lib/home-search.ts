@@ -8,6 +8,10 @@ import type {
   NearestPostcodeResponse,
 } from "@/types/home-search";
 
+/**
+ * Preset child age bracket options available in the search UI.
+ * Corresponds to developmental age groups: 5–7 years, 8–9 years, and 10–12 years.
+ */
 export const AGE_BUCKETS: AgeBucketOption[] = [
   { id: "5-7", label: "5 - 7 yrs", max: 7, min: 5 },
   { id: "8-9", label: "8 - 9 yrs", max: 9, min: 8 },
@@ -16,6 +20,9 @@ export const AGE_BUCKETS: AgeBucketOption[] = [
 
 /**
  * Derives the active age bucket IDs from an age range [min, max].
+ *
+ * @param range - Tuple containing minimum and maximum child ages.
+ * @returns Array of bucket IDs intersecting with the range.
  */
 export function getInitialBuckets(range: AgeRange): AgeBucketId[] {
   const [min, max] = range;
@@ -28,7 +35,10 @@ export function getInitialBuckets(range: AgeRange): AgeBucketId[] {
 
 /**
  * Calculates the combined age range [min, max] from one or more selected bucket IDs.
- * Returns the widest range [5, 12] when no buckets are selected.
+ * Returns the widest default range [5, 12] when no buckets are selected.
+ *
+ * @param bucketIds - Array of selected bucket IDs.
+ * @returns Combined [min, max] age bounds.
  */
 export function calculateRangeFromBuckets(bucketIds: AgeBucketId[]): AgeRange {
   const selected = AGE_BUCKETS.filter((b) => bucketIds.includes(b.id));
@@ -39,11 +49,17 @@ export function calculateRangeFromBuckets(bucketIds: AgeBucketId[]): AgeRange {
   ];
 }
 
+/**
+ * Hour selection dropdown options for the duration time picker (0 to 12 hours).
+ */
 export const hourOptions = Array.from({ length: 13 }, (_, hour) => ({
   label: `${hour} hr`,
   value: hour,
 }));
 
+/**
+ * Minute selection dropdown options for the duration time picker (15-minute increments up to 120 minutes).
+ */
 export const minuteOptions = [15, 30, 45, 60, 75, 90, 105, 120].map(
   (minute) => ({
     label: `${minute} min`,
@@ -51,6 +67,10 @@ export const minuteOptions = [15, 30, 45, 60, 75, 90, 105, 120].map(
   }),
 );
 
+/**
+ * Default search form state loaded when the user first lands on the home search page.
+ * Sets 45 minutes, nearby mode, and solo play.
+ */
 export const defaultHomeSearchValues: HomeSearchValues = {
   ...defaultPlayPreferences,
   hours: 0,

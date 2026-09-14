@@ -14,11 +14,19 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+/**
+ * Global application metadata defining title, description, and branding.
+ */
 export const metadata: Metadata = {
   title: "PlayGo",
   description: "Find something fun for your child, fast.",
 };
 
+/**
+ * Root HTML layout component that configures global fonts, language, and core body structure.
+ *
+ * @param props - Layout props containing the child page elements.
+ */
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
@@ -28,7 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         "antialiased",
         "font-sans",
         comfortaa.variable,
-        geistMono.variable
+        geistMono.variable,
       )}
     >
       <body className="min-h-full flex flex-col">{children}</body>

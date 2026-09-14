@@ -5,16 +5,31 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 
-type LocationInputFieldProps = {
+/**
+ * Props for the `LocationInputField` component.
+ */
+export type LocationInputFieldProps = {
+  /** Whether GPS location resolution is currently in progress. */
   isLocating: boolean;
+  /** Accessible announcement text for current GPS retrieval status. */
   gpsStatus: string;
+  /** Current text value of the postcode or suburb input. */
   location: string;
+  /** Validation or resolution error message, if any. */
   locationError: string;
+  /** React ref attached to the HTML input element for focus management. */
   inputRef: RefObject<HTMLInputElement | null>;
+  /** Callback to trigger browser geolocation lookup. */
   onUseMyLocation: () => void;
+  /** Callback fired when the user types in the location text field. */
   onLocationChange: (value: string) => void;
 };
 
+/**
+ * Form field for entering a suburb/postcode with a GPS geolocation button.
+ *
+ * @param props - Component properties for location input and GPS status.
+ */
 export function LocationInputField({
   isLocating,
   gpsStatus,

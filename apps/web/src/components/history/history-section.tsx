@@ -10,6 +10,12 @@ import { HistoryHeader } from "./history-header";
 import { HistoryList } from "./history-list";
 import { HistoryLoadingState } from "./history-loading-state";
 
+/**
+ * Main presentation and coordinator component for the mission history view.
+ *
+ * Integrates the top navigation bar, client-side storage state via {@link useCompletedMissions},
+ * loading/error states, empty fallback, mission record list, and the history-clearing workflow.
+ */
 export function HistorySection() {
   const { records, loading, error, refresh, clear } = useCompletedMissions();
   const [confirmOpen, setConfirmOpen] = useState(false);

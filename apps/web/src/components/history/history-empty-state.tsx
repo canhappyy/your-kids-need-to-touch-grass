@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 
+/**
+ * Empty state card shown when the user has no recorded completed missions yet.
+ * Includes a friendly message and a link encouraging them to explore new missions.
+ */
 export function HistoryEmptyState() {
   return (
     <Card>

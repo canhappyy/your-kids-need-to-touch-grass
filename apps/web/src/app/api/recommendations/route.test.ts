@@ -10,6 +10,12 @@ vi.mock("@/server/services/recommendation.service", () => ({
   getRecommendation,
 }));
 
+vi.mock("@/server/services/weather.service", () => ({
+  getMissionWeather: vi.fn().mockResolvedValue({ status: "unavailable" }),
+}));
+
+import { getMissionWeather } from "@/server/services/weather.service";
+
 import { GET, runtime } from "./route";
 
 const validQuery = {
@@ -40,14 +46,14 @@ describe("GET /api/recommendations", () => {
     const recommendation = { missionId: "MIS-001" };
     getRecommendation.mockResolvedValue(recommendation);
 
-    const response = await GET(
-      request({ excludeMissionId: "MIS-002" }),
-    );
+    const response = await GET(request({ excludeMissionId: "MIS-002" }));
 
     expect(runtime).toBe("nodejs");
     expect(response.status).toBe(200);
     expect(response.headers.get("Cache-Control")).toBe("no-store");
-    await expect(response.json()).resolves.toEqual({ recommendation });
+    await expect(response.json()).resolves.toEqual({
+      recommendation: { ...recommendation, weather: { status: "unavailable" } },
+    });
     expect(getRecommendation).toHaveBeenCalledWith({
       playStyle: "solo",
       canSupervise: false,
@@ -58,6 +64,27 @@ describe("GET /api/recommendations", () => {
       durationMinutes: 120,
       excludeMissionIds: ["MIS-002"],
     });
+  });
+
+  it("enriches the selected venue for the full outing duration", async () => {
+    const venue = { latitude: -37.92, longitude: 145.12 };
+    const weather = {
+      status: "available" as const,
+      summary: "Cloudy.",
+      severity: "regular" as const,
+      startsAt: "2026-09-13T10:00:00Z",
+      endsAt: "2026-09-13T10:42:00Z",
+    };
+    getRecommendation.mockResolvedValue({
+      missionId: "MIS-001",
+      venue,
+      durationMinutes: 30,
+      totalMinutes: 42,
+    });
+    vi.mocked(getMissionWeather).mockResolvedValueOnce(weather);
+    const response = await GET(request());
+    expect(getMissionWeather).toHaveBeenLastCalledWith(venue, 42);
+    expect((await response.json()).recommendation.weather).toEqual(weather);
   });
 
   it("accepts home mode without a location", async () => {
@@ -77,15 +104,17 @@ describe("GET /api/recommendations", () => {
   });
 
   it("parses group play and supervision explicitly", async () => {
-    const response = await GET(request({ playStyle: "group", canSupervise: "true" }));
+    const response = await GET(
+      request({ playStyle: "group", canSupervise: "true" }),
+    );
     expect(response.status).toBe(200);
-    expect(getRecommendation).toHaveBeenCalledWith(expect.objectContaining({ playStyle: "group", canSupervise: true }));
+    expect(getRecommendation).toHaveBeenCalledWith(
+      expect.objectContaining({ playStyle: "group", canSupervise: true }),
+    );
   });
 
   it("parses valid lat and lng coordinates for nearby mode", async () => {
-    const response = await GET(
-      request({ lat: "-37.915", lng: "145.123" }),
-    );
+    const response = await GET(request({ lat: "-37.915", lng: "145.123" }));
     expect(response.status).toBe(200);
     expect(getRecommendation).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -153,7 +182,10 @@ describe("GET /api/recommendations", () => {
     const params = new URLSearchParams(validQuery);
 
     for (let index = 1; index <= 11; index += 1) {
-      params.append("excludeMissionId", `MIS-${String(index).padStart(3, "0")}`);
+      params.append(
+        "excludeMissionId",
+        `MIS-${String(index).padStart(3, "0")}`,
+      );
     }
 
     const response = await GET(

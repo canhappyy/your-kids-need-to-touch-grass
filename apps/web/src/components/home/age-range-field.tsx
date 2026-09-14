@@ -5,11 +5,21 @@ import type { AgeBucketId } from "@/types/home-search";
 
 import { AgeRangeSelector } from "./age-range-selector";
 
+/**
+ * Props for the `AgeRangeField` component.
+ */
 export type AgeRangeFieldProps = {
+  /** Selected age bucket IDs. */
   selectedBuckets: AgeBucketId[];
+  /** Callback fired when the parent modifies the selected age buckets. */
   onChange: (buckets: AgeBucketId[]) => void;
 };
 
+/**
+ * Form fieldset containing age range bucket pills with hidden inputs for form submission.
+ *
+ * @param props - Component properties configuring selected buckets and change handler.
+ */
 export function AgeRangeField({
   selectedBuckets,
   onChange,

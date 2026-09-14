@@ -1,12 +1,24 @@
-import { MapPin, Timer } from "lucide-react"
+import { MapPin, Timer } from "lucide-react";
 
-type ActivityDetailsProps = {
-  locationLabel: string
-  formattedTotalDuration: string
-  formattedCommuteDuration: string | null
-  formattedDuration: string
-}
+/**
+ * Props for the `ActivityDetails` component.
+ */
+export type ActivityDetailsProps = {
+  /** Location description text (e.g. venue name or "At home"). */
+  locationLabel: string;
+  /** Formatted total duration string including activity and walking time. */
+  formattedTotalDuration: string;
+  /** Formatted walking commute string (e.g. "~10 min walk each way"), or null for home activities. */
+  formattedCommuteDuration: string | null;
+  /** Formatted standalone activity duration string (e.g. "30 minutes"). */
+  formattedDuration: string;
+};
 
+/**
+ * Metadata list displaying location details and time breakdowns (commute vs activity duration).
+ *
+ * @param props - Component properties configuring location and duration strings.
+ */
 export function ActivityDetails({
   locationLabel,
   formattedDuration,
@@ -39,21 +51,27 @@ export function ActivityDetails({
         />
         <div className="col-start-2 text-center">
           <dt className="text-xs font-medium tracking-wide text-zinc-500 uppercase">
-            {formattedCommuteDuration !== null ? "Estimated total time" : "Duration"}
+            {formattedCommuteDuration !== null
+              ? "Estimated total time"
+              : "Duration"}
           </dt>
           <dd className="mt-1 text-lg leading-tight font-semibold text-zinc-900">
             {formattedTotalDuration}
           </dd>
           {formattedCommuteDuration !== null && (
             <dd className="mt-2 space-y-1 text-sm text-zinc-600">
-              <p>{formattedDuration} activity · ~{formattedCommuteDuration} round-trip walk</p>
+              <p>
+                {formattedDuration} activity · ~{formattedCommuteDuration}{" "}
+                round-trip walk
+              </p>
               <p className="text-xs text-zinc-500">
-                Walking estimate from selected suburb/postcode, including the return trip.
+                Walking estimate from selected suburb/postcode, including the
+                return trip.
               </p>
             </dd>
           )}
         </div>
       </div>
     </dl>
-  )
+  );
 }

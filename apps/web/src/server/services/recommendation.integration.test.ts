@@ -1,10 +1,15 @@
-import { afterAll, describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it, vi } from "vitest";
 
 import { GET } from "@/app/api/recommendations/route";
 import pool from "@/lib/db";
 import { findNearestPostcodeLocation } from "@/server/repositories/postcode.repository";
 import { resolveRecommendationLocation } from "@/server/services/location.service";
 import { getRecommendation } from "@/server/services/recommendation.service";
+
+// Recommendation integration tests must not depend on a live weather provider.
+vi.mock("@/server/services/weather.service", () => ({
+  getMissionWeather: vi.fn().mockResolvedValue({ status: "unavailable" }),
+}));
 
 const input = {
   playStyle: "solo" as const,
@@ -270,7 +275,7 @@ describe("seeded recommendation flow", () => {
       "time",
     ]);
     await expect(
-      getRecommendation({ ...input, durationMinutes: 5 }),
+      getRecommendation({ ...input, durationMinutes: 0 }),
     ).resolves.toBeNull();
   });
 

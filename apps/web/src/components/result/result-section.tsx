@@ -7,6 +7,12 @@ import { ResultErrorState } from "./result-error-state";
 import { ResultLoadingState } from "./result-loading-state";
 import { useResultSection } from "@/hooks/use-result-section";
 
+/**
+ * Top-level container component for the activity result page.
+ *
+ * Coordinates loading, error, empty, and populated activity result views,
+ * along with activity swap logic and navigation.
+ */
 export function ResultSection() {
   const {
     error,

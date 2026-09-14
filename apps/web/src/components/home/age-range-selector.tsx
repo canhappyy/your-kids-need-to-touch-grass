@@ -7,11 +7,21 @@ import type { AgeBucketId } from "@/types/home-search";
 
 import { AgeRangePill } from "./age-range-pill";
 
+/**
+ * Props for the `AgeRangeSelector` component.
+ */
 export type AgeRangeSelectorProps = {
+  /** Optional controlled array of selected bucket IDs. */
   selectedBuckets?: AgeBucketId[];
+  /** Callback fired when the selection of age buckets changes. */
   onValueChange: (buckets: AgeBucketId[]) => void;
 };
 
+/**
+ * Multi-select button group allowing parents to pick one or more child age brackets.
+ *
+ * @param props - Component properties configuring selected buckets and change handler.
+ */
 export function AgeRangeSelector({
   selectedBuckets: controlledBuckets,
   onValueChange,

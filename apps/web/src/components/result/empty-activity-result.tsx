@@ -1,16 +1,27 @@
-import { Search } from "lucide-react"
+import { Search } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 
-type EmptyActivityResultProps = {
-  description?: string
-  onAdjustFilters: () => void
-  onBackToSearch: () => void
-}
+/**
+ * Props for the `EmptyActivityResult` view component.
+ */
+export type EmptyActivityResultProps = {
+  /** Optional custom explanation message when no activities match. */
+  description?: string;
+  /** Callback fired when the parent clicks to adjust search criteria. */
+  onAdjustFilters: () => void;
+  /** Callback fired when the parent clicks to return to the search form. */
+  onBackToSearch: () => void;
+};
 
 const DEFAULT_DESCRIPTION =
-  "We couldn't find anything matching that age range, time window, and location. Try widening your search."
+  "We couldn't find anything matching that age range, time window, and location. Try widening your search.";
 
+/**
+ * Empty state view presented when no activities match the parent's criteria, providing options to widen filters.
+ *
+ * @param props - Component properties configuring explanation text and navigation callbacks.
+ */
 export function EmptyActivityResult({
   description = DEFAULT_DESCRIPTION,
   onAdjustFilters,
@@ -60,7 +71,5 @@ export function EmptyActivityResult({
         </Button>
       </div>
     </section>
-  )
+  );
 }
-
-export type { EmptyActivityResultProps }

@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { openSpaceQuerySchema } from "@/server/schemas/open-space.schema";
 import { getAllOpenSpaces } from "@/server/services/open-space.service";
 
+/**
+ * Handles GET requests to retrieve open space venues, optionally filtered by category.
+ *
+ * @param request - Next.js HTTP request containing optional `category` search parameter.
+ * @returns JSON array of open space locations, 400 for invalid category, or 500 on server error.
+ */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);

@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { getAllActivities } from "@/server/services/activity.service";
 
+/**
+ * Handles GET requests to retrieve the complete catalogue of activity missions.
+ *
+ * @returns A JSON array of activity objects, or a 500 error response on database failure.
+ */
 export async function GET() {
   try {
     const activities = await getAllActivities();

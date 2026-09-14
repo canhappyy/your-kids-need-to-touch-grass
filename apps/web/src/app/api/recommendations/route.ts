@@ -1,3 +1,4 @@
+import { getMissionWeather } from "@/server/services/weather.service";
 import { NextResponse } from "next/server";
 
 import { LocationResolutionError } from "@/server/services/location.service";
@@ -45,7 +46,7 @@ function errorResponse(
  * @param searchParams - The URL search parameters from the request.
  * @returns A validated `RecommendationInput` object, or `null` if validation fails.
  */
-export function parseRecommendationQuery(
+function parseRecommendationQuery(
   searchParams: URLSearchParams,
 ): RecommendationInput | null {
   const result = recommendationQuerySchema.safeParse({
@@ -87,7 +88,17 @@ export async function GET(request: Request) {
     const recommendation = await getRecommendation(input);
 
     return NextResponse.json(
-      { recommendation },
+      {
+        recommendation: recommendation
+          ? {
+              ...recommendation,
+              weather: await getMissionWeather(
+                recommendation.venue,
+                recommendation.totalMinutes,
+              ),
+            }
+          : null,
+      },
       { headers: NO_STORE_HEADERS },
     );
   } catch (error) {
