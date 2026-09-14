@@ -1,6 +1,10 @@
 import type { ResolvedLocation } from "@/types/location";
 import type {
   FallbackRecommendationQuery,
+  ChainedRecommendationCandidate,
+  ChainedRecommendationInput,
+  ChainedRecommendationQuery,
+  ChainedRecommendationResult,
   MatchReason,
   Recommendation,
   RecommendationCandidate,
@@ -10,6 +14,14 @@ import type {
 } from "@/types/recommendation";
 
 export type { RecommendationInput, RecommendationInputBase };
+
+/** Dependencies used to find a second activity at an existing venue. */
+export type ChainedRecommendationDependencies = {
+  resolveLocation(input: string): Promise<ResolvedLocation>;
+  findChained(
+    input: ChainedRecommendationQuery,
+  ): Promise<ChainedRecommendationCandidate | null>;
+};
 
 /**
  * Repository contract required by the recommendation service.
@@ -56,6 +68,18 @@ async function loadDefaultDependencies(): Promise<RecommendationDependencies> {
   };
 }
 
+async function loadDefaultChainedDependencies(): Promise<ChainedRecommendationDependencies> {
+  const [locationService, recommendationRepository] = await Promise.all([
+    import("@/server/services/location.service"),
+    import("@/server/repositories/recommendation.repository"),
+  ]);
+
+  return {
+    resolveLocation: locationService.resolveRecommendationLocation,
+    findChained: recommendationRepository.findChainedRecommendation,
+  };
+}
+
 /**
  * Formats duration in minutes into a readable text label.
  *
@@ -99,6 +123,43 @@ function buildReasons(
   }
 
   return reasons;
+}
+
+/** Finds a compatible second activity at the primary mission's exact venue. */
+export async function getChainedRecommendation(
+  input: ChainedRecommendationInput,
+  dependencies?: ChainedRecommendationDependencies,
+): Promise<ChainedRecommendationResult | null> {
+  const deps = dependencies ?? (await loadDefaultChainedDependencies());
+  const location = await deps.resolveLocation(input.location);
+  const candidate = await deps.findChained({
+    primaryMissionId: input.primaryMissionId,
+    openSpaceId: input.openSpaceId,
+    latitude: input.latitude ?? location.latitude,
+    longitude: input.longitude ?? location.longitude,
+    ageMin: input.ageMin,
+    ageMax: input.ageMax,
+    playStyle: input.playStyle,
+    canSupervise: input.canSupervise,
+    missionId: input.missionId,
+  });
+
+  if (!candidate) return null;
+
+  return {
+    outingTotalMinutes: candidate.outingTotalMinutes,
+    recommendation: {
+      ...candidate.recommendation,
+      reasons: [
+        { kind: "age", label: `Ages ${input.ageMin}-${input.ageMax}` },
+        { kind: "time", label: "Reaches the 60-minute goal" },
+        {
+          kind: "location",
+          label: `Also at ${candidate.recommendation.venue?.name}`,
+        },
+      ],
+    },
+  };
 }
 
 /**
