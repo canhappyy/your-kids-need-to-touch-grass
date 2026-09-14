@@ -12,7 +12,12 @@ import {
   parseRecommendationApiResponse,
   readSwapsUsed,
 } from "@/lib/result-search"
-import { chainReducer, initialChainState } from "@/lib/chained-mission"
+import {
+  chainReducer,
+  getChainPairKey,
+  initialChainState,
+  shouldReplayChain,
+} from "@/lib/chained-mission"
 import type { Recommendation, RecommendationResponse } from "@/types/recommendation"
 import type {
   ApiErrorResponse,
@@ -119,7 +124,7 @@ export function useResultSection() {
   )
 
   const currentMissionId = useRef<string | null>(null)
-  const currentSecondaryMissionId = useRef<string | null>(null)
+  const currentChainPairKey = useRef<string | null>(null)
   const chainRequestInFlight = useRef(false)
   const [recommendation, setRecommendation] = useState<
     Recommendation | null | undefined
@@ -326,7 +331,7 @@ export function useResultSection() {
 
   useEffect(() => {
     if (!selectedSecondaryMissionId) {
-      currentSecondaryMissionId.current = null
+      currentChainPairKey.current = null
       chainRequestInFlight.current = false
       dispatchChain({ type: "reset" })
       return
@@ -334,12 +339,21 @@ export function useResultSection() {
     if (
       !recommendation?.venue ||
       recommendation.durationMinutes >= 60 ||
-      currentSecondaryMissionId.current === selectedSecondaryMissionId
+      !shouldReplayChain({
+        selectedPrimaryMissionId: selectedMissionId,
+        selectedSecondaryMissionId,
+        recommendationMissionId: recommendation.missionId,
+        currentPairKey: currentChainPairKey.current,
+      })
     ) {
       return
     }
 
     const controller = new AbortController()
+    const pairKey = getChainPairKey(
+      recommendation.missionId,
+      selectedSecondaryMissionId,
+    )
     chainRequestInFlight.current = true
     dispatchChain({ type: "start" })
 
@@ -349,7 +363,15 @@ export function useResultSection() {
       controller.signal,
     )
       .then((result) => {
-        currentSecondaryMissionId.current = selectedSecondaryMissionId
+        const currentParams = new URL(window.location.href).searchParams
+        if (
+          currentParams.get("missionId") !== recommendation.missionId ||
+          currentParams.get("secondaryMissionId") !==
+            selectedSecondaryMissionId
+        ) {
+          return
+        }
+        currentChainPairKey.current = pairKey
         dispatchChain(
           result
             ? { type: "success", recommendation: result }
@@ -370,6 +392,7 @@ export function useResultSection() {
   }, [
     recommendation,
     requestChainedRecommendation,
+    selectedMissionId,
     selectedSecondaryMissionId,
   ])
 
@@ -397,7 +420,10 @@ export function useResultSection() {
         return
       }
 
-      currentSecondaryMissionId.current = result.missionId
+      currentChainPairKey.current = getChainPairKey(
+        sourceMissionId,
+        result.missionId,
+      )
       dispatchChain({ type: "success", recommendation: result })
       currentParams.set("secondaryMissionId", result.missionId)
       window.history.pushState(
@@ -456,7 +482,7 @@ export function useResultSection() {
         setError("")
         setRecommendation(result)
         currentMissionId.current = result.missionId
-        currentSecondaryMissionId.current = null
+        currentChainPairKey.current = null
         dispatchChain({ type: "reset" })
 
         const params = buildSearchQuery()

@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { chainReducer, initialChainState } from "./chained-mission";
+import {
+  chainReducer,
+  getChainPairKey,
+  initialChainState,
+  shouldReplayChain,
+} from "./chained-mission";
 
 const recommendation = {
   missionId: "MIS-002",
@@ -37,5 +42,30 @@ describe("chainReducer", () => {
         { type: "reset" },
       ),
     ).toEqual(initialChainState);
+  });
+});
+
+describe("chain replay", () => {
+  it("waits for the primary mission selected by the URL", () => {
+    expect(
+      shouldReplayChain({
+        selectedPrimaryMissionId: "MIS-A",
+        selectedSecondaryMissionId: "MIS-B",
+        recommendationMissionId: "MIS-C",
+        currentPairKey: null,
+      }),
+    ).toBe(false);
+  });
+
+  it("loads each primary-secondary pair once", () => {
+    const pairKey = getChainPairKey("MIS-A", "MIS-B");
+    const input = {
+      selectedPrimaryMissionId: "MIS-A",
+      selectedSecondaryMissionId: "MIS-B",
+      recommendationMissionId: "MIS-A",
+    };
+
+    expect(shouldReplayChain({ ...input, currentPairKey: null })).toBe(true);
+    expect(shouldReplayChain({ ...input, currentPairKey: pairKey })).toBe(false);
   });
 });
