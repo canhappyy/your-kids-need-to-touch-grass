@@ -86,13 +86,16 @@ export function ActivityCarousel({
       )}
 
       <Carousel setApi={setApi} opts={{ loop: false }} className="w-full">
-        <CarouselContent>
-          <CarouselItem id="activity-slide-1">{primaryCard}</CarouselItem>
+        <CarouselContent className="items-stretch">
+          <CarouselItem id="activity-slide-1" className="flex flex-col">
+            {primaryCard}
+          </CarouselItem>
           {secondaryRecommendation && (
-            <CarouselItem id="activity-slide-2">
+            <CarouselItem id="activity-slide-2" className="flex flex-col">
               <ChainedActivityCard
                 isBusy={isBusy}
                 recommendation={secondaryRecommendation}
+                className="h-full"
               />
             </CarouselItem>
           )}
