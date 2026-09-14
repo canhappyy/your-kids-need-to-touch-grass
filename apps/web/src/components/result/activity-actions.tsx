@@ -15,6 +15,8 @@ export type ActivityActionsProps = {
   directionsUrl: string | null;
   /** Whether a swap retry request is currently in flight. */
   isRetrying?: boolean;
+  /** Disables recommendation-changing actions during another request. */
+  isDisabled?: boolean;
   /** Number of activity swaps remaining for this session. */
   swapsRemaining?: number;
   /** Callback fired when the user requests a new activity recommendation. */
@@ -30,6 +32,7 @@ export function ActivityActions({
   completionControl,
   directionsUrl,
   isRetrying = false,
+  isDisabled = false,
   onTryAnother,
 }: ActivityActionsProps) {
   return (
@@ -57,7 +60,7 @@ export function ActivityActions({
       )}
       <Button
         className="h-12 w-full rounded-full border-[#93AB63] bg-white px-6 text-base font-bold text-[#93AB63] hover:bg-zinc-50 hover:text-[#93AB63] focus-visible:border-[#93AB63] focus-visible:ring-[#93AB63]/20"
-        disabled={isRetrying}
+        disabled={isDisabled || isRetrying}
         onClick={onTryAnother}
         size="lg"
         type="button"

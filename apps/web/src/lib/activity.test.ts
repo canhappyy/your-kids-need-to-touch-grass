@@ -26,6 +26,7 @@ describe("activity lib utilities", () => {
 
     it("formats hours and minutes combination", () => {
       expect(formatDuration(75)).toBe("1 hour 15 minutes")
+      expect(formatDuration(121)).toBe("2 hours 1 minute")
       expect(formatDuration(150)).toBe("2 hours 30 minutes")
     })
   })
