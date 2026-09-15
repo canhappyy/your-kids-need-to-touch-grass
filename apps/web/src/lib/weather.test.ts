@@ -27,7 +27,7 @@ describe("weather rules", () => {
     expect(summarizeWeather(forecast, start, start + 3600000)).toMatchObject({
       status: "available",
       severity: "regular",
-      summary: "Cloudy. Bring sunscreen. Bring an umbrella or rain jacket.",
+      summary: "Cloudy. High UV: bring sunscreen. Bring an umbrella or rain jacket.",
     });
   });
   it("does not include an hour beginning exactly at the end", () => {
