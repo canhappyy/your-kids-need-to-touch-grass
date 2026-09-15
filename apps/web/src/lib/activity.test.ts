@@ -10,24 +10,24 @@ import {
 
 describe("activity lib utilities", () => {
   describe("formatDuration", () => {
-    it("formats minutes only when under an hour", () => {
-      expect(formatDuration(15)).toBe("15 minutes")
-      expect(formatDuration(45)).toBe("45 minutes")
+    it("formats mins only when under an hour", () => {
+      expect(formatDuration(15)).toBe("15 mins")
+      expect(formatDuration(45)).toBe("45 mins")
     })
 
     it("formats exactly one hour", () => {
-      expect(formatDuration(60)).toBe("1 hour")
+      expect(formatDuration(60)).toBe("1 hr")
     })
 
-    it("formats multiple hours exactly", () => {
-      expect(formatDuration(120)).toBe("2 hours")
-      expect(formatDuration(180)).toBe("3 hours")
+    it("formats multiple hrs exactly", () => {
+      expect(formatDuration(120)).toBe("2 hrs")
+      expect(formatDuration(180)).toBe("3 hrs")
     })
 
-    it("formats hours and minutes combination", () => {
-      expect(formatDuration(75)).toBe("1 hour 15 minutes")
-      expect(formatDuration(121)).toBe("2 hours 1 minute")
-      expect(formatDuration(150)).toBe("2 hours 30 minutes")
+    it("formats hrs and mins combination", () => {
+      expect(formatDuration(75)).toBe("1 hr 15 mins")
+      expect(formatDuration(121)).toBe("2 hrs 1 min")
+      expect(formatDuration(150)).toBe("2 hrs 30 mins")
     })
   })
 
