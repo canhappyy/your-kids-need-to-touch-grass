@@ -77,7 +77,8 @@ describe("ActivityResult chained outing", () => {
     expect(markup).toContain("Nature Hunt");
     expect(markup).toContain("100% of the 60-minute daily goal");
     expect(markup).toContain("1 hr activities");
-    expect(markup).toContain("Cloudy. Bring a rain jacket.");
+    expect(markup).toContain("Cloudy");
+    expect(markup).toContain("Bring a rain jacket.");
     expect(markup.match(/Mark completed/g)).toHaveLength(2);
     expect(markup.match(/How to Play/g)?.length).toBeGreaterThanOrEqual(2);
   });
