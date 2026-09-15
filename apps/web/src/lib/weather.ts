@@ -136,7 +136,7 @@ export function summarizeWeather(
         : `${condition.label}.`,
   ];
   if (storm && wind) messages.push("Strong winds expected.");
-  if (sunscreen) messages.push("Bring sunscreen.");
+  if (sunscreen) messages.push("High UV: bring sunscreen.");
   if (umbrella) messages.push("Bring an umbrella or rain jacket.");
   return {
     status: "available",

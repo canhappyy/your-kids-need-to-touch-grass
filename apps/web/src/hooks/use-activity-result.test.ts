@@ -39,9 +39,9 @@ describe("activity timing presentation", () => {
     function Probe() {
       const result = useActivityResult(data);
       expect(result).toMatchObject({
-        formattedDuration: "20 minutes",
-        formattedTotalDuration: nearby ? "42 minutes" : "20 minutes",
-        formattedCommuteDuration: nearby ? "22 minutes" : null,
+        formattedDuration: "20 mins",
+        formattedTotalDuration: nearby ? "42 mins" : "20 mins",
+        formattedCommuteDuration: nearby ? "22 mins" : null,
         dailyGoalPercentage: 33,
         progressValue: 33,
       });

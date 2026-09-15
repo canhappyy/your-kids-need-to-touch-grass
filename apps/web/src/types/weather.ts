@@ -13,7 +13,7 @@ export type MissionWeather =
   | {
       /** Indicates that valid weather forecast data is available for the outing. */
       status: "available";
-      /** Human-readable forecast description and packing advice (e.g. "Mainly clear. Bring sunscreen."). */
+      /** Human-readable forecast description and packing advice (e.g. "Mainly clear. High UV, bring sunscreen."). */
       summary: string;
       /** Severity rating: "severe" triggers warning callouts for storms or high wind gusts, while "regular" indicates standard conditions. */
       severity: "regular" | "severe";
