@@ -12,10 +12,10 @@ export function formatDuration(durationMinutes: number): string {
   const hours = Math.floor(durationMinutes / 60)
   const minutes = durationMinutes % 60
 
-  if (!hours) return `${minutes} minutes`
+  if (!hours) return `${minutes} mins`
 
-  const hourLabel = `${hours} ${hours === 1 ? "hour" : "hours"}`
-  const minuteLabel = `${minutes} ${minutes === 1 ? "minute" : "minutes"}`
+  const hourLabel = `${hours} ${hours === 1 ? "hr" : "hrs"}`
+  const minuteLabel = `${minutes} ${minutes === 1 ? "min" : "mins"}`
   return minutes ? `${hourLabel} ${minuteLabel}` : hourLabel
 }
 

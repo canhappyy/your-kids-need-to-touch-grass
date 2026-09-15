@@ -67,10 +67,6 @@ export function ActivityDetails({
                 {formattedDuration} {activityCount === 1 ? "activity" : "activities"} · ~{formattedCommuteDuration}{" "}
                 round-trip walk
               </p>
-              <p className="text-xs text-zinc-500">
-                Walking estimate from selected suburb/postcode, including the
-                return trip.
-              </p>
             </dd>
           )}
         </div>

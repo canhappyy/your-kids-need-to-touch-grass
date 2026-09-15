@@ -52,25 +52,28 @@ export function MissionWeather({ weather }: MissionWeatherProps) {
       )}
     >
       <CardContent className="space-y-3 py-4">
-        <h2 className="flex items-center gap-2 text-base font-semibold">
-          <Icon aria-hidden="true" className="size-5 shrink-0" />
-          Weather for your outing
-        </h2>
-        {available ? (
-          <>
-            {severe && <p className="font-bold">Weather caution</p>}
-            <p className="text-sm leading-relaxed">{weather.summary}</p>
-            <p className="text-xs text-zinc-600">
-              Leaving now, including your return trip.
+      <h2 className="text-base font-semibold">
+        Weather for your outing
+      </h2>
+
+      {available ? (
+        <>
+          {severe && (
+            <p className="flex items-center gap-2 font-bold">
+              <Icon aria-hidden="true" className="size-5 shrink-0" />
+              Weather caution
             </p>
-            <p className="text-xs text-zinc-600">
-              {formatTime(weather.startsAt)} – {formatTime(weather.endsAt)}{" "}
-              (Melbourne time)
-            </p>
-          </>
-        ) : (
-          <p className="text-sm text-zinc-600">Weather: not listed</p>
-        )}
+          )}
+
+          <div className="space-y-1 text-sm leading-relaxed">
+            {weather.summary.split(". ").map((condition, index) => (
+              <p key={index}>{condition}</p>
+            ))}
+          </div>
+        </>
+      ) : (
+        <p className="text-sm text-zinc-600">Weather: not listed</p>
+      )}
         <a
           href="https://open-meteo.com/"
           target="_blank"
