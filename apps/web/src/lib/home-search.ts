@@ -86,6 +86,7 @@ export const defaultHomeSearchValues: HomeSearchValues = {
 export function validateSearchForm(
   values: Pick<HomeSearchValues, "locationMode" | "location" | "minutes"> & {
     hours?: number;
+    selectedBuckets?: AgeBucketId[];
   },
 ): FormValidationResult {
   const trimmedLocation = values.location.trim();
@@ -107,10 +108,16 @@ export function validateSearchForm(
   const totalMinutes = (values.hours ?? 0) * 60 + values.minutes;
   const timeError = totalMinutes < 15 ? "Choose at least 15 minutes." : "";
 
+  const ageError =
+    !values.selectedBuckets || values.selectedBuckets.length === 0
+      ? "Select at least one age range."
+      : "";
+
   return {
-    isValid: !locationError && !timeError,
+    isValid: !locationError && !timeError && !ageError,
     locationError,
     timeError,
+    ageError,
   };
 }
 

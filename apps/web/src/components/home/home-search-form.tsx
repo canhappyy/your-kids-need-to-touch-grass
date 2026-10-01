@@ -41,6 +41,7 @@ function HomeSearchForm({
     minutes,
     selectedBuckets,
     timeError,
+    ageError,
   } = useHomeSearchForm({
     initialLocationError,
     initialValues,
@@ -71,6 +72,7 @@ function HomeSearchForm({
       )}
 
       <AgeRangeField
+        ageError={ageError}
         onChange={handleSelectedBucketsChange}
         selectedBuckets={selectedBuckets}
       />

@@ -13,4 +13,14 @@ describe("HomeSearchForm", () => {
     expect(markup).toContain("Learn more about our data");
     expect(markup).not.toContain("Tap for a random activity idea");
   });
+
+  it("renders age range bucket options", () => {
+    const markup = renderToStaticMarkup(
+      <HomeSearchForm onValidSubmit={vi.fn()} />,
+    );
+
+    expect(markup).toContain("5 - 7 yrs");
+    expect(markup).toContain("8 - 9 yrs");
+    expect(markup).toContain("10 - 12 yrs");
+  });
 });

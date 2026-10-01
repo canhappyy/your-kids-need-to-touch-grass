@@ -28,7 +28,6 @@ export type ActivityHeaderProps = {
  */
 export function ActivityHeader({
   title,
-  reasons,
   agesLabel,
   formattedDuration,
   formattedSupervision,

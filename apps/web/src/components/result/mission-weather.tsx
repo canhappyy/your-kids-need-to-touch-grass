@@ -35,14 +35,6 @@ export function MissionWeather({ weather }: MissionWeatherProps) {
   const available = weather?.status === "available";
   const severe = available && weather.severity === "severe";
   const Icon = severe ? TriangleAlert : CloudSun;
-  const formatTime = (date: string) =>
-    new Intl.DateTimeFormat("en-AU", {
-      timeZone: "Australia/Melbourne",
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-    }).format(new Date(date));
 
   return (
     <Card

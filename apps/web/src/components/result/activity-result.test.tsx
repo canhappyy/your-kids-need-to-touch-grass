@@ -53,8 +53,7 @@ describe("ActivityResult", () => {
     const markup = render();
 
     expect(markup).toContain("Park Explorer");
-    expect(markup).toContain("Ages 5-9");
-    expect(markup).toContain("Fits your 30m window");
+    expect(markup).toContain("Ages 5-7, 8-9");
     expect(markup).toContain("Clayton Reserve");
     expect(markup).toContain("20 mins activity");
     expect(markup).toContain("~12 mins round-trip walk");

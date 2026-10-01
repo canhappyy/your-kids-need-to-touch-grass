@@ -73,9 +73,11 @@ describe("home-search lib utilities", () => {
         location: "",
         locationMode: "nearby",
         minutes: 30,
+        selectedBuckets: ["5-7"],
       });
 
       expect(result).toEqual({
+        ageError: "",
         isValid: false,
         locationError: "Enter your postcode or suburb.",
         timeError: "",
@@ -88,6 +90,7 @@ describe("home-search lib utilities", () => {
         location: "316",
         locationMode: "nearby",
         minutes: 30,
+        selectedBuckets: ["5-7"],
       });
       expect(resultShortDigits.locationError).toBe(
         "Enter a 4-digit postcode or suburb.",
@@ -98,6 +101,7 @@ describe("home-search lib utilities", () => {
         location: "12345",
         locationMode: "nearby",
         minutes: 30,
+        selectedBuckets: ["5-7"],
       });
       expect(resultLongDigits.locationError).toBe(
         "Enter a 4-digit postcode or suburb.",
@@ -110,6 +114,7 @@ describe("home-search lib utilities", () => {
         location: "a",
         locationMode: "nearby",
         minutes: 30,
+        selectedBuckets: ["5-7"],
       });
       expect(resultSingleChar.locationError).toBe(
         "Enter a valid postcode or suburb.",
@@ -122,9 +127,11 @@ describe("home-search lib utilities", () => {
         location: "",
         locationMode: "home",
         minutes: 30,
+        selectedBuckets: ["5-7"],
       });
 
       expect(result).toEqual({
+        ageError: "",
         isValid: true,
         locationError: "",
         timeError: "",
@@ -137,13 +144,44 @@ describe("home-search lib utilities", () => {
         location: "3000",
         locationMode: "nearby",
         minutes: 0,
+        selectedBuckets: ["5-7"],
       });
 
       expect(result).toEqual({
+        ageError: "",
         isValid: false,
         locationError: "",
         timeError: "Choose at least 15 minutes.",
       });
+    });
+
+    it("returns error when no age bucket is selected", () => {
+      const resultNoBuckets = validateSearchForm({
+        hours: 0,
+        location: "3000",
+        locationMode: "nearby",
+        minutes: 30,
+        selectedBuckets: [],
+      });
+
+      expect(resultNoBuckets).toEqual({
+        ageError: "Select at least one age range.",
+        isValid: false,
+        locationError: "",
+        timeError: "",
+      });
+
+      const resultUndefinedBuckets = validateSearchForm({
+        hours: 0,
+        location: "3000",
+        locationMode: "nearby",
+        minutes: 30,
+      });
+
+      expect(resultUndefinedBuckets.ageError).toBe(
+        "Select at least one age range.",
+      );
+      expect(resultUndefinedBuckets.isValid).toBe(false);
     });
 
     it("returns valid result for valid nearby inputs (postcodes and suburbs)", () => {
@@ -152,9 +190,11 @@ describe("home-search lib utilities", () => {
         location: "3168",
         locationMode: "nearby",
         minutes: 30,
+        selectedBuckets: ["5-7"],
       });
 
       expect(resultPostcode).toEqual({
+        ageError: "",
         isValid: true,
         locationError: "",
         timeError: "",
@@ -165,9 +205,11 @@ describe("home-search lib utilities", () => {
         location: "Clayton",
         locationMode: "nearby",
         minutes: 30,
+        selectedBuckets: ["8-9", "10-12"],
       });
 
       expect(resultSuburb).toEqual({
+        ageError: "",
         isValid: true,
         locationError: "",
         timeError: "",
@@ -178,9 +220,11 @@ describe("home-search lib utilities", () => {
         location: "St Kilda",
         locationMode: "nearby",
         minutes: 30,
+        selectedBuckets: ["5-7"],
       });
 
       expect(resultMultiWordSuburb).toEqual({
+        ageError: "",
         isValid: true,
         locationError: "",
         timeError: "",
