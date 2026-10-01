@@ -101,7 +101,8 @@ export function summarizeWeather(
   );
   if (!indices.length) return { status: "unavailable" };
   let coveredUntil = start;
-  let condition = conditions[0];
+  let conditionCode = hourly.weather_code[indices[0]] ?? 0;
+  let condition = conditions[conditionCode] ?? conditions[0];
   let storm = false;
   let wind = false;
   let sunscreen = false;
@@ -121,7 +122,10 @@ export function summarizeWeather(
     )
       return { status: "unavailable" };
     coveredUntil = time + 3600000;
-    if (nextCondition.priority > condition.priority) condition = nextCondition;
+    if (nextCondition.priority > condition.priority) {
+      condition = nextCondition;
+      conditionCode = hourly.weather_code[index];
+    }
     storm ||= [95, 96, 99].includes(hourly.weather_code[index]);
     wind ||= hourly.wind_gusts_10m[index] >= 50;
     sunscreen ||= hourly.uv_index[index] >= 3;
@@ -142,6 +146,7 @@ export function summarizeWeather(
     status: "available",
     severity: storm || wind ? "severe" : "regular",
     summary: messages.join(" "),
+    weatherCode: conditionCode,
     startsAt: new Date(start).toISOString(),
     endsAt: new Date(end).toISOString(),
   };

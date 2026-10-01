@@ -10,7 +10,6 @@ import { ActivityHeader } from "./activity-header";
 import { ActivityProgress } from "./activity-progress";
 import { MissionCompletion } from "./mission-completion";
 import { MissionInstructionsDialog } from "./mission-instructions-dialog";
-import { MissionWeather } from "./mission-weather";
 
 /**
  * Renders the single recommended activity result view, displaying activity details,
@@ -62,10 +61,9 @@ function ActivityResult({
             formattedDuration={formattedDuration}
             formattedTotalDuration={formattedTotalDuration}
             locationLabel={locationLabel}
+            weather={recommendation.weather}
           />
         </div>
-
-        <MissionWeather weather={recommendation.weather} />
 
         <ActivityProgress
           dailyGoalPercentage={dailyGoalPercentage}
