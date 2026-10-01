@@ -70,7 +70,7 @@ export function TopNav({
       onClick={onBack}
       aria-label={backAriaLabel}
       title={backAriaLabel}
-      className="fixed top-4 left-4 z-30 flex size-11 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63] sm:top-6 sm:left-6"
+      className="fixed top-4 left-4 z-30 flex size-11 items-center justify-center rounded-full border border-black/5 bg-white/40 text-zinc-700 shadow-xs backdrop-blur-md transition-colors hover:bg-white/70 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63] sm:top-6 sm:left-6"
     >
       <ArrowLeft className="size-6" />
     </button>
@@ -79,7 +79,7 @@ export function TopNav({
       href={backHref}
       aria-label={backAriaLabel}
       title={backAriaLabel}
-      className="fixed top-4 left-4 z-30 flex size-11 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63] sm:top-6 sm:left-6"
+      className="fixed top-4 left-4 z-30 flex size-11 items-center justify-center rounded-full border border-black/5 bg-white/40 text-zinc-700 shadow-xs backdrop-blur-md transition-colors hover:bg-white/70 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63] sm:top-6 sm:left-6"
     >
       <ArrowLeft className="size-6" />
     </Link>
@@ -87,6 +87,12 @@ export function TopNav({
 
   return (
     <>
+      {(Boolean(backControl) || showHistory) && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none fixed top-0 inset-x-0 z-20 h-16 bg-gradient-to-b from-[#FDF6EA] via-[#FDF6EA]/80 to-transparent backdrop-blur-md transition-colors [mask-image:linear-gradient(to_bottom,black_0%,black_45%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_0%,black_45%,transparent_100%)] sm:h-28"
+        />
+      )}
       {backControl}
       {showHistory && (
         <>
@@ -99,10 +105,10 @@ export function TopNav({
             title={isHistoryOpen ? "Close history" : "History"}
             aria-expanded={isHistoryOpen}
             className={cn(
-              "fixed top-4 right-4 flex size-11 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63] sm:top-6 sm:right-6",
+              "fixed top-4 right-4 flex size-11 items-center justify-center rounded-full border border-black/5 text-zinc-700 shadow-xs backdrop-blur-md transition-colors hover:bg-white/70 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63] sm:top-6 sm:right-6",
               isHistoryOpen
                 ? "z-50 bg-black/10 text-zinc-900 hover:bg-black/15"
-                : "z-30",
+                : "z-30 bg-white/40",
             )}
           >
             <History className="size-6" />

@@ -26,6 +26,7 @@ describe("TopNav", () => {
     expect(markup).toContain('href="/"');
     expect(markup).toContain('aria-label="Back to search"');
     expect(markup).toContain("fixed top-4 left-4");
+    expect(markup).toContain("backdrop-blur-md");
   });
 
   it("renders history toggle button when showHistory is true", () => {
@@ -39,6 +40,8 @@ describe("TopNav", () => {
     expect(markup).toContain('title="History"');
     expect(markup).toContain('aria-expanded="false"');
     expect(markup).toContain("fixed top-4 right-4");
+    expect(markup).toContain("backdrop-blur-md");
+    expect(markup).not.toMatch(/\bborder-b\b/);
   });
 
   it("renders open history overlay when controlled isHistoryOpen is true", () => {
