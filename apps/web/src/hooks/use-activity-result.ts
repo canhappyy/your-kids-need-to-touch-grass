@@ -53,6 +53,8 @@ export function useActivityResult(
         : null,
       formattedSupervision: formatSupervision(recommendation.supervisionLevel),
       goalAriaText,
+      isHomeBased:
+        recommendation.missionType === "Home-Based" || !recommendation.venue,
       locationLabel: getLocationLabel(recommendation),
       progressValue,
     }

@@ -18,6 +18,8 @@ export type ActivityDetailsProps = {
   formattedDuration: string;
   /** Weather forecast details for the outing, or undefined. */
   weather?: MissionWeather;
+  /** Whether the activity is home-based or venue-free. When true, weather details are hidden. */
+  isHomeBased?: boolean;
 };
 
 /**
@@ -31,7 +33,9 @@ export function ActivityDetails({
   formattedTotalDuration,
   formattedCommuteDuration,
   weather,
+  isHomeBased = false,
 }: ActivityDetailsProps) {
+  const showWeather = !isHomeBased;
   const {
     Icon: WeatherIcon,
     headline,
@@ -84,50 +88,52 @@ export function ActivityDetails({
         </div>
       </div>
 
-      <div className="grid grid-cols-[24px_1fr_24px] items-center gap-3">
-        <WeatherIcon
-          aria-hidden="true"
-          className={cn("size-5", isSevere ? "text-amber-600" : "text-zinc-500")}
-          strokeWidth={1.75}
-        />
-        <div className="col-start-2 text-center">
-          <dt className="text-xs font-medium tracking-wide text-zinc-500 uppercase">
-            Weather
-          </dt>
-          <dd className="mt-1 text-lg leading-tight font-semibold text-zinc-900">
-            {headline}
-          </dd>
-          {isSevere && (
-            <dd className="mt-2 flex items-center justify-center gap-1.5 text-sm font-semibold text-amber-800">
-              <TriangleAlert
-                aria-hidden="true"
-                className="size-4 shrink-0 text-amber-600"
-              />
-              <span>Weather caution</span>
+      {showWeather && (
+        <div className="grid grid-cols-[24px_1fr_24px] items-center gap-3">
+          <WeatherIcon
+            aria-hidden="true"
+            className={cn("size-5", isSevere ? "text-amber-600" : "text-zinc-500")}
+            strokeWidth={1.75}
+          />
+          <div className="col-start-2 text-center">
+            <dt className="text-xs font-medium tracking-wide text-zinc-500 uppercase">
+              Weather
+            </dt>
+            <dd className="mt-1 text-lg leading-tight font-semibold text-zinc-900">
+              {headline}
             </dd>
-          )}
-          {tips.length > 0 && (
-            <dd className="mt-2 space-y-1 text-sm text-zinc-600">
-              {tips.map((tip, index) => (
-                <p key={index}>{tip}</p>
-              ))}
-            </dd>
-          )}
-          {isAvailable && (
-            <dd className="mt-2">
-              <a
-                href="https://open-meteo.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="relative z-20 text-xs text-zinc-500 underline underline-offset-4 hover:text-zinc-700"
-                onClick={(e) => e.stopPropagation()}
-              >
-                Weather data by Open-Meteo
-              </a>
-            </dd>
-          )}
+            {isSevere && (
+              <dd className="mt-2 flex items-center justify-center gap-1.5 text-sm font-semibold text-amber-800">
+                <TriangleAlert
+                  aria-hidden="true"
+                  className="size-4 shrink-0 text-amber-600"
+                />
+                <span>Weather caution</span>
+              </dd>
+            )}
+            {tips.length > 0 && (
+              <dd className="mt-2 space-y-1 text-sm text-zinc-600">
+                {tips.map((tip, index) => (
+                  <p key={index}>{tip}</p>
+                ))}
+              </dd>
+            )}
+            {isAvailable && (
+              <dd className="mt-2">
+                <a
+                  href="https://open-meteo.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="relative z-20 text-xs text-zinc-500 underline underline-offset-4 hover:text-zinc-700"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Weather data by Open-Meteo
+                </a>
+              </dd>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </dl>
   );
 }

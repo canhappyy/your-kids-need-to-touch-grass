@@ -29,6 +29,7 @@ function ActivityResult({
     formattedCommuteDuration,
     formattedSupervision,
     goalAriaText,
+    isHomeBased,
     locationLabel,
     progressValue,
   } = useActivityResult(recommendation);
@@ -60,6 +61,7 @@ function ActivityResult({
             formattedCommuteDuration={formattedCommuteDuration}
             formattedDuration={formattedDuration}
             formattedTotalDuration={formattedTotalDuration}
+            isHomeBased={isHomeBased}
             locationLabel={locationLabel}
             weather={recommendation.weather}
           />

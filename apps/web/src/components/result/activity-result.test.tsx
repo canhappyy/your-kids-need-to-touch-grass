@@ -104,6 +104,26 @@ describe("ActivityResult", () => {
     expect(markup).toContain("Not listed");
   });
 
+  it("hides weather section when activity is home-based", () => {
+    const homeRecommendation: Recommendation = {
+      ...primary,
+      missionType: "Home-Based",
+      venue: null,
+      commuteMinutes: 0,
+      totalMinutes: 20,
+      weather: {
+        status: "unavailable",
+      },
+    };
+    const markup = render(homeRecommendation);
+
+    expect(markup).toContain("At home");
+    expect(markup).toContain("20 mins");
+    expect(markup).not.toContain("Weather");
+    expect(markup).not.toContain("Not listed");
+    expect(markup).not.toContain("Weather data by Open-Meteo");
+  });
+
   it("does not render carousel or chained activity elements", () => {
     const markup = render();
 

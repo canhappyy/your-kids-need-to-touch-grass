@@ -40,4 +40,6 @@ export type ActivityResultViewModel = {
   formattedSupervision: string;
   /** Formatted age bands label (e.g. "5-7, 8-9"). */
   agesLabel: string;
+  /** Whether the recommended activity is home-based or venue-free. */
+  isHomeBased: boolean;
 };
