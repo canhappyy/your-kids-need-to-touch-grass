@@ -6,3 +6,4 @@ pipeline/data/processed/*
 pipeline/docs/.Rhistory
 AGENTS.md
 ai_recommendation/models/*
+ai_recommendation/__pycache__/*
