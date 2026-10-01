@@ -1,0 +1,243 @@
+import json, time
+import numpy as np
+import pandas as pd
+import recommendation_functions as rf
+from pathlib import Path
+from sentence_transformers import SentenceTransformer, CrossEncoder
+
+# --------------------------------------------------------------------------
+# Config
+# --------------------------------------------------------------------------
+TOP_N_TAGS = 3                          # Number of top similar tags to consider for matching activities
+TAG_WEIGHT = 0.4                        # Weight assigned to the tag similarity score in the final ranking
+CROSS_ENCODER_MAX_CANDIDATES = 300      # Maximum number of candidate activities to consider for cross-encoder scoring (can be adjusted based on performance and accuracy trade-offs)
+CROSS_ENCODER_WEIGHT = 0.6              # Weight assigned to the cross-encoder score in the final ranking
+
+# Flag to control printing of debug information
+DEBUG = True
+
+# --------------------------------------------------------------------------
+# Loading & Reading Data
+# --------------------------------------------------------------------------
+# Load the databases
+current_filepath, root_folder_path, database_folder_path = rf.get_file_paths()
+
+def load_tag_index(database: pd.DataFrame, model: SentenceTransformer, current_filepath: Path):
+    """ Load a pre-computed index of tags (mapped to activities) and their corresponding embeddings."""
+    # Load tag vocabulary and embeddings from cache
+    cache_filepath = current_filepath / "cache"
+    vocab_filepath = cache_filepath / "tag_vocab.json"
+    embeddings_filepath = cache_filepath / "tag_embeddings.npy"
+    # tag_map_filepath = cache_filepath / "tag_to_activity_map.json"
+
+    # Check if required files exist, and raise an error if any are missing
+    missing = [path for path in [vocab_filepath, embeddings_filepath] if not path.exists()]
+    # missing = [path for path in [vocab_filepath, embeddings_filepath, tag_map_filepath] if not path.exists()]
+    
+    if missing:
+        raise FileNotFoundError(
+            f"Missing required files: {', '.join(str(path) for path in missing)}. Please run build_tag_index.py to generate them.")
+
+    # Load tag vocabulary and embeddings from cache files
+    tag_vocab = json.loads(vocab_filepath.read_text())
+    tag_embeddings = np.load(embeddings_filepath)
+    # tag_to_activity_map = json.loads(tag_map_filepath.read_text())
+
+    return tag_vocab, tag_embeddings
+
+
+# --------------------------------------------------------------------------
+# Process Data
+# --------------------------------------------------------------------------
+def compute_tag_similarities(free_text: str, activities_df: pd.DataFrame, tag_model: SentenceTransformer, 
+                             tag_vocab: list, tag_embeddings: np.ndarray, top_n_tags: int = TOP_N_TAGS) -> np.ndarray:
+    """ 
+    Compute the top N most similar tags to the user's free text input. 
+    
+    Args:
+        free_text (str): User's free text input describing their child's interests.
+        activities_df (pd.DataFrame): DataFrame containing activities and their associated tags.
+        tag_model (SentenceTransformer): Model used to compute embeddings for tags.
+        tag_vocab (list): List of unique tags extracted from the activities database.
+        tag_embeddings (np.ndarray): Precomputed embeddings for the tags.
+        top_n_tags (int): Number of top similar tags to consider for matching activities.
+
+    Returns:
+        np.ndarray: Array of similarity scores for each activity based on the top N similar tags.
+
+    """
+    if DEBUG:
+        print("Computing tag similarities...")
+
+    # Create a mapping from tags to their indices in tag_vocab
+    tag_to_index = {tag: i for i, tag in enumerate(tag_vocab)}
+
+    # Compute embedding for the user's free text input
+    query_embedding = tag_model.encode(free_text, normalize_embeddings = True)
+
+    # Compute cosine similarities between the query embedding and tag embeddings
+    similarities = tag_embeddings @ query_embedding
+
+    def score_tags(tag_list: list[str]) -> float:
+        """Score a group of tags based on their cosine similarity to the user's input. """
+        indices = [tag_to_index[tag] for tag in tag_list if tag in tag_to_index]
+
+        # If no tags are found in the vocab, no similarity
+        if not indices:
+            return 0.0
+
+        # Get the top N most similar tags & sum their similarities to compute
+        top = np.sort(similarities[np.array(indices)])[-top_n_tags:]
+        return float(top.sum())
+    return activities_df["tag_list"].apply(score_tags).to_numpy()
+
+def rank_relevance(free_text: str, activities_df: pd.DataFrame, tag_model: SentenceTransformer, 
+                    cross_encoder: CrossEncoder, tag_vocab: list, tag_embeddings: np.ndarray, 
+                    tag_weight: float = 0.4, cross_encoder_weight: float = CROSS_ENCODER_WEIGHT, 
+                    top_n_tags: int = TOP_N_TAGS, cross_encoder_max_candidates: int = CROSS_ENCODER_MAX_CANDIDATES) -> pd.DataFrame:
+    """ 
+    Rank activities based on a combination of tag similarity and cross-encoder scoring. 
+    The tag similarity score is computed based on the cosine similarity between the user's input and the tags associated with each activity.
+    Cross-encoder refines ranking by scoring activity descriptions against the user's free text input, for a more nuanced understanding of relevance.
+    
+    Args:
+        free_text (str): User's free text input describing their child's interests.
+        activities_df (pd.DataFrame): DataFrame containing activities and their associated tags.
+        tag_model (SentenceTransformer): Model used to compute embeddings for tags.
+        cross_encoder (CrossEncoder): Cross-encoder model used to score activity descriptions against user input.
+        tag_vocab (list): List of unique tags extracted from the activities database.
+        tag_embeddings (np.ndarray): Precomputed embeddings for the tags.
+        tag_weight (float): Weight assigned to the tag similarity score in the final ranking.
+        cross_encoder_weight (float): Weight assigned to the cross-encoder score in the final ranking.
+        top_n_tags (int): Number of top similar tags to consider for matching activities.
+        cross_encoder_max_candidates (int): Maximum number of candidate activities to consider for cross-encoder scoring.
+
+    Returns:
+        pd.DataFrame: DataFrame containing activities ranked by their combined score.
+    """
+    if DEBUG:
+        print("Ranking activities...")
+
+    # Load data and ensure no NaN values in descriptions
+    df = activities_df.copy()
+    df["description"] = df["description"].fillna("")  
+
+    # Compute tag similarity scores for each activity
+    df["tag_score"] = compute_tag_similarities(free_text, df, tag_model, tag_vocab, tag_embeddings, top_n_tags)
+
+    # Select a pool of candidate activities for cross-encoder scoring based on tag similarity scores
+    if len(df) <= cross_encoder_max_candidates:
+        cross_encoder_pool, remainder = df, df.iloc[0:0]
+    else:
+        # If pool is too large, pre-select top N activities based on tag similarity scores
+        cross_encoder_pool = df.nlargest(cross_encoder_max_candidates, "tag_score")
+        remainder = df.drop(cross_encoder_pool.index)
+
+    if not cross_encoder_pool.empty:
+        # Prepare pairs of (user input, activity description) for cross-encoder scoring
+        pairs = [[free_text, desc] for desc in cross_encoder_pool["description"].tolist()]
+        cross_encoder_pool["cross_encoder_score"] = cross_encoder.predict(pairs)
+
+        # Normalise the tag similarity scores and cross-encoder scores to the range [0, 1]
+        normalised_tag_scores = rf._min_max_normalize(cross_encoder_pool["tag_score"].to_numpy())
+        normalised_cross_encoder_scores = rf._min_max_normalize(cross_encoder_pool["cross_encoder_score"].to_numpy())
+
+        # Combine normalised scores using given weights to compute final scores for ranking
+        cross_encoder_pool["final_score"] = (tag_weight * normalised_tag_scores) + (cross_encoder_weight * normalised_cross_encoder_scores)
+        cross_encoder_pool = cross_encoder_pool.sort_values("final_score", ascending = False)
+
+    if not remainder.empty:
+        # For activities not in cross-encoder pool, normalise tag similarity scores and assign them as final scores
+        remainder = remainder.sort_values("tag_score", ascending = False)
+
+    return pd.concat([cross_encoder_pool, remainder])
+
+def rank_activities(free_text: str, activities_df: pd.DataFrame | None = None) -> pd.DataFrame:
+    """
+    Rank activities based on the user's free text input describing their child's interests.
+
+    Args:
+        free_text (str): User's free text input describing their child's interests.
+        activities_df (pd.DataFrame | None): Optional DataFrame containing activities and their associated tags. 
+            If not provided, the function will load the activities database.
+    
+    Returns:
+        pd.DataFrame: DataFrame containing activities ranked by their combined score based on tag similarity 
+            and cross-encoder scoring.
+
+    """
+    if activities_df is None:
+        activities_df = rf.load_database("activities", database_folder_path)
+        activities_df["tag_list"] = activities_df["variety_tags"].apply(rf.parse_tags)
+
+    # Load tag model & cross-encoder, then retrieve tag vocabulary and embeddings from cache
+    tag_model = rf.load_model(current_filepath, rf.TAG_MODEL_FILENAME, rf.TAG_MODEL_DESIGNATION)
+    cross_encoder = rf.load_model(current_filepath, rf.CROSS_ENCODER_FILENAME, rf.CROSS_ENCODER_DESIGNATION)
+    tag_vocab, tag_embeddings = load_tag_index(activities_df, tag_model, current_filepath)
+
+    return rank_relevance(free_text, activities_df, tag_model, cross_encoder, tag_vocab, tag_embeddings)
+
+# def match_tags_to_activities(preferences_text: str, tag_model: SentenceTransformer, tag_vocab: list, tag_embeddings: np.ndarray, tag_to_activity_map: dict, top_k: int = TOP_K):
+#     """ 
+#     Match user preferences to activities based on tag similarity. 
+    
+#     Args:
+#         preferences_text (str): User's free text input describing their preferences.
+#         tag_model (SentenceTransformer): The model used to compute embeddings for tags.
+#         tag_vocab (list): List of unique tags extracted from the activities database.
+#         tag_embeddings (np.ndarray): Precomputed embeddings for the tags.
+#         tag_to_activity_map (dict): Mapping of tags to the indexes of activities that have that tag.
+#         top_k (int): Number of top similar tags to consider for matching activities.
+
+#     Returns:
+#         set: A set of candidate activities that match the user's preferences."""
+#     if DEBUG:
+#         print("Matching tags to activities...")
+
+#     # Compute the embedding for the user preferences (free text input)
+#     preference_embeddings = tag_model.encode(preferences_text, normalize_embeddings= True)
+
+#     # Compute cosine similarities between user preference embedding and tag embeddings, then find the top K most similar tags
+#     try:
+#         similarities = tag_embeddings @ preference_embeddings
+#     except ValueError as e:
+#         if DEBUG:
+#             print(f"Error computing similarities: {e}")
+#             print(f"Tag embeddings shape: {tag_embeddings.shape}, Preference embeddings shape: {preference_embeddings.shape}")
+#         raise e
+#     top_k_indices = np.argsort(-similarities)[:top_k]
+#     matched_tags = [tag_vocab[i] for i in top_k_indices]
+
+    # if DEBUG:
+        # Confirm that the matched tags are present (with the same formatting) in the tag_to_activity_map
+        # sample_tag = matched_tags[0] 
+        # print(f"Sample matched tag: {sample_tag}")
+        # print(repr(sample_tag))
+        # print(list(tag_to_activity_map.keys())[:10])
+        # print(f"Sample tag in tag_to_activity_map: {sample_tag in tag_to_activity_map}")
+
+    # Retrieve candidate activities based on matched tags
+    # candidate_activities = set()
+    # for tag in matched_tags:
+    #     candidate_activities.update(tag_to_activity_map.get(tag, []))
+
+    # if DEBUG:
+    #     print(f"Matched tags: {matched_tags}")
+    #     print(f"Candidate activities: {candidate_activities}")
+
+    # return candidate_activities
+
+if __name__ == "__main__":
+    # Example user preferences
+    free_text_input = "I want to go hiking and explore nature."
+
+    # Time the ranking process
+    start = time.perf_counter()
+    ranked_activities = rank_activities(free_text_input)
+    end = time.perf_counter()
+    elapsed_time = end - start
+
+    if DEBUG:
+        # Print the top 10 ranked activities along with their scores and the time taken for ranking
+        print(f"Ranked {len(ranked_activities)} activities in {elapsed_time:.2f} seconds.")
+        print(ranked_activities[["mission_id", "activity_title", "tag_score", "cross_encoder_score", "final_score"]].head(10))
