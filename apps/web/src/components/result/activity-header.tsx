@@ -39,20 +39,6 @@ export function ActivityHeader({
 
   return (
     <div className="text-center">
-      <div
-        aria-label="Why this mission matches"
-        className="flex flex-wrap justify-center gap-2"
-      >
-        {reasons.map((reason) => (
-          <Badge
-            className="min-h-7 rounded-full bg-zinc-100 px-4 py-1 text-xs font-medium tracking-wide text-zinc-600"
-            key={reason.kind}
-            variant="secondary"
-          >
-            {reason.label}
-          </Badge>
-        ))}
-      </div>
       <Heading
         className="mt-6 text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl"
         id={titleId}
