@@ -12,8 +12,6 @@ export type ActivityDetailsProps = {
   formattedCommuteDuration: string | null;
   /** Formatted standalone activity duration string (e.g. "30 minutes"). */
   formattedDuration: string;
-  /** Number of activities represented by formattedDuration. */
-  activityCount?: number;
 };
 
 /**
@@ -26,7 +24,6 @@ export function ActivityDetails({
   formattedDuration,
   formattedTotalDuration,
   formattedCommuteDuration,
-  activityCount = 1,
 }: ActivityDetailsProps) {
   return (
     <dl className="mt-7 space-y-6">
@@ -64,7 +61,7 @@ export function ActivityDetails({
           {formattedCommuteDuration !== null && (
             <dd className="mt-2 space-y-1 text-sm text-zinc-600">
               <p>
-                {formattedDuration} {activityCount === 1 ? "activity" : "activities"} · ~{formattedCommuteDuration}{" "}
+                {formattedDuration} activity · ~{formattedCommuteDuration}{" "}
                 round-trip walk
               </p>
             </dd>

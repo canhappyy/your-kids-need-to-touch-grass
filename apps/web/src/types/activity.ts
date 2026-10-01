@@ -1,5 +1,4 @@
 import type { Recommendation } from "./recommendation";
-import type { ChainState } from "./result";
 
 /**
  * Props for the `ActivityResult` view component.
@@ -7,18 +6,12 @@ import type { ChainState } from "./result";
 export type ActivityResultProps = {
   /** The recommendation data to display. */
   recommendation: Recommendation;
-  /** Current second-activity request and result state. */
-  chainState: ChainState;
-  /** Whether recommendation replacement or chaining is in progress. */
-  isBusy: boolean;
   /** Whether a retry/swap operation is currently in flight. */
   isRetrying?: boolean;
   /** Optional callback to navigate back to the home search page. */
   onBackToSearch?: () => void;
   /** Callback to request another activity swap. */
   onTryAnother: () => void;
-  /** Callback requesting a compatible second activity at the venue. */
-  onAddActivity: () => void;
   /** Number of swaps remaining for this session (out of MAX_SWAPS). */
   swapsRemaining?: number;
 };

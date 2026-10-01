@@ -19,8 +19,6 @@ export type ActivityHeaderProps = {
   headingLevel?: "h1" | "h2";
   /** DOM identifier used by the surrounding labelled region. */
   titleId?: string;
-  /** Uses smaller spacing inside a chained activity card. */
-  compact?: boolean;
 };
 
 /**
@@ -36,7 +34,6 @@ export function ActivityHeader({
   formattedSupervision,
   headingLevel = "h1",
   titleId = "activity-title",
-  compact = false,
 }: ActivityHeaderProps) {
   const Heading = headingLevel;
 
@@ -57,11 +54,7 @@ export function ActivityHeader({
         ))}
       </div>
       <Heading
-        className={
-          compact
-            ? "mt-4 text-2xl font-bold tracking-tight text-zinc-900"
-            : "mt-6 text-4xl font-bold tracking-tight text-zinc-900"
-        }
+        className="mt-6 text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl"
         id={titleId}
       >
         {title}
