@@ -70,7 +70,7 @@ export function TopNav({
       onClick={onBack}
       aria-label={backAriaLabel}
       title={backAriaLabel}
-      className="absolute top-4 left-4 z-20 flex size-11 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63] sm:top-6 sm:left-6"
+      className="fixed top-4 left-4 z-30 flex size-11 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63] sm:top-6 sm:left-6"
     >
       <ArrowLeft className="size-6" />
     </button>
@@ -79,7 +79,7 @@ export function TopNav({
       href={backHref}
       aria-label={backAriaLabel}
       title={backAriaLabel}
-      className="absolute top-4 left-4 z-20 flex size-11 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63] sm:top-6 sm:left-6"
+      className="fixed top-4 left-4 z-30 flex size-11 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63] sm:top-6 sm:left-6"
     >
       <ArrowLeft className="size-6" />
     </Link>
@@ -99,10 +99,10 @@ export function TopNav({
             title={isHistoryOpen ? "Close history" : "History"}
             aria-expanded={isHistoryOpen}
             className={cn(
-              "top-4 right-4 flex size-11 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63] sm:top-6 sm:right-6",
+              "fixed top-4 right-4 flex size-11 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63] sm:top-6 sm:right-6",
               isHistoryOpen
-                ? "fixed z-50 bg-black/10 text-zinc-900 hover:bg-black/15"
-                : "absolute z-20",
+                ? "z-50 bg-black/10 text-zinc-900 hover:bg-black/15"
+                : "z-30",
             )}
           >
             <History className="size-6" />
