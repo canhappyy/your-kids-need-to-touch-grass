@@ -9,7 +9,7 @@ describe("LocationInputField", () => {
     const markup = renderToStaticMarkup(
       createElement(LocationInputField, {
         gpsStatus: "",
-        inputRef: createRef(),
+        inputRef: createRef<HTMLInputElement>(),
         isLocating: false,
         location: "Clayton",
         locationError: "",
@@ -31,7 +31,7 @@ describe("LocationInputField", () => {
     const markup = renderToStaticMarkup(
       createElement(LocationInputField, {
         gpsStatus: "",
-        inputRef: createRef(),
+        inputRef: createRef<HTMLInputElement>(),
         isLocating: false,
         location: "",
         locationError: "Enter a valid postcode or suburb.",
@@ -48,7 +48,7 @@ describe("LocationInputField", () => {
     const markup = renderToStaticMarkup(
       createElement(LocationInputField, {
         gpsStatus: "Using location near Clayton 3168",
-        inputRef: createRef(),
+        inputRef: createRef<HTMLInputElement>(),
         isLocating: false,
         location: "3168",
         locationError: "",
@@ -65,7 +65,7 @@ describe("LocationInputField", () => {
     const markup = renderToStaticMarkup(
       createElement(LocationInputField, {
         gpsStatus: "",
-        inputRef: createRef(),
+        inputRef: createRef<HTMLInputElement>(),
         isLocating: true,
         location: "",
         locationError: "",
