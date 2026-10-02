@@ -51,4 +51,31 @@ describe("PlayPreferencesField", () => {
     expect(markupAlt).toContain('checked="" value="group"');
     expect(markupAlt).toContain('checked="" value="supervised"');
   });
+
+  it("animates the sliding indicator pill based on active option", () => {
+    const markupDefault = renderToStaticMarkup(
+      createElement(PlayPreferencesField, {
+        playStyle: "solo",
+        canSupervise: false,
+        onPlayStyleChange: vi.fn(),
+        onSupervisionChange: vi.fn(),
+      }),
+    );
+
+    // Indicator should be at translate-x-0 for both solo and independent
+    expect(markupDefault).toContain("translate-x-0");
+    expect(markupDefault).toContain("duration-300");
+
+    const markupAlt = renderToStaticMarkup(
+      createElement(PlayPreferencesField, {
+        playStyle: "group",
+        canSupervise: true,
+        onPlayStyleChange: vi.fn(),
+        onSupervisionChange: vi.fn(),
+      }),
+    );
+
+    // Indicator should be at translate-x-full for group and supervised
+    expect(markupAlt).toContain("translate-x-full");
+  });
 });

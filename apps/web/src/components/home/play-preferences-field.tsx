@@ -1,7 +1,8 @@
+import { cn } from "@/lib/utils";
 import type { PlayPreferencesFieldProps } from "@/types/play-preferences";
 
 /**
- * Form fieldset containing segmented toggle switches with in-switch mode labels for play style and supervision.
+ * Form fieldset containing segmented toggle switches with animated sliding indicators and in-switch mode labels.
  *
  * @param props - Component properties configuring play style, supervision state, and toggle handlers.
  */
@@ -21,9 +22,18 @@ export function PlayPreferencesField({
         <span className="text-xs font-medium text-zinc-700">Playing style</span>
         <div
           aria-label="Playing style"
-          className="relative grid grid-cols-2 rounded-full border border-zinc-200 bg-[#F0B6A31F] p-1"
+          className="relative grid grid-cols-2 overflow-hidden rounded-full border border-zinc-200 bg-[#F0B6A31F] p-1"
           role="radiogroup"
         >
+          {/* Animated sliding active indicator */}
+          <div
+            aria-hidden="true"
+            className={cn(
+              "pointer-events-none absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] rounded-full bg-[#E4633C] shadow-xs transition-transform duration-300 ease-out",
+              playStyle === "group" ? "translate-x-full" : "translate-x-0",
+            )}
+          />
+
           <label className="cursor-pointer">
             <input
               aria-label="Solo play"
@@ -34,7 +44,14 @@ export function PlayPreferencesField({
               type="radio"
               value="solo"
             />
-            <span className="flex h-10 items-center justify-center rounded-full text-sm font-semibold text-zinc-600 transition-all select-none hover:text-zinc-900 peer-checked:bg-[#E4633C] peer-checked:text-white peer-checked:shadow-xs peer-focus-visible:ring-2 peer-focus-visible:ring-[#E4633C]/30 peer-focus-visible:ring-offset-2">
+            <span
+              className={cn(
+                "relative z-10 flex h-10 items-center justify-center rounded-full text-sm font-semibold select-none transition-colors duration-200 peer-focus-visible:ring-2 peer-focus-visible:ring-[#E4633C]/30 peer-focus-visible:ring-offset-2",
+                playStyle === "solo"
+                  ? "text-white"
+                  : "text-zinc-600 hover:text-zinc-900",
+              )}
+            >
               Solo
             </span>
           </label>
@@ -48,7 +65,14 @@ export function PlayPreferencesField({
               type="radio"
               value="group"
             />
-            <span className="flex h-10 items-center justify-center rounded-full text-sm font-semibold text-zinc-600 transition-all select-none hover:text-zinc-900 peer-checked:bg-[#E4633C] peer-checked:text-white peer-checked:shadow-xs peer-focus-visible:ring-2 peer-focus-visible:ring-[#E4633C]/30 peer-focus-visible:ring-offset-2">
+            <span
+              className={cn(
+                "relative z-10 flex h-10 items-center justify-center rounded-full text-sm font-semibold select-none transition-colors duration-200 peer-focus-visible:ring-2 peer-focus-visible:ring-[#E4633C]/30 peer-focus-visible:ring-offset-2",
+                playStyle === "group"
+                  ? "text-white"
+                  : "text-zinc-600 hover:text-zinc-900",
+              )}
+            >
               Group
             </span>
           </label>
@@ -59,9 +83,18 @@ export function PlayPreferencesField({
         <span className="text-xs font-medium text-zinc-700">Supervision</span>
         <div
           aria-label="Supervision"
-          className="relative grid grid-cols-2 rounded-full border border-zinc-200 bg-[#F0B6A31F] p-1"
+          className="relative grid grid-cols-2 overflow-hidden rounded-full border border-zinc-200 bg-[#F0B6A31F] p-1"
           role="radiogroup"
         >
+          {/* Animated sliding active indicator */}
+          <div
+            aria-hidden="true"
+            className={cn(
+              "pointer-events-none absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] rounded-full bg-[#E4633C] shadow-xs transition-transform duration-300 ease-out",
+              canSupervise ? "translate-x-full" : "translate-x-0",
+            )}
+          />
+
           <label className="cursor-pointer">
             <input
               aria-label="Independent play"
@@ -72,7 +105,14 @@ export function PlayPreferencesField({
               type="radio"
               value="independent"
             />
-            <span className="flex h-10 items-center justify-center rounded-full text-sm font-semibold text-zinc-600 transition-all select-none hover:text-zinc-900 peer-checked:bg-[#E4633C] peer-checked:text-white peer-checked:shadow-xs peer-focus-visible:ring-2 peer-focus-visible:ring-[#E4633C]/30 peer-focus-visible:ring-offset-2">
+            <span
+              className={cn(
+                "relative z-10 flex h-10 items-center justify-center rounded-full text-sm font-semibold select-none transition-colors duration-200 peer-focus-visible:ring-2 peer-focus-visible:ring-[#E4633C]/30 peer-focus-visible:ring-offset-2",
+                !canSupervise
+                  ? "text-white"
+                  : "text-zinc-600 hover:text-zinc-900",
+              )}
+            >
               Independent
             </span>
           </label>
@@ -86,7 +126,14 @@ export function PlayPreferencesField({
               type="radio"
               value="supervised"
             />
-            <span className="flex h-10 items-center justify-center rounded-full text-sm font-semibold text-zinc-600 transition-all select-none hover:text-zinc-900 peer-checked:bg-[#E4633C] peer-checked:text-white peer-checked:shadow-xs peer-focus-visible:ring-2 peer-focus-visible:ring-[#E4633C]/30 peer-focus-visible:ring-offset-2">
+            <span
+              className={cn(
+                "relative z-10 flex h-10 items-center justify-center rounded-full text-sm font-semibold select-none transition-colors duration-200 peer-focus-visible:ring-2 peer-focus-visible:ring-[#E4633C]/30 peer-focus-visible:ring-offset-2",
+                canSupervise
+                  ? "text-white"
+                  : "text-zinc-600 hover:text-zinc-900",
+              )}
+            >
               Supervised
             </span>
           </label>
