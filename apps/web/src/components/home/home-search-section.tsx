@@ -124,11 +124,12 @@ export function HomeSearchSection() {
       <header className="flex justify-center">
         <h1>
           <Image
-            src="/playgo.svg"
+            src="/playgo&co.svg"
             alt="PlayGo"
-            width={142}
+            width={240}
             height={47}
             priority
+            className="h-14 w-auto max-w-full object-contain sm:h-16"
           />
         </h1>
       </header>

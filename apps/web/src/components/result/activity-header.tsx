@@ -19,8 +19,6 @@ export type ActivityHeaderProps = {
   headingLevel?: "h1" | "h2";
   /** DOM identifier used by the surrounding labelled region. */
   titleId?: string;
-  /** Uses smaller spacing inside a chained activity card. */
-  compact?: boolean;
 };
 
 /**
@@ -30,38 +28,18 @@ export type ActivityHeaderProps = {
  */
 export function ActivityHeader({
   title,
-  reasons,
   agesLabel,
   formattedDuration,
   formattedSupervision,
   headingLevel = "h1",
   titleId = "activity-title",
-  compact = false,
 }: ActivityHeaderProps) {
   const Heading = headingLevel;
 
   return (
     <div className="text-center">
-      <div
-        aria-label="Why this mission matches"
-        className="flex flex-wrap justify-center gap-2"
-      >
-        {reasons.map((reason) => (
-          <Badge
-            className="min-h-7 rounded-full bg-zinc-100 px-4 py-1 text-xs font-medium tracking-wide text-zinc-600"
-            key={reason.kind}
-            variant="secondary"
-          >
-            {reason.label}
-          </Badge>
-        ))}
-      </div>
       <Heading
-        className={
-          compact
-            ? "mt-4 text-2xl font-bold tracking-tight text-zinc-900"
-            : "mt-6 text-4xl font-bold tracking-tight text-zinc-900"
-        }
+        className="mt-6 text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl"
         id={titleId}
       >
         {title}

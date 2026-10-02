@@ -13,6 +13,8 @@ export type AgeRangeFieldProps = {
   selectedBuckets: AgeBucketId[];
   /** Callback fired when the parent modifies the selected age buckets. */
   onChange: (buckets: AgeBucketId[]) => void;
+  /** Validation error message for age range selection. */
+  ageError?: string;
 };
 
 /**
@@ -23,11 +25,15 @@ export type AgeRangeFieldProps = {
 export function AgeRangeField({
   selectedBuckets,
   onChange,
+  ageError,
 }: AgeRangeFieldProps) {
   const [min, max] = calculateRangeFromBuckets(selectedBuckets);
 
   return (
-    <fieldset className="mt-7">
+    <fieldset
+      aria-describedby={ageError ? "age-error" : undefined}
+      className="mt-7"
+    >
       <legend className="mb-2 text-xs font-medium tracking-wide text-zinc-600 uppercase">
         Child&apos;s age range &middot; Select one or more
       </legend>
@@ -35,6 +41,15 @@ export function AgeRangeField({
         onValueChange={onChange}
         selectedBuckets={selectedBuckets}
       />
+      {ageError && (
+        <p
+          className="mt-2 text-sm text-destructive"
+          id="age-error"
+          role="alert"
+        >
+          {ageError}
+        </p>
+      )}
       <input name="ageMin" type="hidden" value={min} />
       <input name="ageMax" type="hidden" value={max} />
     </fieldset>

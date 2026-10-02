@@ -82,7 +82,7 @@ const conditions: Record<number, { label: string; priority: number }> = {
  *    Either hazard escalates the outing's severity status to `"severe"`.
  * 5. Practical Advice:
  *    - Sunscreen: Suggested if the UV index is 3 or higher, in line with Australian SunSmart guidelines.
- *    - Rain gear: Suggested if the probability of precipitation reaches 30% or higher.
+ *    - Rain gear: Suggested if the probability of precipitation reaches 50% or higher.
  *
  * @param hourly - Raw hourly weather forecast data.
  * @param start - Outing start time in epoch milliseconds.
@@ -101,7 +101,8 @@ export function summarizeWeather(
   );
   if (!indices.length) return { status: "unavailable" };
   let coveredUntil = start;
-  let condition = conditions[0];
+  let conditionCode = hourly.weather_code[indices[0]] ?? 0;
+  let condition = conditions[conditionCode] ?? conditions[0];
   let storm = false;
   let wind = false;
   let sunscreen = false;
@@ -121,11 +122,14 @@ export function summarizeWeather(
     )
       return { status: "unavailable" };
     coveredUntil = time + 3600000;
-    if (nextCondition.priority > condition.priority) condition = nextCondition;
+    if (nextCondition.priority > condition.priority) {
+      condition = nextCondition;
+      conditionCode = hourly.weather_code[index];
+    }
     storm ||= [95, 96, 99].includes(hourly.weather_code[index]);
     wind ||= hourly.wind_gusts_10m[index] >= 50;
     sunscreen ||= hourly.uv_index[index] >= 3;
-    umbrella ||= hourly.precipitation_probability[index] >= 30;
+    umbrella ||= hourly.precipitation_probability[index] >= 50;
   }
   if (coveredUntil < end) return { status: "unavailable" };
   const messages = [
@@ -142,6 +146,7 @@ export function summarizeWeather(
     status: "available",
     severity: storm || wind ? "severe" : "regular",
     summary: messages.join(" "),
+    weatherCode: conditionCode,
     startsAt: new Date(start).toISOString(),
     endsAt: new Date(end).toISOString(),
   };

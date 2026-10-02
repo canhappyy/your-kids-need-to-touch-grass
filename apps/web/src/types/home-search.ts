@@ -72,6 +72,8 @@ export type FormValidationResult = {
   locationError: string;
   /** Error message for the time fields, or empty string if valid. */
   timeError: string;
+  /** Error message for the age bucket field, or empty string if valid. */
+  ageError: string;
   /** Whether the form is completely valid without any errors. */
   isValid: boolean;
 };

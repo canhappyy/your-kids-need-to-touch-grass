@@ -1,9 +1,8 @@
-import { LocateFixed } from "lucide-react";
+import { Loader2, MapPin } from "lucide-react";
 import { RefObject } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 
 /**
  * Props for the `LocationInputField` component.
@@ -26,7 +25,7 @@ export type LocationInputFieldProps = {
 };
 
 /**
- * Form field for entering a suburb/postcode with a GPS geolocation button.
+ * Single-row form field for entering a location with a GPS button, vertical separator, and text input.
  *
  * @param props - Component properties for location input and GPS status.
  */
@@ -40,29 +39,16 @@ export function LocationInputField({
   onLocationChange,
 }: LocationInputFieldProps) {
   return (
-    <div className="mt-5">
-      <Button
-        aria-describedby={gpsStatus ? "location-status" : undefined}
-        className="h-[52px] w-full rounded-xl border-[#93AB63] bg-[#93AB63]/15 text-base font-semibold text-[#93AB63] hover:bg-[#93AB63]/25 hover:text-[#93AB63] focus-visible:border-[#93AB63] focus-visible:ring-[#93AB63]/20"
-        disabled={isLocating}
-        onClick={onUseMyLocation}
-        type="button"
-        variant="outline"
+    <div className="mt-7">
+      <label
+        htmlFor="location"
+        className="mb-2 block text-xs font-medium tracking-wide text-zinc-600 uppercase"
       >
-        <LocateFixed aria-hidden="true" />
-        {isLocating ? "Finding your location…" : "Use my location"}
-      </Button>
+        Location
+      </label>
 
-      <div aria-hidden="true" className="my-4 flex items-center gap-3">
-        <Separator className="flex-1 bg-zinc-200" />
-        <span className="text-xs font-semibold tracking-wider text-zinc-500 uppercase">
-          or
-        </span>
-        <Separator className="flex-1 bg-zinc-200" />
-      </div>
-
-      <div>
-        <Input
+      <div className="flex items-center gap-3">
+        <Button
           aria-describedby={
             locationError
               ? "location-error"
@@ -70,33 +56,76 @@ export function LocationInputField({
                 ? "location-status"
                 : undefined
           }
+          aria-label={isLocating ? "Finding your location…" : "Use my location"}
+          className="size-[52px] shrink-0 rounded-2xl border-[#93AB63]/60 bg-[#93AB63]/15 transition-colors hover:bg-[#93AB63]/25 focus-visible:border-[#93AB63] focus-visible:ring-[#93AB63]/30"
+          disabled={isLocating}
+          onClick={onUseMyLocation}
+          title={isLocating ? "Finding your location…" : "Use my location"}
+          type="button"
+          variant="outline"
+        >
+          {isLocating ? (
+            <Loader2
+              aria-hidden="true"
+              className="size-6 animate-spin text-[#93AB63]"
+            />
+          ) : (
+            <MapPin aria-hidden="true" className="size-6 text-[#93AB63]" />
+          )}
+        </Button>
+
+        <div
+          aria-hidden="true"
+          className="flex shrink-0 flex-col items-center justify-center text-zinc-400 select-none"
+        >
+          <div className="h-3 w-[1.5px] rounded-full bg-zinc-300" />
+          <span className="my-0.5 text-xs font-semibold tracking-wider text-zinc-500 uppercase">
+            or
+          </span>
+          <div className="h-3 w-[1.5px] rounded-full bg-zinc-300" />
+        </div>
+
+        <Input
+          aria-describedby={
+            locationError
+              ? "location-error"
+              : gpsStatus
+                ? "location-status"
+                : "location-hint"
+          }
           aria-invalid={Boolean(locationError)}
           autoComplete="off"
-          className="h-[52px] rounded-xl border-zinc-200 bg-[#F0B6A31F] px-4 text-base placeholder:text-zinc-500 focus-visible:border-[#E4633C] focus-visible:ring-[#E4633C]/20 md:text-base"
+          className="h-[52px] flex-1 rounded-2xl border-zinc-200 bg-[#F0B6A31F] px-4 text-base placeholder:text-zinc-500 focus-visible:border-[#E4633C] focus-visible:ring-[#E4633C]/20 md:text-base"
           id="location"
           maxLength={50}
           name="location"
           onChange={(event) => onLocationChange(event.target.value)}
-          placeholder="Postcode or suburb, e.g. Clayton"
+          placeholder="Enter a location"
           ref={inputRef}
           required
           type="text"
           value={location}
         />
       </div>
+
+      <p id="location-hint" className="mt-2 text-xs text-zinc-500">
+        Address, suburb, or postcode
+      </p>
+
       {locationError && (
         <p
-          className="mt-2 text-sm text-destructive"
+          className="mt-1.5 text-sm text-destructive"
           id="location-error"
           role="alert"
         >
           {locationError}
         </p>
       )}
+
       {gpsStatus && !locationError && (
         <p
           aria-live="polite"
-          className="mt-2 text-sm text-emerald-700"
+          className="mt-1.5 text-sm text-emerald-700"
           id="location-status"
           role="status"
         >

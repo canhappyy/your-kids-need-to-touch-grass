@@ -17,6 +17,8 @@ export type MissionWeather =
       summary: string;
       /** Severity rating: "severe" triggers warning callouts for storms or high wind gusts, while "regular" indicates standard conditions. */
       severity: "regular" | "severe";
+      /** Dominant WMO weather interpretation code (0-99). */
+      weatherCode?: number;
       /** ISO 8601 timestamp representing the start time of the outing (when the user leaves). */
       startsAt: string;
       /** ISO 8601 timestamp representing the end time of the outing (when the user returns, including commute). */

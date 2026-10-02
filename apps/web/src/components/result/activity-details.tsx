@@ -1,4 +1,8 @@
-import { MapPin, Timer } from "lucide-react";
+import { MapPin, Timer, TriangleAlert } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+import { getWeatherPresentation } from "@/lib/weather-presentation";
+import type { MissionWeather } from "@/types/weather";
 
 /**
  * Props for the `ActivityDetails` component.
@@ -12,22 +16,34 @@ export type ActivityDetailsProps = {
   formattedCommuteDuration: string | null;
   /** Formatted standalone activity duration string (e.g. "30 minutes"). */
   formattedDuration: string;
-  /** Number of activities represented by formattedDuration. */
-  activityCount?: number;
+  /** Weather forecast details for the outing, or undefined. */
+  weather?: MissionWeather;
+  /** Whether the activity is home-based or venue-free. When true, weather details are hidden. */
+  isHomeBased?: boolean;
 };
 
 /**
- * Metadata list displaying location details and time breakdowns (commute vs activity duration).
+ * Metadata list displaying location details, time breakdowns, and weather conditions.
  *
- * @param props - Component properties configuring location and duration strings.
+ * @param props - Component properties configuring location, duration, and weather.
  */
 export function ActivityDetails({
   locationLabel,
   formattedDuration,
   formattedTotalDuration,
   formattedCommuteDuration,
-  activityCount = 1,
+  weather,
+  isHomeBased = false,
 }: ActivityDetailsProps) {
+  const showWeather = !isHomeBased;
+  const {
+    Icon: WeatherIcon,
+    headline,
+    isAvailable,
+    isSevere,
+    tips,
+  } = getWeatherPresentation(weather);
+
   return (
     <dl className="mt-7 space-y-6">
       <div className="grid grid-cols-[24px_1fr_24px] items-center gap-3">
@@ -64,13 +80,60 @@ export function ActivityDetails({
           {formattedCommuteDuration !== null && (
             <dd className="mt-2 space-y-1 text-sm text-zinc-600">
               <p>
-                {formattedDuration} {activityCount === 1 ? "activity" : "activities"} · ~{formattedCommuteDuration}{" "}
+                {formattedDuration} activity · ~{formattedCommuteDuration}{" "}
                 round-trip walk
               </p>
             </dd>
           )}
         </div>
       </div>
+
+      {showWeather && (
+        <div className="grid grid-cols-[24px_1fr_24px] items-center gap-3">
+          <WeatherIcon
+            aria-hidden="true"
+            className={cn("size-5", isSevere ? "text-amber-600" : "text-zinc-500")}
+            strokeWidth={1.75}
+          />
+          <div className="col-start-2 text-center">
+            <dt className="text-xs font-medium tracking-wide text-zinc-500 uppercase">
+              Weather
+            </dt>
+            <dd className="mt-1 text-lg leading-tight font-semibold text-zinc-900">
+              {headline}
+            </dd>
+            {isSevere && (
+              <dd className="mt-2 flex items-center justify-center gap-1.5 text-sm font-semibold text-amber-800">
+                <TriangleAlert
+                  aria-hidden="true"
+                  className="size-4 shrink-0 text-amber-600"
+                />
+                <span>Weather caution</span>
+              </dd>
+            )}
+            {tips.length > 0 && (
+              <dd className="mt-2 space-y-1 text-sm text-zinc-600">
+                {tips.map((tip, index) => (
+                  <p key={index}>{tip}</p>
+                ))}
+              </dd>
+            )}
+            {isAvailable && (
+              <dd className="mt-2">
+                <a
+                  href="https://open-meteo.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="relative z-20 text-xs text-zinc-500 underline underline-offset-4 hover:text-zinc-700"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Weather data by Open-Meteo
+                </a>
+              </dd>
+            )}
+          </div>
+        </div>
+      )}
     </dl>
   );
 }

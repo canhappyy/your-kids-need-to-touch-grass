@@ -74,6 +74,7 @@ export function useHomeSearchForm({
   const [minutes, setMinutes] = useState(initialValues.minutes);
   const [locationError, setLocationError] = useState(initialLocationError);
   const [timeError, setTimeError] = useState("");
+  const [ageError, setAgeError] = useState("");
   const [isLocating, setIsLocating] = useState(false);
   const [gpsStatus, setGpsStatus] = useState("");
   const locationInputRef = useRef<HTMLInputElement>(null);
@@ -156,6 +157,9 @@ export function useHomeSearchForm({
 
   const handleSelectedBucketsChange = useCallback((buckets: AgeBucketId[]) => {
     setSelectedBuckets(buckets);
+    if (buckets.length > 0) {
+      setAgeError("");
+    }
   }, []);
 
   const handleHoursChange = useCallback((value: number) => {
@@ -177,10 +181,12 @@ export function useHomeSearchForm({
         location,
         locationMode,
         minutes,
+        selectedBuckets,
       });
 
       setLocationError(validation.locationError);
       setTimeError(validation.timeError);
+      setAgeError(validation.ageError);
 
       if (!validation.isValid) return;
 
@@ -216,6 +222,7 @@ export function useHomeSearchForm({
   );
 
   return {
+    ageError,
     deviceCoords,
     playStyle,
     canSupervise,

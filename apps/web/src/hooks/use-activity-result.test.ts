@@ -44,6 +44,7 @@ describe("activity timing presentation", () => {
         formattedCommuteDuration: nearby ? "22 mins" : null,
         dailyGoalPercentage: 33,
         progressValue: 33,
+        isHomeBased: !nearby,
       });
       return null;
     }
