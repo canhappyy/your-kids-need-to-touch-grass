@@ -140,6 +140,43 @@ describe("weather-presentation utilities", () => {
         }),
       ).toBe(Wind);
     });
+
+    it("resolves Wind icon for strong winds even with a clear weatherCode", () => {
+      expect(
+        getWeatherIcon({
+          status: "available",
+          severity: "severe",
+          summary: "Strong winds expected.",
+          weatherCode: 0,
+          startsAt: "",
+          endsAt: "",
+        }),
+      ).toBe(Wind);
+    });
+
+    it("resolves CloudSun instead of pure Sun when clear skies has rain gear advice", () => {
+      expect(
+        getWeatherIcon({
+          status: "available",
+          severity: "regular",
+          summary: "Clear skies. Bring an umbrella or rain jacket.",
+          weatherCode: 0,
+          startsAt: "",
+          endsAt: "",
+        }),
+      ).toBe(CloudSun);
+
+      expect(
+        getWeatherIcon({
+          status: "available",
+          severity: "regular",
+          summary: "Mainly clear. Bring an umbrella or rain jacket.",
+          weatherCode: 1,
+          startsAt: "",
+          endsAt: "",
+        }),
+      ).toBe(CloudSun);
+    });
   });
 
   describe("getWeatherPresentation", () => {

@@ -82,7 +82,7 @@ const conditions: Record<number, { label: string; priority: number }> = {
  *    Either hazard escalates the outing's severity status to `"severe"`.
  * 5. Practical Advice:
  *    - Sunscreen: Suggested if the UV index is 3 or higher, in line with Australian SunSmart guidelines.
- *    - Rain gear: Suggested if the probability of precipitation reaches 30% or higher.
+ *    - Rain gear: Suggested if the probability of precipitation reaches 50% or higher.
  *
  * @param hourly - Raw hourly weather forecast data.
  * @param start - Outing start time in epoch milliseconds.
@@ -129,7 +129,7 @@ export function summarizeWeather(
     storm ||= [95, 96, 99].includes(hourly.weather_code[index]);
     wind ||= hourly.wind_gusts_10m[index] >= 50;
     sunscreen ||= hourly.uv_index[index] >= 3;
-    umbrella ||= hourly.precipitation_probability[index] >= 30;
+    umbrella ||= hourly.precipitation_probability[index] >= 50;
   }
   if (coveredUntil < end) return { status: "unavailable" };
   const messages = [

@@ -41,10 +41,36 @@ export function getWeatherIcon(weather?: MissionWeather): LucideIcon {
   }
 
   const { weatherCode, summary } = weather;
+  const lower = summary.toLowerCase();
+  const headline = lower.split(".")[0]?.trim() ?? "";
+  const hasRainAdvice =
+    lower.includes("umbrella") || lower.includes("rain jacket");
 
+  // 1. Severe storms always take top priority
+  if (
+    (typeof weatherCode === "number" && weatherCode >= 95) ||
+    headline.includes("thunderstorm")
+  ) {
+    return CloudLightning;
+  }
+
+  // 2. Strong winds warning or severe wind caution
+  if (
+    headline.startsWith("strong winds") ||
+    (weather.severity === "severe" && headline.includes("wind")) ||
+    headline.includes("wind")
+  ) {
+    return Wind;
+  }
+
+  // 3. Exact weatherCode checks when available
   if (typeof weatherCode === "number") {
     // 0: Clear sky, 1: Mainly clear
-    if (weatherCode === 0 || weatherCode === 1) return Sun;
+    if (weatherCode === 0 || weatherCode === 1) {
+      // If rain gear is advised on a clear day, show CloudSun so parents
+      // don't see a contradictory bright Sun icon alongside rain advice.
+      return hasRainAdvice ? CloudSun : Sun;
+    }
     // 2: Partly cloudy
     if (weatherCode === 2) return CloudSun;
     // 3: Overcast / Cloudy
@@ -67,23 +93,22 @@ export function getWeatherIcon(weather?: MissionWeather): LucideIcon {
     ) {
       return CloudSnow;
     }
-    // 95-99: Thunderstorms
-    if (weatherCode >= 95) return CloudLightning;
   }
 
-  // Fallback to text analysis of summary if code is missing or undefined
-  const lower = summary.toLowerCase();
-  if (lower.includes("thunderstorm")) return CloudLightning;
-  if (lower.includes("snow")) return CloudSnow;
-  if (lower.includes("drizzle")) return CloudDrizzle;
-  if (lower.includes("rain") || lower.includes("shower")) return CloudRain;
-  if (lower.includes("wind")) return Wind;
-  if (lower.includes("fog")) return CloudFog;
-  if (lower.includes("partly cloudy")) return CloudSun;
-  if (lower.includes("cloudy") || lower.includes("overcast")) return Cloud;
-  if (lower.includes("clear") || lower.includes("sun")) return Sun;
+  // 4. Fallback keyword checks on headline if weatherCode is missing
+  if (headline.includes("snow")) return CloudSnow;
+  if (headline.includes("rain") || headline.includes("shower")) {
+    return CloudRain;
+  }
+  if (headline.includes("drizzle")) return CloudDrizzle;
+  if (headline.includes("fog")) return CloudFog;
+  if (headline.includes("partly cloudy")) return CloudSun;
+  if (headline.includes("cloudy") || headline.includes("overcast")) return Cloud;
+  if (headline.includes("clear") || headline.includes("sun")) {
+    return hasRainAdvice ? CloudSun : Sun;
+  }
 
-  return CloudSun;
+  return hasRainAdvice ? CloudSun : Sun;
 }
 
 /**

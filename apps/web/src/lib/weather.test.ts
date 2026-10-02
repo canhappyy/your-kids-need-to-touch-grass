@@ -5,7 +5,7 @@ const start = Date.parse("2026-09-13T13:30:00Z"); // 23:30 in Melbourne
 const forecast = {
   time: [start / 1000 - 1800, start / 1000 + 1800],
   weather_code: [0, 3],
-  precipitation_probability: [0, 30],
+  precipitation_probability: [0, 50],
   uv_index: [0, 3],
   wind_gusts_10m: [10, 49],
 };
@@ -28,6 +28,12 @@ describe("weather rules", () => {
       status: "available",
       severity: "regular",
       summary: "Cloudy. High UV: bring sunscreen. Bring an umbrella or rain jacket.",
+    });
+  });
+  it("omits umbrella recommendation when precipitation probability is below 50%", () => {
+    const dryForecast = { ...forecast, precipitation_probability: [0, 49] };
+    expect(summarizeWeather(dryForecast, start, start + 3600000)).toMatchObject({
+      summary: "Cloudy. High UV: bring sunscreen.",
     });
   });
   it("does not include an hour beginning exactly at the end", () => {
