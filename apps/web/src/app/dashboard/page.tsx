@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { TopNav } from "@/components/layout/top-nav";
 import { DashboardSection } from "@/components/dashboard";
 
 /**
@@ -14,7 +15,8 @@ export const metadata: Metadata = {
  */
 export default function DashboardPage() {
   return (
-    <main className="relative min-h-svh bg-[#FDF6EA] px-5 pt-8 pb-24 text-zinc-900 sm:px-8 sm:pt-12">
+    <main className="relative min-h-svh bg-[#FDF6EA] px-5 pt-16 pb-24 text-zinc-900 sm:px-8 sm:pt-20">
+      <TopNav showHistory />
       <div className="mx-auto w-full max-w-5xl">
         <DashboardSection />
       </div>
