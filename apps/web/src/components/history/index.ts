@@ -7,6 +7,7 @@ export { HistoryList } from "./history-list";
 export { HistoryLoadingState } from "./history-loading-state";
 export { HistoryOverlay } from "./history-overlay";
 export { HistorySection } from "./history-section";
+export { SavedActivityItem } from "./saved-activity-item";
 
 export type { ClearHistoryDialogProps } from "./clear-history-dialog";
 export type { HistoryEmptyStateProps } from "./history-empty-state";
@@ -16,3 +17,4 @@ export type { HistoryItemProps } from "./history-item";
 export type { HistoryListProps } from "./history-list";
 export type { HistoryOverlayProps } from "./history-overlay";
 export type { HistorySectionProps } from "./history-section";
+export type { SavedActivityItemProps } from "./saved-activity-item";

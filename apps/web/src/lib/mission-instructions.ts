@@ -19,3 +19,22 @@ export function getMissionSteps(instructionText: string | null): string[] {
     )
     .filter(Boolean);
 }
+
+/**
+ * Parses raw equipment needed text into an array of clean equipment item strings.
+ *
+ * Handles pipe-separated (`|`) items, trims whitespace, and excludes empty or literal "None" values.
+ *
+ * @param equipmentNeeded - Raw equipment string from the database, or null/undefined.
+ * @returns An array of sanitized, non-empty equipment item strings.
+ */
+export function getEquipmentList(
+  equipmentNeeded: string | null | undefined,
+): string[] {
+  if (!equipmentNeeded) return [];
+
+  return equipmentNeeded
+    .split("|")
+    .map((item) => item.trim())
+    .filter((item) => Boolean(item) && item.toLowerCase() !== "none");
+}

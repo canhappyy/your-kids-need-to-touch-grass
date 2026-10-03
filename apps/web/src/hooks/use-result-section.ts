@@ -1,13 +1,7 @@
 "use client";
 
 import { readPlayPreferences } from "@/lib/play-preferences";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import {
@@ -203,6 +197,13 @@ export function useResultSection() {
 
       if (parsedResult.type === "error") {
         throw new Error(parsedResult.message);
+      }
+
+      if (
+        parsedResult.recommendation &&
+        !parsedResult.recommendation.requestId
+      ) {
+        parsedResult.recommendation.requestId = crypto.randomUUID();
       }
 
       return parsedResult.recommendation;

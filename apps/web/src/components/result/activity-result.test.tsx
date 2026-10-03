@@ -66,7 +66,7 @@ describe("ActivityResult", () => {
     expect(markup).toContain("Cloudy");
     expect(markup).toContain("Bring a rain jacket.");
     expect(markup).toContain("Weather data by Open-Meteo");
-    expect(markup).toContain("Mark completed");
+    expect(markup).toContain("Save this activity");
     expect(markup).toContain("How to Play");
     expect(markup).toContain("Get Directions");
     expect(markup).toContain("Give me another");

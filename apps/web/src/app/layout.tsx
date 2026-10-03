@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Comfortaa, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { BottomNav } from "@/components/layout/bottom-nav";
 import { cn } from "@/lib/utils";
 
 const comfortaa = Comfortaa({
@@ -39,7 +40,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         geistMono.variable,
       )}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <BottomNav />
+      </body>
     </html>
   );
 }

@@ -97,7 +97,6 @@ export type RecommendationQuery = PlayPreferences & {
   missionId?: string;
 };
 
-
 /**
  * Query criteria for finding a home-based or location-agnostic fallback recommendation.
  */
@@ -115,6 +114,8 @@ export type FallbackRecommendationQuery = Omit<
  * Complete recommendation response object including activity details, match reasons, and venue.
  */
 export type Recommendation = RecommendationTiming & {
+  /** Optional unique identifier for this recommendation request/result instance. */
+  requestId?: string;
   /** Added by the API after selection; absent on unenriched service results. */
   weather?: MissionWeather;
   /** Unique mission identifier. */

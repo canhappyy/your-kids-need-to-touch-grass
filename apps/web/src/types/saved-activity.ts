@@ -1,20 +1,19 @@
 /**
- * Record of a completed activity mission stored in local browser history.
+ * Record of a saved activity mission in the user's backlog.
  */
-export type CompletedMission = {
+export type SavedActivity = {
   /** Unique client-side record identifier (UUID). */
   id: string;
   /** Activity database mission identifier (e.g. "MIS-001"). */
   missionId: string;
-  /** Human-readable title of the completed activity. */
+  /** Human-readable title of the saved activity. */
   name: string;
-  /** ISO 8601 timestamp string indicating when the mission was marked complete. */
-  completedAt: string;
-  /** Activity duration in minutes (excludes walking commute). */
+  /** ISO 8601 timestamp string indicating when the activity was saved. */
+  savedAt: string;
+  /** Activity duration in minutes. */
   durationMinutes: number;
   /** Activity instructions text, or null. */
   instructionText?: string | null;
   /** Activity equipment needed text, or null. */
   equipmentNeeded?: string | null;
 };
-

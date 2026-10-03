@@ -9,7 +9,7 @@ type HistoryHeaderProps = {
 };
 
 /**
- * Header section for the history page, displaying the main page title
+ * Header section for the activity backlog, displaying the main page title
  * and an informative subtext clarifying that records are stored locally on the device.
  */
 export function HistoryHeader({ headingRef }: HistoryHeaderProps) {
@@ -20,11 +20,10 @@ export function HistoryHeader({ headingRef }: HistoryHeaderProps) {
         tabIndex={-1}
         className="text-3xl font-bold outline-none"
       >
-        Completed missions
+        Activity backlog
       </h1>
       <p className="text-sm text-zinc-600">
-        Saved only in this browser. Durations show activity time, excluding
-        travel.
+        Saved and completed activities on this device.
       </p>
     </header>
   );

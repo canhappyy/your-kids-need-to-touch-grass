@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import {
+  BACKLOG_CHANGE_EVENT,
   clearCompletedMissions,
   HISTORY_KEY,
   readCompletedMissions,
@@ -47,10 +48,15 @@ export function useCompletedMissions() {
     const onStorage = (event: StorageEvent) => {
       if (event.key === HISTORY_KEY || event.key === null) refresh();
     };
+    const onCustomEvent = () => refresh();
+
     window.addEventListener("storage", onStorage);
+    window.addEventListener(BACKLOG_CHANGE_EVENT, onCustomEvent);
+
     return () => {
       active = false;
       window.removeEventListener("storage", onStorage);
+      window.removeEventListener(BACKLOG_CHANGE_EVENT, onCustomEvent);
     };
   }, [refresh]);
 
