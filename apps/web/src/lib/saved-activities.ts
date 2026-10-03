@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   dispatchBacklogChangeEvent,
+  isMissionCompleted,
   saveCompletedMission,
 } from "@/lib/completed-missions";
 import type { CompletedMission } from "@/types/completed-mission";
@@ -38,28 +39,46 @@ export function readSavedActivities(
   const raw = store.getItem(SAVED_ACTIVITIES_KEY);
   if (raw === null) return [];
   const records = z.array(savedActivitySchema).parse(JSON.parse(raw));
-  return records.sort(
-    (a, b) => Date.parse(b.savedAt) - Date.parse(a.savedAt),
-  );
+  return records.sort((a, b) => Date.parse(b.savedAt) - Date.parse(a.savedAt));
 }
 
 /**
- * Checks whether an activity with the specified mission ID is already saved.
+ * Checks whether an activity with the specified mission ID is currently saved.
  *
  * @param missionId - Activity mission identifier (e.g. "MIS-001").
  * @param store - Storage backend to read from.
- * @returns True if already saved in client storage.
+ * @returns True if saved in client storage.
  */
 export function isActivitySaved(
   missionId: string,
   store: ActivityStorage = window.localStorage,
 ): boolean {
-  return readSavedActivities(store).some((item) => item.missionId === missionId);
+  return readSavedActivities(store).some(
+    (item) => item.missionId === missionId,
+  );
+}
+
+/**
+ * Checks whether an activity is in the backlog (either saved or completed).
+ *
+ * @param missionId - Activity mission identifier (e.g. "MIS-001").
+ * @param store - Storage backend to read from.
+ * @returns True if saved or marked completed in client storage.
+ */
+export function isActivityInBacklog(
+  missionId: string,
+  store: ActivityStorage = window.localStorage,
+): boolean {
+  return (
+    isActivitySaved(missionId, store) || isMissionCompleted(missionId, store)
+  );
 }
 
 /**
  * Validates and saves an activity to client storage.
- * Avoids duplicate entries if the activity is already saved.
+ *
+ * Allows duplicate activities for the same mission from different search results,
+ * preventing only duplicate saves of the identical record ID.
  *
  * @param activity - The activity record to save.
  * @param store - Storage backend to write to.
@@ -70,7 +89,7 @@ export function saveActivity(
 ): void {
   const valid = savedActivitySchema.parse(activity);
   const records = readSavedActivities(store);
-  if (records.some((item) => item.missionId === valid.missionId || item.id === valid.id)) {
+  if (records.some((item) => item.id === valid.id)) {
     return;
   }
   store.setItem(SAVED_ACTIVITIES_KEY, JSON.stringify([...records, valid]));
@@ -80,6 +99,9 @@ export function saveActivity(
 /**
  * Removes an activity from saved activities in client storage.
  *
+ * If an exact record ID match exists, only that specific saved activity
+ * is removed, preserving any duplicate saved instances.
+ *
  * @param idOrMissionId - The unique item ID or mission ID to remove.
  * @param store - Storage backend to update.
  */
@@ -88,9 +110,10 @@ export function removeSavedActivity(
   store: ActivityStorage = window.localStorage,
 ): void {
   const records = readSavedActivities(store);
-  const updated = records.filter(
-    (item) => item.id !== idOrMissionId && item.missionId !== idOrMissionId,
-  );
+  const hasExactId = records.some((item) => item.id === idOrMissionId);
+  const updated = hasExactId
+    ? records.filter((item) => item.id !== idOrMissionId)
+    : records.filter((item) => item.missionId !== idOrMissionId);
   store.setItem(SAVED_ACTIVITIES_KEY, JSON.stringify(updated));
   dispatchBacklogChangeEvent();
 }
@@ -123,7 +146,8 @@ export function moveSavedToCompleted(
 ): CompletedMission | null {
   const records = readSavedActivities(store);
   const target = records.find(
-    (item) => item.id === savedIdOrMissionId || item.missionId === savedIdOrMissionId,
+    (item) =>
+      item.id === savedIdOrMissionId || item.missionId === savedIdOrMissionId,
   );
   if (!target) return null;
 

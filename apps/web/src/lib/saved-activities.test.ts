@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   clearSavedActivities,
+  isActivityInBacklog,
   isActivitySaved,
   moveSavedToCompleted,
   readSavedActivities,
@@ -52,10 +53,18 @@ describe("saved-activities", () => {
     });
   });
 
-  it("prevents duplicate saves with same mission ID", () => {
+  it("allows duplicate saves with same mission ID and distinct record IDs", () => {
     const storage = createMockStorage();
     saveActivity(sampleActivity, storage);
     saveActivity({ ...sampleActivity, id: "save-2" }, storage);
+
+    expect(readSavedActivities(storage)).toHaveLength(2);
+  });
+
+  it("prevents saving duplicate record with identical record ID", () => {
+    const storage = createMockStorage();
+    saveActivity(sampleActivity, storage);
+    saveActivity(sampleActivity, storage);
 
     expect(readSavedActivities(storage)).toHaveLength(1);
   });
@@ -67,6 +76,18 @@ describe("saved-activities", () => {
 
     expect(readSavedActivities(storage)).toEqual([]);
     expect(isActivitySaved("MIS-001", storage)).toBe(false);
+  });
+
+  it("removes a specific saved activity instance without removing other duplicates", () => {
+    const storage = createMockStorage();
+    saveActivity(sampleActivity, storage);
+    saveActivity({ ...sampleActivity, id: "save-2" }, storage);
+
+    removeSavedActivity("save-1", storage);
+    const remaining = readSavedActivities(storage);
+    expect(remaining).toHaveLength(1);
+    expect(remaining[0]?.id).toBe("save-2");
+    expect(isActivitySaved("MIS-001", storage)).toBe(true);
   });
 
   it("clears all saved activities", () => {
@@ -97,5 +118,22 @@ describe("saved-activities", () => {
     expect(completedMissions).toHaveLength(1);
     expect(completedMissions[0]?.missionId).toBe("MIS-001");
     expect(completedMissions[0]?.name).toBe("Nature Scavenger Hunt");
+  });
+
+  it("identifies activity as in backlog if either saved or completed", () => {
+    const storage = createMockStorage();
+    expect(isActivityInBacklog("MIS-001", storage)).toBe(false);
+
+    // 1. Saved
+    saveActivity(sampleActivity, storage);
+    expect(isActivityInBacklog("MIS-001", storage)).toBe(true);
+
+    // 2. Moved to completed
+    moveSavedToCompleted("save-1", storage);
+    expect(isActivityInBacklog("MIS-001", storage)).toBe(true);
+
+    // 3. Removed from both
+    clearSavedActivities(storage);
+    expect(isActivityInBacklog("MIS-001", storage)).toBe(true); // still in completed!
   });
 });

@@ -11,8 +11,15 @@ type HistoryStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 export const BACKLOG_CHANGE_EVENT = "playgo:backlog-change";
 
 export function dispatchBacklogChangeEvent(): void {
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(new Event(BACKLOG_CHANGE_EVENT));
+  if (
+    typeof window !== "undefined" &&
+    typeof window.dispatchEvent === "function"
+  ) {
+    try {
+      window.dispatchEvent(new Event(BACKLOG_CHANGE_EVENT));
+    } catch {
+      // ignore
+    }
   }
 }
 
@@ -43,6 +50,22 @@ export function readCompletedMissions(
   const records = z.array(recordSchema).parse(JSON.parse(raw));
   return records.sort(
     (a, b) => Date.parse(b.completedAt) - Date.parse(a.completedAt),
+  );
+}
+
+/**
+ * Checks whether a mission with the specified ID has been completed.
+ *
+ * @param missionId - Mission identifier.
+ * @param store - Storage backend to read from.
+ * @returns True if already recorded in completed missions.
+ */
+export function isMissionCompleted(
+  missionId: string,
+  store: HistoryStorage = window.localStorage,
+): boolean {
+  return readCompletedMissions(store).some(
+    (item) => item.missionId === missionId,
   );
 }
 
