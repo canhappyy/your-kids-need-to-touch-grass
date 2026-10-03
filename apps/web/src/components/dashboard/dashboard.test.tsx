@@ -102,7 +102,7 @@ describe("parent dashboard", () => {
       }),
     );
 
-    expect(markup).toContain("Today&#x27;s goal reached—great work!");
+    expect(markup).toContain("Today&#x27;s goal reached - great work!");
     expect(markup).not.toContain("Every 15 minutes");
   });
 
