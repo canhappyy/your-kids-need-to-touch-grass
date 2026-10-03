@@ -2,7 +2,7 @@ import { createElement } from "react"
 import { renderToStaticMarkup } from "react-dom/server"
 import { afterEach, expect, it, vi } from "vitest"
 import { useMissionCompletion } from "./use-mission-completion"
-import { readCompletedMissions } from "@/lib/completed-missions"
+import { readSavedActivities } from "@/lib/saved-activities"
 import type { Recommendation } from "@/types/recommendation"
 
 const mission: Recommendation = {
@@ -30,7 +30,7 @@ it.each([false, true])("guards duplicate clicks and replacement: retrying %s", r
   renderToStaticMarkup(createElement(Probe))
   complete()
   complete()
-  const records = readCompletedMissions(storage)
+  const records = readSavedActivities(storage)
   expect(records).toHaveLength(retrying ? 0 : 1)
   if (!retrying) expect(records[0]).toMatchObject({ missionId: "test", name: "Play", durationMinutes: 15 })
 })

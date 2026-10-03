@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useMissionCompletion } from "@/hooks/use-mission-completion";
+import { useSaveActivity } from "@/hooks/use-save-activity";
 import type { Recommendation } from "@/types/recommendation";
 
 /**
@@ -15,7 +15,7 @@ export type MissionCompletionProps = {
 };
 
 /**
- * Interactive button component allowing parents to mark an activity as completed and save it to history.
+ * Interactive button component allowing parents to save an activity to their backlog.
  *
  * @param props - Component properties with recommendation details and retry state.
  */
@@ -23,7 +23,7 @@ export function MissionCompletion({
   recommendation,
   isRetrying,
 }: MissionCompletionProps) {
-  const { complete, completed, error } = useMissionCompletion(
+  const { save, isSaved, error } = useSaveActivity(
     recommendation,
     isRetrying,
   );
@@ -31,14 +31,14 @@ export function MissionCompletion({
     <div className="space-y-2">
       <Button
         className="h-12 w-full rounded-full"
-        disabled={completed || isRetrying}
-        onClick={complete}
+        disabled={isSaved || isRetrying}
+        onClick={save}
       >
-        {completed ? "Completed" : "Mark completed"}
+        {isSaved ? "Saved" : "Save this activity"}
       </Button>
-      {completed && (
+      {isSaved && (
         <p role="status" className="text-center text-sm text-zinc-600">
-          Saved to your history.
+          Saved to your backlog.
         </p>
       )}
       {error && (
