@@ -15,8 +15,25 @@ const hookState = vi.hoisted(() => ({
   },
 }));
 
+const rewardHookState = vi.hoisted(() => ({
+  current: {
+    rewards: {
+      currentStreak: 0,
+      lastCompletedDate: null,
+      unlockedBadgeIds: [],
+    },
+    loading: false,
+    error: "",
+    refresh: vi.fn(),
+  },
+}));
+
 vi.mock("@/hooks/use-completed-missions", () => ({
   useCompletedMissions: () => hookState.current,
+}));
+
+vi.mock("@/hooks/use-rewards", () => ({
+  useRewards: () => rewardHookState.current,
 }));
 
 const stats: DashboardStats = {
@@ -43,6 +60,16 @@ beforeEach(() => {
     refresh: vi.fn(),
     clear: vi.fn(),
   };
+  rewardHookState.current = {
+    rewards: {
+      currentStreak: 0,
+      lastCompletedDate: null,
+      unlockedBadgeIds: [],
+    },
+    loading: false,
+    error: "",
+    refresh: vi.fn(),
+  };
 });
 
 describe("parent dashboard", () => {
@@ -55,6 +82,17 @@ describe("parent dashboard", () => {
     expect(markup).toContain("Weekly Trends");
     expect(markup).toContain("0 active minutes in the last 7 days");
     expect(markup).toContain("26% of Australian children");
+    expect(markup).toContain("0 day streak");
+    expect(markup).toContain("Wildlife rewards");
+  });
+
+  it("keeps the dashboard skeleton visible while rewards hydrate", () => {
+    rewardHookState.current = { ...rewardHookState.current, loading: true };
+
+    const markup = renderToStaticMarkup(createElement(DashboardSection));
+
+    expect(markup).toContain('aria-label="Loading dashboard activity"');
+    expect(markup).not.toContain("Daily View");
   });
 
   it("renders a loading skeleton while local history hydrates", () => {
@@ -63,6 +101,19 @@ describe("parent dashboard", () => {
     const markup = renderToStaticMarkup(createElement(DashboardSection));
 
     expect(markup).toContain('aria-label="Loading dashboard activity"');
+    expect(markup).not.toContain("Daily View");
+  });
+
+  it("renders a reward-storage error instead of dashboard cards", () => {
+    rewardHookState.current = {
+      ...rewardHookState.current,
+      error: "Rewards could not be read. Browser storage may be unavailable or damaged.",
+    };
+
+    const markup = renderToStaticMarkup(createElement(DashboardSection));
+
+    expect(markup).toContain('role="alert"');
+    expect(markup).toContain("Rewards could not be read");
     expect(markup).not.toContain("Daily View");
   });
 
