@@ -92,7 +92,7 @@ function HomeSearchForm({
 
       <div className="mt-auto pt-16 text-center">
         <Button
-          className="h-12 w-full rounded-full bg-indigo-400 px-6 text-base font-bold text-white hover:bg-indigo-500"
+          className="h-12 w-full rounded-full bg-[#7B8FD6] px-6 text-base font-bold text-white hover:bg-[#6b7ec6]"
           size="lg"
           type="submit"
         >
