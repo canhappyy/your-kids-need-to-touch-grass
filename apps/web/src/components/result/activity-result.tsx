@@ -85,6 +85,7 @@ function ActivityResult({
           onTryAnother={onTryAnother}
         />
         <MissionInstructionsDialog
+          equipmentNeeded={recommendation.equipmentNeeded}
           instructionText={recommendation.instructionText}
           title={recommendation.title}
         />
