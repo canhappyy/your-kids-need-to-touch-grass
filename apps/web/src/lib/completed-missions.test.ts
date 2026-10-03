@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   readCompletedMissions,
   saveCompletedMission,
@@ -7,6 +7,7 @@ import {
   isMissionCompleted,
   HISTORY_KEY,
 } from "./completed-missions";
+import { REWARDS_KEY, readRewards } from "./rewards";
 
 function storage() {
   const values = new Map<string, string>();
@@ -28,6 +29,10 @@ const first = {
   durationMinutes: 20,
 };
 
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
 describe("local completion history", () => {
   it("persists repeated missions and reads newest first", () => {
     const store = storage();
@@ -48,6 +53,56 @@ describe("local completion history", () => {
     saveCompletedMission(first, store);
     expect(readCompletedMissions(store)).toEqual([first]);
   });
+  it("reconciles rewards from the full history after new completions", () => {
+    const store = storage();
+    const now = new Date(2026, 9, 3, 20);
+
+    saveCompletedMission(
+      { ...first, id: "today-one", completedAt: new Date(2026, 9, 3, 8).toISOString() },
+      store,
+      now,
+    );
+    saveCompletedMission(
+      { ...first, id: "today-two", completedAt: new Date(2026, 9, 3, 16).toISOString() },
+      store,
+      now,
+    );
+
+    expect(readRewards(store)?.currentStreak).toBe(1);
+  });
+  it("does not reconcile or dispatch for duplicate completion ids", () => {
+    const store = storage();
+    const dispatchEvent = vi.fn();
+    vi.stubGlobal("window", { dispatchEvent });
+    const now = new Date(2026, 9, 3, 20);
+    const record = {
+      ...first,
+      id: "today",
+      completedAt: new Date(2026, 9, 3, 8).toISOString(),
+    };
+
+    saveCompletedMission(record, store, now);
+    saveCompletedMission(record, store, now);
+
+    expect(dispatchEvent).toHaveBeenCalledTimes(1);
+    expect(readRewards(store)?.currentStreak).toBe(1);
+  });
+  it("dispatches backlog changes only after history and rewards are written", () => {
+    const store = storage();
+    let stateAtDispatch = null;
+    let historyLengthAtDispatch = 0;
+    const dispatchEvent = vi.fn(() => {
+      stateAtDispatch = readRewards(store);
+      historyLengthAtDispatch = readCompletedMissions(store).length;
+      return true;
+    });
+    vi.stubGlobal("window", { dispatchEvent });
+
+    saveCompletedMission(first, store, new Date(2026, 8, 12, 20));
+
+    expect(stateAtDispatch).toMatchObject({ currentStreak: 1 });
+    expect(historyLengthAtDispatch).toBe(1);
+  });
   it("clears only history", () => {
     const store = storage();
     store.setItem("other", "keep");
@@ -55,6 +110,74 @@ describe("local completion history", () => {
     clearCompletedMissions(store);
     expect(readCompletedMissions(store)).toEqual([]);
     expect(store.getItem("other")).toBe("keep");
+  });
+  it("clears streak dates while preserving unlocked badges", () => {
+    const store = storage();
+    store.setItem(
+      REWARDS_KEY,
+      JSON.stringify({
+        currentStreak: 3,
+        lastCompletedDate: "2026-10-03",
+        unlockedBadgeIds: ["koala"],
+      }),
+    );
+
+    clearCompletedMissions(store);
+
+    expect(readRewards(store)).toEqual({
+      currentStreak: 0,
+      lastCompletedDate: null,
+      unlockedBadgeIds: ["koala"],
+    });
+  });
+  it("does not change history when reward storage is corrupt", () => {
+    const store = storage();
+    const originalHistory = JSON.stringify([first]);
+    store.setItem(HISTORY_KEY, originalHistory);
+    store.setItem(REWARDS_KEY, "{");
+
+    expect(() =>
+      saveCompletedMission(
+        { ...first, id: "2" },
+        store,
+        new Date(2026, 8, 12, 20),
+      ),
+    ).toThrow();
+    expect(store.getItem(HISTORY_KEY)).toBe(originalHistory);
+    expect(() => clearCompletedMissions(store)).toThrow();
+    expect(store.getItem(HISTORY_KEY)).toBe(originalHistory);
+    expect(store.getItem(REWARDS_KEY)).toBe("{");
+  });
+  it("rolls history back when the reward write fails", () => {
+    const store = storage();
+    const baseSetItem = store.setItem;
+    store.setItem(
+      REWARDS_KEY,
+      JSON.stringify({
+        currentStreak: 1,
+        lastCompletedDate: "2026-10-03",
+        unlockedBadgeIds: [],
+      }),
+    );
+    store.setItem = (key, value) => {
+      if (key === REWARDS_KEY) throw new Error("Reward write blocked");
+      return baseSetItem(key, value);
+    };
+
+    expect(() =>
+      saveCompletedMission(
+        { ...first, completedAt: new Date(2026, 9, 4, 8).toISOString() },
+        store,
+        new Date(2026, 9, 4, 12),
+      ),
+    ).toThrow("Reward write blocked");
+    expect(readCompletedMissions(store)).toEqual([]);
+
+    baseSetItem(HISTORY_KEY, JSON.stringify([first]));
+    expect(() => clearCompletedMissions(store)).toThrow(
+      "Reward write blocked",
+    );
+    expect(readCompletedMissions(store)).toEqual([first]);
   });
   it.each(["{", "{}", '[{"id":"bad"}]'])(
     "rejects corrupt history without overwriting it",

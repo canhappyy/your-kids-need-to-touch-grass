@@ -151,7 +151,9 @@ export function moveSavedToCompleted(
   );
   if (!target) return null;
 
-  removeSavedActivity(target.id, store);
+  const previousSaved = store.getItem(SAVED_ACTIVITIES_KEY);
+  const remaining = records.filter((item) => item.id !== target.id);
+  store.setItem(SAVED_ACTIVITIES_KEY, JSON.stringify(remaining));
 
   const completed: CompletedMission = {
     id: crypto.randomUUID(),
@@ -163,6 +165,19 @@ export function moveSavedToCompleted(
     equipmentNeeded: target.equipmentNeeded ?? null,
   };
 
-  saveCompletedMission(completed, store);
+  try {
+    saveCompletedMission(completed, store);
+  } catch (error) {
+    try {
+      if (previousSaved === null) {
+        store.removeItem(SAVED_ACTIVITIES_KEY);
+      } else {
+        store.setItem(SAVED_ACTIVITIES_KEY, previousSaved);
+      }
+    } catch {
+      // Preserve the original completion-storage error.
+    }
+    throw error;
+  }
   return completed;
 }

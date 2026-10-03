@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   clearSavedActivities,
   isActivityInBacklog,
@@ -9,6 +9,7 @@ import {
   saveActivity,
 } from "./saved-activities";
 import { readCompletedMissions } from "./completed-missions";
+import { readRewards } from "./rewards";
 import type { SavedActivity } from "@/types/saved-activity";
 
 function createMockStorage() {
@@ -29,6 +30,10 @@ const sampleActivity: SavedActivity = {
   instructionText: "Find 3 leaves",
   equipmentNeeded: "Bag|pencil",
 };
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 describe("saved-activities", () => {
   it("reads empty list when storage is empty", () => {
@@ -117,6 +122,30 @@ describe("saved-activities", () => {
     expect(completedMissions).toHaveLength(1);
     expect(completedMissions[0]?.missionId).toBe("MIS-001");
     expect(completedMissions[0]?.name).toBe("Nature Scavenger Hunt");
+  });
+
+  it("dispatches once after saved, completed, and reward writes finish", () => {
+    const storage = createMockStorage();
+    saveActivity(sampleActivity, storage);
+    let stateAtDispatch: {
+      saved: number;
+      completed: number;
+      streak: number | undefined;
+    } | null = null;
+    const dispatchEvent = vi.fn(() => {
+      stateAtDispatch = {
+        saved: readSavedActivities(storage).length,
+        completed: readCompletedMissions(storage).length,
+        streak: readRewards(storage)?.currentStreak,
+      };
+      return true;
+    });
+    vi.stubGlobal("window", { dispatchEvent });
+
+    moveSavedToCompleted("save-1", storage);
+
+    expect(dispatchEvent).toHaveBeenCalledTimes(1);
+    expect(stateAtDispatch).toEqual({ saved: 0, completed: 1, streak: 1 });
   });
 
   it("identifies activity as in backlog if either saved or completed", () => {

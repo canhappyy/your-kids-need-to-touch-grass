@@ -106,6 +106,13 @@ export function readRewards(
   return rewardStateSchema.parse(JSON.parse(raw));
 }
 
+function persistRewards(state: RewardState, store: RewardStorage): void {
+  const serialized = JSON.stringify(state);
+  if (store.getItem(REWARDS_KEY) !== serialized) {
+    store.setItem(REWARDS_KEY, serialized);
+  }
+}
+
 /** Rebuilds streak data from completion history while preserving earned badges. */
 export function reconcileRewards(
   records: CompletedMission[],
@@ -133,7 +140,7 @@ export function reconcileRewards(
       unlocked.has(id),
     ),
   };
-  store.setItem(REWARDS_KEY, JSON.stringify(state));
+  persistRewards(state, store);
   return state;
 }
 
@@ -147,6 +154,6 @@ export function resetRewardStreak(
     lastCompletedDate: null,
     unlockedBadgeIds: existing?.unlockedBadgeIds ?? [],
   };
-  store.setItem(REWARDS_KEY, JSON.stringify(state));
+  persistRewards(state, store);
   return state;
 }

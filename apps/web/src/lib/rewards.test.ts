@@ -140,4 +140,20 @@ describe("activity streak rewards", () => {
       reconcileRewards([], new Date(2026, 9, 3), blocked),
     ).toThrow("Storage blocked");
   });
+
+  it("does not rewrite unchanged state during synchronization", () => {
+    const store = storage();
+    const originalSetItem = store.setItem;
+    let writes = 0;
+    store.setItem = (key, value) => {
+      writes += 1;
+      return originalSetItem(key, value);
+    };
+    const now = new Date(2026, 9, 3, 12);
+
+    reconcileRewards([], now, store);
+    reconcileRewards([], now, store);
+
+    expect(writes).toBe(1);
+  });
 });
