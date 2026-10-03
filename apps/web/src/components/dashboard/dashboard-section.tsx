@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCompletedMissions } from "@/hooks/use-completed-missions";
+import { useDashboardDate } from "@/hooks/use-dashboard-date";
 import { buildDashboardStats } from "@/lib/dashboard-stats";
 import type { DashboardView } from "@/types/dashboard";
 import { ActivityStatsCard } from "./activity-stats-card";
@@ -24,7 +25,11 @@ function DashboardLoadingState() {
 export function DashboardSection() {
   const { records, loading, error, refresh } = useCompletedMissions();
   const [view, setView] = useState<DashboardView>("daily");
-  const stats = useMemo(() => buildDashboardStats(records), [records]);
+  const currentDate = useDashboardDate();
+  const stats = useMemo(
+    () => buildDashboardStats(records, currentDate),
+    [records, currentDate],
+  );
 
   const handleViewChange = (nextView: string | number) => {
     if (nextView === "daily" || nextView === "weekly") {

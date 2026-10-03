@@ -20,16 +20,26 @@ export function WeeklyActivityChart({ days }: WeeklyActivityChartProps) {
   );
   const targetY =
     CHART_BOTTOM - (DAILY_GOAL_MINUTES / maximumMinutes) * CHART_HEIGHT;
+  const description = `60-minute daily target. ${days
+    .map((day) => {
+      const weekday = new Intl.DateTimeFormat("en-AU", {
+        weekday: "short",
+      }).format(day.date);
+      return `${weekday}: ${day.minutes} minutes`;
+    })
+    .join("; ")}.`;
 
   return (
     <figure className="mt-5">
       <svg
+        aria-describedby="weekly-activity-description"
         aria-label="Weekly active minutes chart"
         className="h-auto w-full overflow-visible"
         role="img"
         viewBox="0 0 560 230"
       >
         <title>Weekly active minutes chart</title>
+        <desc id="weekly-activity-description">{description}</desc>
         <line
           stroke="#E4633C"
           strokeDasharray="6 5"

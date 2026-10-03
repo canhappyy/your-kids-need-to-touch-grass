@@ -90,4 +90,14 @@ describe("dashboard activity statistics", () => {
     expect(stats.days.at(-1)?.minutes).toBe(35);
     expect(stats.todayMinutes).toBe(35);
   });
+
+  it("ignores a completion timestamp later than now on the same day", () => {
+    const stats = buildDashboardStats(
+      [completedMission("future-today", new Date(2026, 9, 3, 18), 60)],
+      new Date(2026, 9, 3, 12),
+    );
+
+    expect(stats.todayMinutes).toBe(0);
+    expect(stats.weeklyMinutes).toBe(0);
+  });
 });

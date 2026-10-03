@@ -112,6 +112,10 @@ describe("parent dashboard", () => {
     );
 
     expect(markup).toContain('aria-label="Weekly active minutes chart"');
+    expect(markup).toContain('aria-describedby="weekly-activity-description"');
+    expect(markup).toContain(
+      "60-minute daily target. Sun: 20 minutes; Mon: 35 minutes; Tue: 60 minutes; Wed: 75 minutes; Thu: 0 minutes; Fri: 40 minutes; Sat: 45 minutes.",
+    );
     expect(markup).toContain("60-minute target");
     expect(markup).toContain("Sun 20 minutes");
     expect(markup).toContain("Wed 75 minutes");

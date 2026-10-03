@@ -31,6 +31,12 @@ export function buildDashboardStats(
 
   for (const record of records) {
     const completedAt = new Date(record.completedAt);
+    if (
+      !Number.isFinite(completedAt.getTime()) ||
+      completedAt.getTime() > now.getTime()
+    ) {
+      continue;
+    }
     const key = localDateKey(completedAt);
     const minutes = minutesByDate.get(key);
     if (minutes !== undefined) {
