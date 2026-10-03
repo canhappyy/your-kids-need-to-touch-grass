@@ -25,8 +25,8 @@ export function buildDashboardStats(
     date.setDate(today.getDate() - (ROLLING_DAY_COUNT - 1 - index));
     return date;
   });
-  const minutesByDate = new Map(
-    dates.map((date) => [localDateKey(date), 0] as const),
+  const minutesByDate = new Map<string, number>(
+    dates.map((date) => [localDateKey(date), 0]),
   );
 
   for (const record of records) {
