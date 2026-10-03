@@ -22,6 +22,28 @@ vi.mock("@/hooks/use-completed-missions", () => ({
   }),
 }));
 
+vi.mock("@/hooks/use-saved-activities", () => ({
+  useSavedActivities: () => ({
+    savedActivities: [
+      {
+        id: "save-1",
+        missionId: "m2",
+        name: "Nature Walk",
+        durationMinutes: 20,
+        savedAt: "2026-10-02T12:00:00.000Z",
+        instructionText: "Walk along path",
+        equipmentNeeded: null,
+      },
+    ],
+    loading: false,
+    error: "",
+    refresh: vi.fn(),
+    remove: vi.fn(),
+    markComplete: vi.fn(),
+    clear: vi.fn(),
+  }),
+}));
+
 describe("HistoryOverlay", () => {
   it("renders nothing when closed", () => {
     const markup = renderToStaticMarkup(
@@ -43,6 +65,8 @@ describe("HistoryOverlay", () => {
     );
 
     expect(markup).toContain('role="dialog"');
+    expect(markup).toContain("Saved activities");
+    expect(markup).toContain("Nature Walk");
     expect(markup).toContain("Completed missions");
     expect(markup).toContain("Climb the Big Tree");
     expect(markup).toContain("Close history");
