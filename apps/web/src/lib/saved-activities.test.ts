@@ -7,7 +7,6 @@ import {
   readSavedActivities,
   removeSavedActivity,
   saveActivity,
-  SAVED_ACTIVITIES_KEY,
 } from "./saved-activities";
 import { readCompletedMissions } from "./completed-missions";
 import type { SavedActivity } from "@/types/saved-activity";

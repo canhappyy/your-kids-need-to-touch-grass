@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { saveActivity } from "@/lib/saved-activities";
 import type { Recommendation } from "@/types/recommendation";
 
@@ -42,27 +42,17 @@ export function useSaveActivity(
   recommendation: Recommendation,
   isRetrying: boolean,
 ) {
-  const savedRef = useRef<Recommendation | null>(null);
-  const [isSaved, setIsSaved] = useState(() => {
-    return savedResultInstances.has(getRecommendationKey(recommendation));
-  });
+  const [, setRevision] = useState(0);
   const [error, setError] = useState("");
   const isSaving = useRef(false);
 
-  useEffect(() => {
-    const key = getRecommendationKey(recommendation);
-    const saved = savedResultInstances.has(key);
-    setIsSaved(saved);
-    savedRef.current = saved ? recommendation : null;
-    setError("");
-  }, [recommendation]);
+  const key = getRecommendationKey(recommendation);
+  const isSaved = savedResultInstances.has(key);
 
   const save = () => {
-    const key = getRecommendationKey(recommendation);
+    const currentKey = getRecommendationKey(recommendation);
     if (
-      savedRef.current === recommendation ||
-      savedResultInstances.has(key) ||
-      isSaved ||
+      savedResultInstances.has(currentKey) ||
       isRetrying ||
       isSaving.current
     ) {
@@ -71,12 +61,11 @@ export function useSaveActivity(
 
     try {
       isSaving.current = true;
-      savedRef.current = recommendation;
-      savedResultInstances.add(key);
+      savedResultInstances.add(currentKey);
       if (recommendation.requestId) {
         savedResultInstances.add(recommendation);
       }
-      setIsSaved(true);
+      setRevision((r) => r + 1);
 
       saveActivity({
         id: crypto.randomUUID(),
@@ -90,12 +79,11 @@ export function useSaveActivity(
 
       setError("");
     } catch {
-      savedRef.current = null;
-      savedResultInstances.delete(key);
+      savedResultInstances.delete(currentKey);
       if (recommendation.requestId) {
         savedResultInstances.delete(recommendation);
       }
-      setIsSaved(false);
+      setRevision((r) => r + 1);
       setError(
         "Activity could not be saved. Check browser storage permissions.",
       );
