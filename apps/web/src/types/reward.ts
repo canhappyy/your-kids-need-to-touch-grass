@@ -1,18 +1,24 @@
 export type RewardBadgeId =
   | "koala"
   | "kangaroo"
+  | "red-kangaroo"
   | "saltwater-crocodile"
-  | "green-sea-turtle";
+  | "green-sea-turtle"
+  | "green-turtle"
+  | (string & {});
 
 export type RewardState = {
   currentStreak: number;
   lastCompletedDate: string | null;
-  unlockedBadgeIds: RewardBadgeId[];
+  unlockedBadgeIds: string[];
 };
 
 export type MilestoneBadge = {
-  id: RewardBadgeId;
+  id: string;
   milestoneDays: number;
   speciesName: string;
   icon: string;
+  category?: string;
+  requirement?: string;
 };
+
