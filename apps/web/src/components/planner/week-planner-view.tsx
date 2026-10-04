@@ -101,7 +101,7 @@ export function WeekPlannerView({
                 ))
               )}
               <span className="block text-sm font-semibold text-[#728A46]">
-                + Add activity
+                Select date
               </span>
             </span>
           </button>

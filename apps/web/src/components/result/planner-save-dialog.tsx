@@ -28,6 +28,7 @@ import {
 } from "@/lib/planned-activities";
 import { plannedActivityFromRecommendation } from "@/lib/planner-recommendation";
 import type { Recommendation } from "@/types/recommendation";
+import { PlannerCalendarDayButton } from "@/components/planner/planner-calendar-day-button";
 
 type PlannerSaveDialogProps = {
   recommendation: Recommendation;
@@ -115,6 +116,8 @@ export function PlannerSaveDialog({
           <Calendar
             aria-label="Choose a planner date"
             className="mx-auto"
+            components={{ DayButton: PlannerCalendarDayButton }}
+            defaultMonth={selectedDate}
             disabled={{ before: minDate, after: maxDate }}
             mode="single"
             onSelect={(date) => {

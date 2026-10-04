@@ -4,11 +4,11 @@ import type { ComponentProps } from "react";
 
 import {
   Calendar,
-  CalendarDayButton,
 } from "@/components/ui/calendar";
 import { getImportantDatesForDate } from "@/data/victorian-important-dates";
 import { localDateKey } from "@/lib/planner-dates";
 import type { PlannedActivity } from "@/types/planner";
+import { PlannerCalendarDayButton } from "./planner-calendar-day-button";
 
 type MonthPlannerViewProps = {
   activities: PlannedActivity[];
@@ -26,7 +26,7 @@ export function MonthPlannerView({
   onSelectDate,
 }: MonthPlannerViewProps) {
   function PlannerDayButton(
-    props: ComponentProps<typeof CalendarDayButton>,
+    props: ComponentProps<typeof PlannerCalendarDayButton>,
   ) {
     const dateKey = localDateKey(props.day.date);
     const importantDates = getImportantDatesForDate(dateKey);
@@ -50,7 +50,7 @@ export function MonthPlannerView({
     ].join(", ");
 
     return (
-      <CalendarDayButton {...props} aria-label={label}>
+      <PlannerCalendarDayButton {...props} aria-label={label}>
         <span>{props.day.date.getDate()}</span>
         {(importantDates.length > 0 || plannedCount > 0) && (
           <span aria-hidden="true" className="flex items-center gap-0.5">
@@ -64,14 +64,14 @@ export function MonthPlannerView({
             )}
           </span>
         )}
-      </CalendarDayButton>
+      </PlannerCalendarDayButton>
     );
   }
 
   return (
     <Calendar
       aria-label="Monthly activity planner"
-      className="w-full rounded-2xl bg-transparent p-0 [--cell-size:--spacing(11)] sm:[--cell-size:--spacing(14)]"
+      className="w-full rounded-2xl bg-transparent p-0 [--cell-size:--spacing(9)] min-[360px]:[--cell-size:--spacing(10)] sm:[--cell-size:--spacing(14)]"
       classNames={{ root: "w-full", month: "w-full" }}
       components={{ DayButton: PlannerDayButton }}
       mode="single"

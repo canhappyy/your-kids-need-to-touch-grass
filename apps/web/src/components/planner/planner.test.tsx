@@ -93,6 +93,8 @@ describe("activity planner", () => {
     expect(markup).toContain("Sun");
     expect(markup).toContain("Backyard bug safari");
     expect(markup).toContain("Victorian school holidays");
+    expect(markup).toContain("Select date");
+    expect(markup).not.toContain("+ Add activity");
   });
 
   it("disables Add activity outside the planning window", () => {

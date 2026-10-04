@@ -17,18 +17,11 @@ import {
   shiftLocalDateKey,
   startOfLocalWeek,
 } from "@/lib/planner-dates";
+import { movePlannerPeriod, plannerMonth } from "@/lib/planner-navigation";
 import type { PlannerView } from "@/types/planner";
 import { MonthPlannerView } from "./month-planner-view";
 import { PlannerDateDetails } from "./planner-date-details";
 import { WeekPlannerView } from "./week-planner-view";
-
-function monthFromDate(date: Date): Date {
-  return new Date(date.getFullYear(), date.getMonth(), 1, 12);
-}
-
-function shiftMonth(date: Date, amount: number): Date {
-  return new Date(date.getFullYear(), date.getMonth() + amount, 1, 12);
-}
 
 export function PlannerSection() {
   const router = useRouter();
@@ -38,7 +31,7 @@ export function PlannerSection() {
   const [selectedDate, setSelectedDate] = useState(
     () => new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12),
   );
-  const [displayedMonth, setDisplayedMonth] = useState(() => monthFromDate(today));
+  const [displayedMonth, setDisplayedMonth] = useState(() => plannerMonth(today));
 
   const periodLabel = useMemo(() => {
     if (view === "month") {
@@ -61,25 +54,25 @@ export function PlannerSection() {
   }, [displayedMonth, selectedDate, view]);
 
   const movePeriod = (amount: number) => {
-    if (view === "month") {
-      const next = shiftMonth(displayedMonth, amount);
-      setDisplayedMonth(next);
-      setSelectedDate(next);
-      return;
-    }
-    const nextKey = shiftLocalDateKey(localDateKey(selectedDate), amount * 7);
-    setSelectedDate(parseLocalDateKey(nextKey) ?? selectedDate);
+    const next = movePlannerPeriod(
+      view,
+      displayedMonth,
+      selectedDate,
+      amount,
+    );
+    setDisplayedMonth(next.displayedMonth);
+    setSelectedDate(next.selectedDate);
   };
 
   const jumpToToday = () => {
     const next = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12);
     setSelectedDate(next);
-    setDisplayedMonth(monthFromDate(next));
+    setDisplayedMonth(plannerMonth(next));
   };
 
   const selectDate = (date: Date) => {
     setSelectedDate(date);
-    setDisplayedMonth(monthFromDate(date));
+    setDisplayedMonth(plannerMonth(date));
   };
 
   return (

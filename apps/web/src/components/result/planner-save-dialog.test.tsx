@@ -22,10 +22,11 @@ vi.mock("@/components/ui/dialog", () => ({
 }));
 
 vi.mock("@/components/ui/calendar", () => ({
-  Calendar: ({ selected, disabled }: { selected: Date; disabled: { before: Date; after: Date } }) =>
+  Calendar: ({ selected, defaultMonth, disabled }: { selected: Date; defaultMonth: Date; disabled: { before: Date; after: Date } }) =>
     createElement("div", {
       "aria-label": "Choose a planner date",
       "data-selected": selected.toISOString().slice(0, 10),
+      "data-visible-month": defaultMonth.toISOString().slice(0, 10),
       "data-min": disabled.before.toISOString().slice(0, 10),
       "data-max": disabled.after.toISOString().slice(0, 10),
     }),
@@ -62,6 +63,7 @@ describe("planner save dialog", () => {
     expect(markup).toContain("Save to planner (do it later)");
     expect(markup).toContain("Choose a date");
     expect(markup).toContain('data-selected="2026-11-03"');
+    expect(markup).toContain('data-visible-month="2026-11-03"');
     expect(markup).toContain('data-min="2026-10-04"');
     expect(markup).toContain('data-max="2027-10-04"');
     expect(markup).toContain("Confirm planner save");
