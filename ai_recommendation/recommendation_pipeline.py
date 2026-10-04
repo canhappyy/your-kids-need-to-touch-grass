@@ -13,26 +13,21 @@ TAG_WEIGHT = 0.4                        # Weight assigned to the tag similarity 
 CROSS_ENCODER_MAX_CANDIDATES = 300      # Maximum number of candidate activities to consider for cross-encoder scoring (can be adjusted based on performance and accuracy trade-offs)
 CROSS_ENCODER_WEIGHT = 0.6              # Weight assigned to the cross-encoder score in the final ranking
 
-# Flag to control printing of debug information
-DEBUG = True
-
 # --------------------------------------------------------------------------
 # Loading & Reading Data
 # --------------------------------------------------------------------------
 # Load the databases
-current_filepath, root_folder_path, database_folder_path = rf.get_file_paths()
-
-def load_tag_index(database: pd.DataFrame, model: SentenceTransformer, current_filepath: Path):
+def load_tag_index(database: pd.DataFrame, model: SentenceTransformer):
     """ Load a pre-computed index of tags (mapped to activities) and their corresponding embeddings."""
     # Load tag vocabulary and embeddings from cache
-    cache_filepath = current_filepath / "cache"
+    cache_filepath = rf.CURRENT_FILE_PATH / "cache"
     vocab_filepath = cache_filepath / "tag_vocab.json"
     embeddings_filepath = cache_filepath / "tag_embeddings.npy"
-    # tag_map_filepath = cache_filepath / "tag_to_activity_map.json"
+    tag_map_filepath = cache_filepath / "tag_to_activity_map.json"
 
     # Check if required files exist, and raise an error if any are missing
-    missing = [path for path in [vocab_filepath, embeddings_filepath] if not path.exists()]
-    # missing = [path for path in [vocab_filepath, embeddings_filepath, tag_map_filepath] if not path.exists()]
+    # missing = [path for path in [vocab_filepath, embeddings_filepath] if not path.exists()]
+    missing = [path for path in [vocab_filepath, embeddings_filepath, tag_map_filepath] if not path.exists()]
     
     if missing:
         raise FileNotFoundError(
@@ -41,13 +36,13 @@ def load_tag_index(database: pd.DataFrame, model: SentenceTransformer, current_f
     # Load tag vocabulary and embeddings from cache files
     tag_vocab = json.loads(vocab_filepath.read_text())
     tag_embeddings = np.load(embeddings_filepath)
-    # tag_to_activity_map = json.loads(tag_map_filepath.read_text())
+    tag_to_activity_map = json.loads(tag_map_filepath.read_text())
 
-    return tag_vocab, tag_embeddings
+    return tag_vocab, tag_embeddings, tag_to_activity_map
 
 
 # --------------------------------------------------------------------------
-# Process Data
+# Processing Data
 # --------------------------------------------------------------------------
 def compute_tag_similarities(free_text: str, activities_df: pd.DataFrame, tag_model: SentenceTransformer, 
                              tag_vocab: list, tag_embeddings: np.ndarray, top_n_tags: int = TOP_N_TAGS) -> np.ndarray:
@@ -66,7 +61,7 @@ def compute_tag_similarities(free_text: str, activities_df: pd.DataFrame, tag_mo
         np.ndarray: Array of similarity scores for each activity based on the top N similar tags.
 
     """
-    if DEBUG:
+    if rf.DEBUG:
         print("Computing tag similarities...")
 
     # Create a mapping from tags to their indices in tag_vocab
@@ -115,7 +110,7 @@ def rank_relevance(free_text: str, activities_df: pd.DataFrame, tag_model: Sente
     Returns:
         pd.DataFrame: DataFrame containing activities ranked by their combined score.
     """
-    if DEBUG:
+    if rf.DEBUG:
         print("Ranking activities...")
 
     # Load data and ensure no NaN values in descriptions
@@ -139,8 +134,8 @@ def rank_relevance(free_text: str, activities_df: pd.DataFrame, tag_model: Sente
         cross_encoder_pool["cross_encoder_score"] = cross_encoder.predict(pairs)
 
         # Normalise the tag similarity scores and cross-encoder scores to the range [0, 1]
-        normalised_tag_scores = rf._min_max_normalize(cross_encoder_pool["tag_score"].to_numpy())
-        normalised_cross_encoder_scores = rf._min_max_normalize(cross_encoder_pool["cross_encoder_score"].to_numpy())
+        normalised_tag_scores = rf._min_max_normalise(cross_encoder_pool["tag_score"].to_numpy())
+        normalised_cross_encoder_scores = rf._min_max_normalise(cross_encoder_pool["cross_encoder_score"].to_numpy())
 
         # Combine normalised scores using given weights to compute final scores for ranking
         cross_encoder_pool["final_score"] = (tag_weight * normalised_tag_scores) + (cross_encoder_weight * normalised_cross_encoder_scores)
@@ -167,13 +162,12 @@ def rank_activities(free_text: str, activities_df: pd.DataFrame | None = None) -
 
     """
     if activities_df is None:
-        activities_df = rf.load_database("activities", database_folder_path)
-        activities_df["tag_list"] = activities_df["variety_tags"].apply(rf.parse_tags)
+        activities_df = rf.load_activities_from_db()
 
     # Load tag model & cross-encoder, then retrieve tag vocabulary and embeddings from cache
-    tag_model = rf.load_model(current_filepath, rf.TAG_MODEL_FILENAME, rf.TAG_MODEL_DESIGNATION)
-    cross_encoder = rf.load_model(current_filepath, rf.CROSS_ENCODER_FILENAME, rf.CROSS_ENCODER_DESIGNATION)
-    tag_vocab, tag_embeddings = load_tag_index(activities_df, tag_model, current_filepath)
+    tag_model = rf.load_model(rf.TAG_MODEL_FILENAME, rf.TAG_MODEL_DESIGNATION)
+    cross_encoder = rf.load_model(rf.CROSS_ENCODER_FILENAME, rf.CROSS_ENCODER_DESIGNATION)
+    tag_vocab, tag_embeddings, tag_to_activity_map = load_tag_index(activities_df, tag_model)
 
     return rank_relevance(free_text, activities_df, tag_model, cross_encoder, tag_vocab, tag_embeddings)
 
@@ -237,7 +231,8 @@ if __name__ == "__main__":
     end = time.perf_counter()
     elapsed_time = end - start
 
-    if DEBUG:
+
+    if rf.DEBUG:
         # Print the top 10 ranked activities along with their scores and the time taken for ranking
         print(f"Ranked {len(ranked_activities)} activities in {elapsed_time:.2f} seconds.")
         print(ranked_activities[["mission_id", "activity_title", "tag_score", "cross_encoder_score", "final_score"]].head(10))
