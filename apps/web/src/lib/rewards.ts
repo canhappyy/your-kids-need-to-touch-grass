@@ -9,12 +9,17 @@ import type {
 export const REWARDS_KEY = "playgo.rewards.v1";
 
 export const MILESTONE_BADGES: readonly MilestoneBadge[] = [
-  { id: "koala", milestoneDays: 3, speciesName: "Koala", icon: "🐨" },
+  { 
+    id: "koala", 
+    milestoneDays: 3, 
+    speciesName: "Koala", 
+    icon: "🐨" 
+  },
   {
-    id: "kangaroo",
+    id: "green-sea-turtle",
     milestoneDays: 5,
-    speciesName: "Kangaroo",
-    icon: "🦘",
+    speciesName: "Green Sea Turtle",
+    icon: "🐢",
   },
   {
     id: "saltwater-crocodile",
@@ -23,10 +28,10 @@ export const MILESTONE_BADGES: readonly MilestoneBadge[] = [
     icon: "🐊",
   },
   {
-    id: "green-sea-turtle",
+    id: "kangaroo",
     milestoneDays: 14,
-    speciesName: "Green Sea Turtle",
-    icon: "🐢",
+    speciesName: "Kangaroo",
+    icon: "🦘",
   },
 ] as const;
 
