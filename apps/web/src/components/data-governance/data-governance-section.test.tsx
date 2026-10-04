@@ -46,6 +46,15 @@ describe("DataGovernanceSection", () => {
     expect(markup).toContain('rel="noopener noreferrer"');
   });
 
+  it("attributes bundled Victorian public and school holiday data", () => {
+    const markup = renderToStaticMarkup(<DataGovernanceSection />);
+
+    expect(markup).toContain("Victorian Public Holidays");
+    expect(markup).toContain("Victorian School Term Dates");
+    expect(markup).toContain("business.vic.gov.au");
+    expect(markup).toContain("vic.gov.au/school-term-dates");
+  });
+
   it("renders the open data disclaimer notice", () => {
     const markup = renderToStaticMarkup(<DataGovernanceSection />);
     expect(markup).toContain(DATA_DISCLAIMER);
