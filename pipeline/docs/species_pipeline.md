@@ -17,13 +17,15 @@ Awarded for daily consistency. Unlocked when a user logs at least one activity f
 * **7 Days:** Saltwater Crocodile
 * **14 Days:** Red Kangaroo
 
+
+## Possible option if we have time
 **2. Variety Tag Badges**
 Awarded for themed engagement. Unlocked when a user completes four activities sharing the exact same `variety_tag` within a single week. These animals were chosen to reflect the nature of the specific activity type:
-
 * **Quiet:** Sugar Glider *(Note: Swapped from Koala as it is now used for Streaks)*
 * **Energised Activity:** Tasmanian Devil
 * **Exploration:** Dingo
 * **Water Play:** Australian Hump-backed Dolphin
+
 
 ## How to run it
 
