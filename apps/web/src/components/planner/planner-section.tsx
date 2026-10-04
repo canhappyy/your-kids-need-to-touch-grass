@@ -116,9 +116,9 @@ export function PlannerSection() {
                 value={view}
                 onValueChange={(value) => setView(value as PlannerView)}
               >
-                <TabsList className="grid h-10 w-full grid-cols-2 bg-[#EEF2E8]">
-                  <TabsTrigger value="month">Month</TabsTrigger>
-                  <TabsTrigger value="week">Week</TabsTrigger>
+                <TabsList className="grid h-10 w-full grid-cols-2 rounded-full bg-[#EEF2E8]">
+                  <TabsTrigger className="rounded-full" value="month">Month</TabsTrigger>
+                  <TabsTrigger className="rounded-full" value="week">Week</TabsTrigger>
                 </TabsList>
               </Tabs>
 

@@ -88,9 +88,9 @@ export function DashboardSection() {
         <>
           <StreakCard rewards={rewards} />
           <Tabs onValueChange={handleViewChange} value={view}>
-            <TabsList className="mb-4 grid h-11 w-full grid-cols-2 bg-white/65 p-1 sm:max-w-md">
-              <TabsTrigger value="daily">Daily View</TabsTrigger>
-              <TabsTrigger value="weekly">Weekly Trends</TabsTrigger>
+            <TabsList className="grid h-11 w-full grid-cols-2 rounded-full bg-[#EEF2E8]">
+              <TabsTrigger className="rounded-full" value="daily">Daily View</TabsTrigger>
+              <TabsTrigger className="rounded-full" value="weekly">Weekly Trends</TabsTrigger>
             </TabsList>
             <TabsContent value="daily">
               <ActivityStatsCard stats={stats} view="daily" />
