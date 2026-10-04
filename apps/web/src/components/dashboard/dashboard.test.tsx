@@ -139,7 +139,7 @@ describe("parent dashboard", () => {
     expect(markup).toContain("45 active minutes today");
     expect(markup).toContain("45 of 60 minutes");
     expect(markup).toContain(
-      "Every 15 minutes of outdoor play counts towards today&#x27;s goal!",
+      "Every 15 minutes of physical activity counts towards today&#x27;s goal!",
     );
     expect(markup).toContain("275 active minutes in the last 7 days");
     expect(markup).toContain("2 of 7 days reached the goal (29%).");

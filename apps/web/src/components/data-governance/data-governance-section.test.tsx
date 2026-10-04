@@ -23,7 +23,7 @@ describe("DataGovernanceSection", () => {
 
   it("renders About Our Data content accurately", () => {
     const markup = renderToStaticMarkup(<DataGovernanceSection />);
-    expect(markup).toContain(DATA_GOVERNANCE_ABOUT);
+    expect(markup).toContain(DATA_GOVERNANCE_ABOUT.replace("&", "&amp;"));
   });
 
   it("renders all data sources with correct external links and secure attributes", () => {
