@@ -61,4 +61,7 @@ DROP TABLE staging_activity;
 -- 4. ACTIVITY_LOCATION_CATEGORY
 \copy activity_location_category (mission_id, category_name) FROM '/csvdata/Activity_LocationCategory.csv' WITH (FORMAT csv, HEADER true, NULL '')
  
+-- 5. SPECIES_BADGE
+\copy species_badge (animal_name, badge_category, requirement) FROM '/csvdata/species_badge_db.csv' WITH (FORMAT csv, HEADER true, NULL '')
+
 COMMIT;
