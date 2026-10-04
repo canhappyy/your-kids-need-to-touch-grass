@@ -12,6 +12,11 @@ type BadgeDetailDialogProps = {
 
 /** Details for one earned Australian wildlife badge. */
 export function BadgeDetailDialog({ badge }: BadgeDetailDialogProps) {
+  const description =
+    badge.category === "Variety Tag"
+      ? `Earned for themed play with the ${badge.requirement} tag.`
+      : `Earned for a ${badge.milestoneDays}-day activity streak.`;
+
   return (
     <DialogContent className="rounded-2xl bg-[#FDF6EA] p-6 text-center sm:max-w-sm">
       <span aria-hidden="true" className="text-7xl leading-none">
@@ -22,7 +27,7 @@ export function BadgeDetailDialog({ badge }: BadgeDetailDialogProps) {
           {badge.speciesName} badge earned
         </DialogTitle>
         <DialogDescription className="text-zinc-600">
-          Earned for a {badge.milestoneDays}-day activity streak.
+          {description}
         </DialogDescription>
       </DialogHeader>
     </DialogContent>

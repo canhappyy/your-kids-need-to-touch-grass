@@ -5,10 +5,16 @@ import type { MilestoneBadge, RewardBadgeId } from "@/types/reward";
 import { BadgeDetailDialog } from "./badge-detail-dialog";
 
 type RewardsGalleryProps = {
-  unlockedBadgeIds: RewardBadgeId[];
+  unlockedBadgeIds: string[];
+  badges?: readonly MilestoneBadge[];
 };
 
 function BadgeFace({ badge, unlocked }: { badge: MilestoneBadge; unlocked: boolean }) {
+  const subtitle =
+    badge.category === "Variety Tag"
+      ? `${badge.requirement} play`
+      : `${badge.milestoneDays} day streak`;
+
   return (
     <>
       <span
@@ -21,7 +27,7 @@ function BadgeFace({ badge, unlocked }: { badge: MilestoneBadge; unlocked: boole
         {badge.speciesName}
       </span>
       <span className="mt-1 text-xs text-zinc-500">
-        {badge.milestoneDays} day streak
+        {subtitle}
       </span>
       {!unlocked && (
         <span className="mt-2 inline-flex items-center gap-1 text-xs text-zinc-400">
@@ -33,7 +39,10 @@ function BadgeFace({ badge, unlocked }: { badge: MilestoneBadge; unlocked: boole
 }
 
 /** All wildlife milestones, with earned badges opening a detail dialog. */
-export function RewardsGallery({ unlockedBadgeIds }: RewardsGalleryProps) {
+export function RewardsGallery({
+  unlockedBadgeIds,
+  badges = MILESTONE_BADGES,
+}: RewardsGalleryProps) {
   const unlocked = new Set(unlockedBadgeIds);
 
   return (
@@ -48,8 +57,13 @@ export function RewardsGallery({ unlockedBadgeIds }: RewardsGalleryProps) {
         Celebrate active-day streaks with Australian species badges.
       </p>
       <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {MILESTONE_BADGES.map((badge) => {
-          const isUnlocked = unlocked.has(badge.id);
+        {badges.map((badge) => {
+          const isUnlocked =
+            unlocked.has(badge.id) ||
+            (badge.id === "kangaroo" && unlocked.has("red-kangaroo")) ||
+            (badge.id === "red-kangaroo" && unlocked.has("kangaroo")) ||
+            (badge.id === "green-sea-turtle" && unlocked.has("green-turtle")) ||
+            (badge.id === "green-turtle" && unlocked.has("green-sea-turtle"));
 
           if (!isUnlocked) {
             return (
