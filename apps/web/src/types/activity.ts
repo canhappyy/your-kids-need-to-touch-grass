@@ -6,6 +6,8 @@ import type { Recommendation } from "./recommendation";
 export type ActivityResultProps = {
   /** The recommendation data to display. */
   recommendation: Recommendation;
+  /** Optional local date carried from the activity planner. */
+  planDate?: string;
   /** Whether a retry/swap operation is currently in flight. */
   isRetrying?: boolean;
   /** Optional callback to navigate back to the home search page. */

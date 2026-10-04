@@ -4,6 +4,7 @@ import {
   getPlanningWindow,
   isPlannableDate,
   localDateKey,
+  readPlannableDateParam,
   shiftLocalDateKey,
   startOfLocalWeek,
 } from "./planner-dates";
@@ -30,6 +31,10 @@ describe("planner local dates", () => {
     const now = new Date(2026, 9, 4);
     expect(isPlannableDate("2026-02-30", now)).toBe(false);
     expect(isPlannableDate("04-10-2026", now)).toBe(false);
+    expect(readPlannableDateParam("2026-10-04", now)).toBe("2026-10-04");
+    expect(readPlannableDateParam("2027-10-05", now)).toBeUndefined();
+    expect(readPlannableDateParam("broken", now)).toBeUndefined();
+    expect(readPlannableDateParam(null, now)).toBeUndefined();
   });
 
   it("shifts by local calendar days across DST and year boundaries", () => {

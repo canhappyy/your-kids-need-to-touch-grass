@@ -84,6 +84,22 @@ describe("result-search lib utilities", () => {
       expect(query.get("lat")).toBe("-37.915")
       expect(query.get("lng")).toBe("145.123")
     })
+
+    it("preserves an optional planner date", () => {
+      const query = buildSearchQuery({
+        ageMax: "10",
+        ageMin: "6",
+        hours: "1",
+        location: "",
+        playStyle: "group",
+        canSupervise: true,
+        locationMode: "home",
+        minutes: "0",
+        planDate: "2026-11-03",
+      })
+
+      expect(query.get("planDate")).toBe("2026-11-03")
+    })
   })
 
   describe("mapLocationErrorCode", () => {

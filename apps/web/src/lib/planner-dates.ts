@@ -45,6 +45,13 @@ export function isPlannableDate(dateKey: string, now = new Date()): boolean {
   return dateKey >= minDateKey && dateKey <= maxDateKey;
 }
 
+export function readPlannableDateParam(
+  value: string | null,
+  now = new Date(),
+): string | undefined {
+  return value !== null && isPlannableDate(value, now) ? value : undefined;
+}
+
 export function startOfLocalWeek(date: Date): Date {
   const start = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12);
   const daysSinceMonday = (start.getDay() + 6) % 7;

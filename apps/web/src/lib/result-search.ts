@@ -40,6 +40,7 @@ export function buildSearchQuery(
     | "canSupervise"
     | "lat"
     | "lng"
+    | "planDate"
   >,
 ): URLSearchParams {
   const query = new URLSearchParams({
@@ -56,6 +57,7 @@ export function buildSearchQuery(
     query.set("lat", params.lat);
     query.set("lng", params.lng);
   }
+  if (params.planDate) query.set("planDate", params.planDate);
 
   return query;
 }
