@@ -4,7 +4,7 @@ import type { Metadata } from "next";
  * Page metadata for the planner view.
  */
 export const metadata: Metadata = {
-  title: "PlayGo - Planner",
+  title: "PlayGo & Co - Planner",
   description: "Plan your child's activities.",
 };
 

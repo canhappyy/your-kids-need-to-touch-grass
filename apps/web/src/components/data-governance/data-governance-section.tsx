@@ -35,7 +35,7 @@ export function DataGovernanceSection() {
           Data Governance
         </h1>
         <p className="text-sm text-zinc-600 sm:text-base">
-          Transparency about where PlayGo gets data, how activities are created, and how your privacy is protected.
+          Transparency about where PlayGo & Co gets data, how activities are created, and how your privacy is protected.
         </p>
       </header>
 

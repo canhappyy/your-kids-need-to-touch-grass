@@ -6,7 +6,7 @@ import { HomeSearchSection } from "@/components/home/home-search-section";
  * Page metadata for the home search view.
  */
 export const metadata: Metadata = {
-  title: "PlayGo",
+  title: "PlayGo & Co",
   description: "Find something fun for your child, fast.",
 };
 

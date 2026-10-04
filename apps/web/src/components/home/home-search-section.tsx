@@ -125,7 +125,7 @@ export function HomeSearchSection() {
         <h1>
           <Image
             src="/playgo&co.svg"
-            alt="PlayGo"
+            alt="PlayGo & Co"
             width={240}
             height={47}
             priority

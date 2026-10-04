@@ -6,7 +6,7 @@ import { DashboardSection } from "@/components/dashboard";
  * Page metadata for the parent dashboard view.
  */
 export const metadata: Metadata = {
-  title: "playgo & co - Parent Dashboard",
+  title: "PlayGo & Co - Parent Dashboard",
   description: "View your child's active play insights and achievements.",
 };
 

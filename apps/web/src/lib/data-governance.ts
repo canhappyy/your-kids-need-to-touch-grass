@@ -12,7 +12,7 @@ export type DataSource = {
 };
 
 export const DATA_GOVERNANCE_ABOUT =
-  "playgo recommends activities using open data from government and community sources, combined with an activity library written by our own team.";
+  "playgo & co recommends activities using open data from government and community sources, combined with an activity library written by our own team.";
 
 export const DATA_SOURCES: DataSource[] = [
   {
