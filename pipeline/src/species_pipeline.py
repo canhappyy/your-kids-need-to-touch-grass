@@ -3,15 +3,10 @@ import galah
 import pandas as pd
 
 badge_mapping = {
-    'Sugar Glider': {'Category': 'Streak', 'Requirement': '3'},
-    'Bare-nosed Wombat': {'Category': 'Streak', 'Requirement': '7'},
-    'Laughing Kookaburra': {'Category': 'Streak', 'Requirement': '10'},
-    'Emu': {'Category': 'Streak', 'Requirement': '20'},
-    'Red Kangaroo': {'Category': 'Streak', 'Requirement': '50'},
-    'Koala': {'Category': 'Variety Tag', 'Requirement': 'Quiet'},
-    'Tasmanian Devil': {'Category': 'Variety Tag', 'Requirement': 'Energised Activity'},
-    'Dingo': {'Category': 'Variety Tag', 'Requirement': 'Exploration'},
-    'Australian Hump-backed Dolphin': {'Category': 'Variety Tag', 'Requirement': 'Water Play'}
+    'Koala': {'Category': 'Streak', 'Requirement': '3'},
+    'Green Turtle': {'Category': 'Streak', 'Requirement': '5'},
+    'Saltwater Crocodile': {'Category': 'Streak', 'Requirement': '7'},
+    'Red Kangaroo': {'Category': 'Streak', 'Requirement': '14'}
 }
 
 galah.galah_config(email=os.environ["GALAH_EMAIL"])
@@ -23,6 +18,9 @@ if "Vernacular Name" in animals.columns:
     
     badge_animals['Badge Category'] = badge_animals['Vernacular Name'].map(lambda x: badge_mapping[x]['Category'])
     badge_animals['Requirement'] = badge_animals['Vernacular Name'].map(lambda x: badge_mapping[x]['Requirement'])
+    
+    # Ensure the directory exists before saving
+    os.makedirs("pipeline/data/processed", exist_ok=True)
     badge_animals.to_csv("pipeline/data/processed/species_badge_db.csv", index=False)
 
 else:
