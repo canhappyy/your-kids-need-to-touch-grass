@@ -23,7 +23,7 @@ DROP TABLE IF EXISTS
     indoor_outdoor_tag,
     location_category,
     postcode,
-    social_tag
+    social_tag,
     species_badge,
     badge_category,
 CASCADE;
