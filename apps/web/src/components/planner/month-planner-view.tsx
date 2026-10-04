@@ -1,0 +1,85 @@
+"use client";
+
+import type { ComponentProps } from "react";
+
+import {
+  Calendar,
+  CalendarDayButton,
+} from "@/components/ui/calendar";
+import { getImportantDatesForDate } from "@/data/victorian-important-dates";
+import { localDateKey } from "@/lib/planner-dates";
+import type { PlannedActivity } from "@/types/planner";
+
+type MonthPlannerViewProps = {
+  activities: PlannedActivity[];
+  displayedMonth: Date;
+  selectedDate: Date;
+  onMonthChange: (month: Date) => void;
+  onSelectDate: (date: Date) => void;
+};
+
+export function MonthPlannerView({
+  activities,
+  displayedMonth,
+  selectedDate,
+  onMonthChange,
+  onSelectDate,
+}: MonthPlannerViewProps) {
+  function PlannerDayButton(
+    props: ComponentProps<typeof CalendarDayButton>,
+  ) {
+    const dateKey = localDateKey(props.day.date);
+    const importantDates = getImportantDatesForDate(dateKey);
+    const plannedCount = activities.filter(
+      (activity) => activity.plannedDate === dateKey,
+    ).length;
+    const details = [
+      ...importantDates.map((date) => date.name),
+      plannedCount > 0
+        ? `${plannedCount} planned ${plannedCount === 1 ? "activity" : "activities"}`
+        : "",
+    ].filter(Boolean);
+    const label = [
+      props.day.date.toLocaleDateString("en-AU", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }),
+      ...details,
+    ].join(", ");
+
+    return (
+      <CalendarDayButton {...props} aria-label={label}>
+        <span>{props.day.date.getDate()}</span>
+        {(importantDates.length > 0 || plannedCount > 0) && (
+          <span aria-hidden="true" className="flex items-center gap-0.5">
+            {importantDates.length > 0 && (
+              <span className="size-1.5 rounded-full bg-[#E4633C]" />
+            )}
+            {plannedCount > 0 && (
+              <span className="rounded-full bg-[#93AB63] px-1 text-[9px] font-bold text-white">
+                {plannedCount}
+              </span>
+            )}
+          </span>
+        )}
+      </CalendarDayButton>
+    );
+  }
+
+  return (
+    <Calendar
+      aria-label="Monthly activity planner"
+      className="w-full rounded-2xl bg-transparent p-0 [--cell-size:--spacing(11)] sm:[--cell-size:--spacing(14)]"
+      classNames={{ root: "w-full", month: "w-full" }}
+      components={{ DayButton: PlannerDayButton }}
+      mode="single"
+      month={displayedMonth}
+      onMonthChange={onMonthChange}
+      onSelect={(date) => date && onSelectDate(date)}
+      selected={selectedDate}
+      showOutsideDays
+    />
+  );
+}
