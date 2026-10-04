@@ -5,12 +5,25 @@ Objective: Epic 6 (Activity Tracking & Rewards)
 
 ## What this does
 
-Queries the Atlas of Living Australia (ALA) for vertebrate species, matches them against a fixed list of 9 badge animals, and maps each to the specific app milestone needed to unlock it. Output: `species_badge_db.csv`, with columns `Vernacular Name, Badge Category, Requirement`.
+Queries the Atlas of Living Australia (ALA) for vertebrate species, matches them against a fixed list of badge animals, and maps each to the specific app milestone needed to unlock it. Output: `species_badge_db.csv`, with columns `Vernacular Name, Badge Category, Requirement`.
 
-### Badge Mechanics
+### Badge Mechanics & Selected Species
 
-* **Streak Badges:** Awarded for daily consistency. Unlocked when a user logs at least one activity for a specific number of consecutive days (3, 7, 10, 20, and 50-day milestones).
-* **Variety Tag Badges:** Awarded for themed engagement. Unlocked when a user completes four activities sharing the exact same `variety_tag` (Quiet, Energised Activity, Exploration, or Water Play) within a single week.
+**1. Streak Badges**
+Awarded for daily consistency. Unlocked when a user logs at least one activity for a specific number of consecutive days. These animals were chosen to match existing frontend UI icons:
+
+* **3 Days:** Koala
+* **5 Days:** Green Turtle
+* **7 Days:** Saltwater Crocodile
+* **14 Days:** Red Kangaroo
+
+**2. Variety Tag Badges**
+Awarded for themed engagement. Unlocked when a user completes four activities sharing the exact same `variety_tag` within a single week. These animals were chosen to reflect the nature of the specific activity type:
+
+* **Quiet:** Sugar Glider *(Note: Swapped from Koala as it is now used for Streaks)*
+* **Energised Activity:** Tasmanian Devil
+* **Exploration:** Dingo
+* **Water Play:** Australian Hump-backed Dolphin
 
 ## How to run it
 
@@ -28,22 +41,22 @@ $env:GALAH_EMAIL="your-email@example.com"
 
 ```
 
-This only lasts for the current terminal window
+*(Note: This only lasts for the current terminal window)*
 
 **3. Run it**
 
 ```bash
-python species_badge_pipeline.py
+python pipeline/src/species_pipeline.py
 
 ```
 
 ## Output
 
-One file: `species_badge_db.csv`
+One file saved to: `pipeline/data/processed/species_badge_db.csv`
 
 | Column | Meaning |
 | --- | --- |
-| Vernacular Name | The animal's common name (e.g. "Koala") |
+| Vernacular Name | The animal's common name (e.g. "Green Turtle") |
 | Badge Category | `Streak` or `Variety Tag` — the mechanic used to earn the badge |
 | Requirement | The target needed: either the number of consecutive days (Streak) or the specific activity tag (Variety Tag) |
 
