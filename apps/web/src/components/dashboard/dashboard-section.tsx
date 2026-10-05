@@ -6,11 +6,17 @@ import { HistoryErrorAlert } from "@/components/history/history-error-alert";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCompletedMissions } from "@/hooks/use-completed-missions";
+import { useDashboardDisclosures } from "@/hooks/use-dashboard-disclosures";
 import { useDashboardDate } from "@/hooks/use-dashboard-date";
 import { useRewards } from "@/hooks/use-rewards";
 import { buildDashboardStats } from "@/lib/dashboard-stats";
+import { MILESTONE_BADGES } from "@/lib/rewards";
 import { DailyGoalCard } from "./daily-goal-card";
+import { DashboardDisclosure } from "./dashboard-disclosure";
 import { DashboardMetrics } from "./dashboard-metrics";
+import { FavouriteActivities } from "./favourite-activities";
+import { NationalGuidelines } from "./national-guidelines";
+import { RewardsGallery } from "./rewards-gallery";
 import { WeeklyActivityChart } from "./weekly-activity-chart";
 
 function DashboardLoadingState() {
@@ -46,6 +52,8 @@ export function DashboardSection() {
     () => buildDashboardStats(records, currentDate),
     [records, currentDate],
   );
+  const { openSections, hasNewBadges, toggleSection } =
+    useDashboardDisclosures(rewards.unlockedBadgeIds);
 
   const handleRetry = () => {
     refresh();
@@ -93,6 +101,37 @@ export function DashboardSection() {
             </Card>
           </div>
           <DashboardMetrics stats={stats} />
+          <div className="space-y-1.5 pt-0.5">
+            <DashboardDisclosure
+              id="reward-badges"
+              isNew={hasNewBadges}
+              onToggle={() => toggleSection("rewardBadges")}
+              open={openSections.rewardBadges}
+              title="Reward badges"
+            >
+              <RewardsGallery
+                badges={MILESTONE_BADGES}
+                showHeading={false}
+                unlockedBadgeIds={rewards.unlockedBadgeIds}
+              />
+            </DashboardDisclosure>
+            <DashboardDisclosure
+              id="favourite-activities"
+              onToggle={() => toggleSection("favouriteActivities")}
+              open={openSections.favouriteActivities}
+              title="Favourite activities"
+            >
+              <FavouriteActivities tags={stats.varietyTagCounts} />
+            </DashboardDisclosure>
+            <DashboardDisclosure
+              id="national-guidelines"
+              onToggle={() => toggleSection("nationalGuidelines")}
+              open={openSections.nationalGuidelines}
+              title="National guidelines"
+            >
+              <NationalGuidelines stats={stats} />
+            </DashboardDisclosure>
+          </div>
         </div>
       )}
     </section>

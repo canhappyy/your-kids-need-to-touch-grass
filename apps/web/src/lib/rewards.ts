@@ -2,7 +2,6 @@ import { z } from "zod";
 import type { CompletedMission } from "@/types/completed-mission";
 import type {
   MilestoneBadge,
-  RewardBadgeId,
   RewardState,
 } from "@/types/reward";
 
