@@ -18,6 +18,7 @@ import { MissionInstructionsDialog } from "./mission-instructions-dialog";
 function ActivityResult({
   recommendation,
   planDate,
+  childAgeRange,
   isRetrying = false,
   onTryAnother,
 }: ActivityResultProps) {
@@ -79,6 +80,7 @@ function ActivityResult({
             <MissionCompletion
               isRetrying={isRetrying}
               planDate={planDate}
+              childAgeRange={childAgeRange}
               recommendation={recommendation}
             />
           }

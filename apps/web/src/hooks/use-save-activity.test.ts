@@ -26,7 +26,15 @@ const baseRecommendation: Recommendation = {
   ageBands: ["5-7"],
   supervisionLevel: "Needs Supervision",
   reasons: [],
-  venue: null,
+  varietyTags: ["Exploration", "Creativity"],
+  venue: {
+    openSpaceId: 1,
+    name: "Central Park",
+    category: "Park",
+    latitude: -37.9,
+    longitude: 145.1,
+    distanceKm: 1,
+  },
 };
 
 describe("useSaveActivity", () => {
@@ -71,7 +79,7 @@ describe("useSaveActivity", () => {
   it("saves the activity and guards against duplicate clicks from one result", () => {
     let result!: ReturnType<typeof useSaveActivity>;
     function Probe() {
-      result = useSaveActivity(baseRecommendation, false);
+      result = useSaveActivity(baseRecommendation, false, [5, 7]);
       return null;
     }
     renderToStaticMarkup(createElement(Probe));
@@ -83,6 +91,9 @@ describe("useSaveActivity", () => {
     expect(records).toHaveLength(1);
     expect(records[0]?.missionId).toBe("MIS-001");
     expect(records[0]?.name).toBe("Nature Scavenger Hunt");
+    expect(records[0]?.childAgeRange).toEqual([5, 7]);
+    expect(records[0]?.walkingDistanceKm).toBe(2.6);
+    expect(records[0]?.varietyTags).toEqual(["Exploration", "Creativity"]);
   });
 
   it("remains in saved state when activity is moved to completed in history", () => {

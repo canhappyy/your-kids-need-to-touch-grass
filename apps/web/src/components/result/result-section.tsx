@@ -76,6 +76,10 @@ export function ResultSection() {
     <>
       {topNav}
       <ActivityResult
+        childAgeRange={[
+          Number(searchParams.ageMin),
+          Number(searchParams.ageMax),
+        ]}
         isRetrying={isRetrying}
         onBackToSearch={handleBackToSearch}
         onTryAnother={handleTryAnother}

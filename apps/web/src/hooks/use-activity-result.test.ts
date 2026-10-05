@@ -16,6 +16,7 @@ const recommendation: Recommendation = {
   missionType: "Location-Based",
   ageBands: ["5-7"],
   supervisionLevel: "Independent-Play-Safe",
+  varietyTags: [],
   reasons: [],
   venue: {
     openSpaceId: 1,

@@ -83,6 +83,7 @@ describe("dashboard streak and wildlife rewards", () => {
     expect(markup).toContain('data-slot="dialog-content"');
     expect(markup).toContain("Koala badge earned");
     expect(markup).toContain("Earned for a 3-day activity streak.");
+    expect(markup).toContain("Earned");
     expect(markup.match(/disabled/g)).toHaveLength(3);
   });
 });

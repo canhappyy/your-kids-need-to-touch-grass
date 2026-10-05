@@ -16,4 +16,10 @@ export type SavedActivity = {
   instructionText?: string | null;
   /** Activity equipment needed text, or null. */
   equipmentNeeded?: string | null;
+  /** Child age range selected when the recommendation was generated. */
+  childAgeRange?: [number, number];
+  /** Estimated round-trip walking distance in kilometres. */
+  walkingDistanceKm?: number;
+  /** Activity variety classifications captured for local summaries. */
+  varietyTags?: string[];
 };

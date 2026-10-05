@@ -1,54 +1,60 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { HistoryErrorAlert } from "@/components/history/history-error-alert";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCompletedMissions } from "@/hooks/use-completed-missions";
+import { useDashboardDisclosures } from "@/hooks/use-dashboard-disclosures";
 import { useDashboardDate } from "@/hooks/use-dashboard-date";
 import { useRewards } from "@/hooks/use-rewards";
-import { useSpeciesBadges } from "@/hooks/use-species-badges";
 import { buildDashboardStats } from "@/lib/dashboard-stats";
-import type { DashboardView } from "@/types/dashboard";
-import { ActivityStatsCard } from "./activity-stats-card";
+import { MILESTONE_BADGES } from "@/lib/rewards";
+import { DailyGoalCard } from "./daily-goal-card";
+import { DashboardDisclosure } from "./dashboard-disclosure";
+import { DashboardMetrics } from "./dashboard-metrics";
+import { FavouriteActivities } from "./favourite-activities";
+import { NationalGuidelines } from "./national-guidelines";
 import { RewardsGallery } from "./rewards-gallery";
-import { StreakCard } from "./streak-card";
+import { WeeklyActivityChart } from "./weekly-activity-chart";
 
 function DashboardLoadingState() {
   return (
-    <div aria-label="Loading dashboard activity" className="grid gap-5 lg:grid-cols-2" role="status">
-      <Skeleton className="h-28 rounded-xl lg:col-span-2" />
-      <Skeleton className="h-80 rounded-xl" />
-      <Skeleton className="h-80 rounded-xl" />
-      <Skeleton className="h-64 rounded-xl lg:col-span-2" />
+    <div
+      aria-label="Loading dashboard activity"
+      className="grid gap-2"
+      role="status"
+    >
+      <Skeleton className="h-32 rounded-xl" />
+      <Skeleton className="h-32 rounded-xl" />
+      <div className="grid grid-cols-2 gap-2">
+        <Skeleton className="h-20 rounded-xl" />
+        <Skeleton className="h-20 rounded-xl" />
+        <Skeleton className="h-20 rounded-xl" />
+        <Skeleton className="h-20 rounded-xl" />
+      </div>
     </div>
   );
 }
 
-/** Parent dashboard backed only by completed missions in browser storage. */
+/** Compact parent summary backed only by device-local activity records. */
 export function DashboardSection() {
   const { records, loading, error, refresh } = useCompletedMissions();
-  const [view, setView] = useState<DashboardView>("daily");
   const currentDate = useDashboardDate();
-  const { badges } = useSpeciesBadges();
   const {
     rewards,
     loading: rewardsLoading,
     error: rewardsError,
     refresh: refreshRewards,
-  } = useRewards(records, currentDate, badges);
+  } = useRewards(records, currentDate);
   const stats = useMemo(
     () => buildDashboardStats(records, currentDate),
     [records, currentDate],
   );
+  const { openSections, hasNewBadges, toggleSection } =
+    useDashboardDisclosures(rewards.unlockedBadgeIds);
 
-  const handleViewChange = (nextView: string | number) => {
-    if (nextView === "daily" || nextView === "weekly") {
-      setView(nextView);
-    }
-  };
   const handleRetry = () => {
     refresh();
     refreshRewards();
@@ -56,28 +62,25 @@ export function DashboardSection() {
 
   return (
     <section className="w-full">
-      <header className="mb-8 text-center sm:text-left">
+      <header className="mb-3 pr-12">
         <Image
           alt="playgo & co"
-          className="mx-auto h-auto w-40 sm:mx-0 sm:w-48"
+          className="h-auto w-28 sm:w-36"
           height={47}
           priority
           src="/playgo&co.svg"
           width={240}
         />
-        <h1 className="mt-7 text-2xl font-bold tracking-tight text-zinc-800 sm:text-3xl">
+        <h1 className="mt-2 text-xl font-bold tracking-tight text-zinc-800 sm:text-2xl">
           Parent dashboard
         </h1>
-        <p className="mt-2 text-sm leading-relaxed text-zinc-600 sm:text-base">
-          Track your child&apos;s active play against the 60-minute daily goal.
-        </p>
       </header>
 
       {loading || rewardsLoading ? (
         <DashboardLoadingState />
       ) : error || rewardsError ? (
         <Card className="border border-red-200 bg-white/55 shadow-sm ring-0">
-          <CardContent className="py-6">
+          <CardContent className="py-4">
             <HistoryErrorAlert
               message={error || rewardsError}
               onRetry={handleRetry}
@@ -85,25 +88,51 @@ export function DashboardSection() {
           </CardContent>
         </Card>
       ) : (
-        <>
-          <StreakCard rewards={rewards} />
-          <Tabs onValueChange={handleViewChange} value={view}>
-            <TabsList className="grid h-11 w-full grid-cols-2 rounded-full bg-[#EEF2E8]">
-              <TabsTrigger className="rounded-full" value="daily">Daily View</TabsTrigger>
-              <TabsTrigger className="rounded-full" value="weekly">Weekly Trends</TabsTrigger>
-            </TabsList>
-            <TabsContent value="daily">
-              <ActivityStatsCard stats={stats} view="daily" />
-            </TabsContent>
-            <TabsContent value="weekly">
-              <ActivityStatsCard stats={stats} view="weekly" />
-            </TabsContent>
-          </Tabs>
-          <RewardsGallery
-            badges={badges}
-            unlockedBadgeIds={rewards.unlockedBadgeIds}
-          />
-        </>
+        <div className="space-y-2">
+          <div className="grid gap-2 md:grid-cols-2">
+            <DailyGoalCard
+              stats={stats}
+              streak={rewards.currentStreak}
+            />
+            <Card className="border border-[#93AB63]/60 bg-white/55 py-3 shadow-sm ring-0">
+              <CardContent className="px-3 sm:px-4">
+                <WeeklyActivityChart days={stats.days} />
+              </CardContent>
+            </Card>
+          </div>
+          <DashboardMetrics stats={stats} />
+          <div className="space-y-1.5 pt-0.5">
+            <DashboardDisclosure
+              id="reward-badges"
+              isNew={hasNewBadges}
+              onToggle={() => toggleSection("rewardBadges")}
+              open={openSections.rewardBadges}
+              title="Reward badges"
+            >
+              <RewardsGallery
+                badges={MILESTONE_BADGES}
+                showHeading={false}
+                unlockedBadgeIds={rewards.unlockedBadgeIds}
+              />
+            </DashboardDisclosure>
+            <DashboardDisclosure
+              id="favourite-activities"
+              onToggle={() => toggleSection("favouriteActivities")}
+              open={openSections.favouriteActivities}
+              title="Favourite activities"
+            >
+              <FavouriteActivities tags={stats.varietyTagCounts} />
+            </DashboardDisclosure>
+            <DashboardDisclosure
+              id="national-guidelines"
+              onToggle={() => toggleSection("nationalGuidelines")}
+              open={openSections.nationalGuidelines}
+              title="National guidelines"
+            >
+              <NationalGuidelines stats={stats} />
+            </DashboardDisclosure>
+          </div>
+        </div>
       )}
     </section>
   );

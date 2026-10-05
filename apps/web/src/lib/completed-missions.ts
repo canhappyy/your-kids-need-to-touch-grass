@@ -44,6 +44,9 @@ const recordSchema = z.object({
   durationMinutes: z.number().int().positive(),
   instructionText: z.string().nullable().optional(),
   equipmentNeeded: z.string().nullable().optional(),
+  childAgeRange: z.tuple([z.number().int(), z.number().int()]).optional(),
+  walkingDistanceKm: z.number().nonnegative().optional(),
+  varietyTags: z.array(z.string().trim().min(1)).optional(),
 });
 
 /**

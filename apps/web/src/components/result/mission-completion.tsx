@@ -15,6 +15,7 @@ export type MissionCompletionProps = {
   isRetrying: boolean;
   /** Optional date selected before generating this recommendation. */
   planDate?: string;
+  childAgeRange?: [number, number];
 };
 
 /**
@@ -26,10 +27,12 @@ export function MissionCompletion({
   recommendation,
   isRetrying,
   planDate,
+  childAgeRange,
 }: MissionCompletionProps) {
   const { save, isSaved, error } = useSaveActivity(
     recommendation,
     isRetrying,
+    childAgeRange,
   );
   return (
     <div className="space-y-2">

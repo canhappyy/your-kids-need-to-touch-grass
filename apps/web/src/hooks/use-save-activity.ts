@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { saveActivity } from "@/lib/saved-activities";
+import { WALKING_DETOUR_FACTOR } from "@/lib/commute";
 import type { Recommendation } from "@/types/recommendation";
 
 // In-memory registry tracking recommendation results that have already been saved in this session.
@@ -41,6 +42,7 @@ export function _resetSavedResultInstances(): void {
 export function useSaveActivity(
   recommendation: Recommendation,
   isRetrying: boolean,
+  childAgeRange?: [number, number],
 ) {
   const [, setRevision] = useState(0);
   const [error, setError] = useState("");
@@ -75,6 +77,13 @@ export function useSaveActivity(
         durationMinutes: recommendation.durationMinutes,
         instructionText: recommendation.instructionText,
         equipmentNeeded: recommendation.equipmentNeeded,
+        childAgeRange,
+        walkingDistanceKm: recommendation.venue
+          ? Math.round(
+              recommendation.venue.distanceKm * 2 * WALKING_DETOUR_FACTOR * 100,
+            ) / 100
+          : 0,
+        varietyTags: recommendation.varietyTags,
       });
 
       setError("");
