@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { useSaveActivity } from "@/hooks/use-save-activity";
 import type { Recommendation } from "@/types/recommendation";
+import { PlannerSaveDialog } from "./planner-save-dialog";
 
 /**
  * Props for the `MissionCompletion` component.
@@ -12,6 +13,8 @@ export type MissionCompletionProps = {
   recommendation: Recommendation;
   /** Whether a swap retry operation is currently underway. */
   isRetrying: boolean;
+  /** Optional date selected before generating this recommendation. */
+  planDate?: string;
 };
 
 /**
@@ -22,6 +25,7 @@ export type MissionCompletionProps = {
 export function MissionCompletion({
   recommendation,
   isRetrying,
+  planDate,
 }: MissionCompletionProps) {
   const { save, isSaved, error } = useSaveActivity(
     recommendation,
@@ -46,6 +50,10 @@ export function MissionCompletion({
           {error}
         </p>
       )}
+      <PlannerSaveDialog
+        initialDateKey={planDate}
+        recommendation={recommendation}
+      />
     </div>
   );
 }

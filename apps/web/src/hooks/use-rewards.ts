@@ -6,9 +6,9 @@ import {
   HISTORY_KEY,
   readCompletedMissions,
 } from "@/lib/completed-missions";
-import { REWARDS_KEY, reconcileRewards } from "@/lib/rewards";
+import { MILESTONE_BADGES, REWARDS_KEY, reconcileRewards } from "@/lib/rewards";
 import type { CompletedMission } from "@/types/completed-mission";
-import type { RewardState } from "@/types/reward";
+import type { MilestoneBadge, RewardState } from "@/types/reward";
 
 const EMPTY_REWARDS: RewardState = {
   currentStreak: 0,
@@ -22,19 +22,24 @@ type RewardsStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 export function synchronizeRewards(
   store: RewardsStorage = window.localStorage,
   now = new Date(),
+  badges: readonly MilestoneBadge[] = MILESTONE_BADGES,
 ): RewardState {
-  return reconcileRewards(readCompletedMissions(store), now, store);
+  return reconcileRewards(readCompletedMissions(store), now, store, badges);
 }
 
 /** Hydrates and synchronizes local streak rewards with completion history. */
-export function useRewards(records: CompletedMission[], currentDate: Date) {
+export function useRewards(
+  records: CompletedMission[],
+  currentDate: Date,
+  badges: readonly MilestoneBadge[] = MILESTONE_BADGES,
+) {
   const [rewards, setRewards] = useState<RewardState>(EMPTY_REWARDS);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const refresh = useCallback(() => {
     try {
-      setRewards(synchronizeRewards());
+      setRewards(synchronizeRewards(window.localStorage, new Date(), badges));
       setError("");
     } catch {
       setError(
@@ -43,7 +48,7 @@ export function useRewards(records: CompletedMission[], currentDate: Date) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [badges]);
 
   useEffect(() => {
     let active = true;

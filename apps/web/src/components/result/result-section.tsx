@@ -24,6 +24,7 @@ export function ResultSection() {
     location,
     locationMode,
     recommendation,
+    searchParams,
   } = useResultSection();
 
   if (locationMode === "nearby" && !location) {
@@ -78,6 +79,7 @@ export function ResultSection() {
         isRetrying={isRetrying}
         onBackToSearch={handleBackToSearch}
         onTryAnother={handleTryAnother}
+        planDate={searchParams.planDate}
         recommendation={recommendation}
       />
     </>

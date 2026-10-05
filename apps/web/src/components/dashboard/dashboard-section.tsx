@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCompletedMissions } from "@/hooks/use-completed-missions";
 import { useDashboardDate } from "@/hooks/use-dashboard-date";
 import { useRewards } from "@/hooks/use-rewards";
+import { useSpeciesBadges } from "@/hooks/use-species-badges";
 import { buildDashboardStats } from "@/lib/dashboard-stats";
 import type { DashboardView } from "@/types/dashboard";
 import { ActivityStatsCard } from "./activity-stats-card";
@@ -31,12 +32,13 @@ export function DashboardSection() {
   const { records, loading, error, refresh } = useCompletedMissions();
   const [view, setView] = useState<DashboardView>("daily");
   const currentDate = useDashboardDate();
+  const { badges } = useSpeciesBadges();
   const {
     rewards,
     loading: rewardsLoading,
     error: rewardsError,
     refresh: refreshRewards,
-  } = useRewards(records, currentDate);
+  } = useRewards(records, currentDate, badges);
   const stats = useMemo(
     () => buildDashboardStats(records, currentDate),
     [records, currentDate],
@@ -86,9 +88,9 @@ export function DashboardSection() {
         <>
           <StreakCard rewards={rewards} />
           <Tabs onValueChange={handleViewChange} value={view}>
-            <TabsList className="mb-4 grid h-11 w-full grid-cols-2 bg-white/65 p-1 sm:max-w-md">
-              <TabsTrigger value="daily">Daily View</TabsTrigger>
-              <TabsTrigger value="weekly">Weekly Trends</TabsTrigger>
+            <TabsList className="grid h-11 w-full grid-cols-2 rounded-full bg-[#EEF2E8]">
+              <TabsTrigger className="rounded-full" value="daily">Daily View</TabsTrigger>
+              <TabsTrigger className="rounded-full" value="weekly">Weekly Trends</TabsTrigger>
             </TabsList>
             <TabsContent value="daily">
               <ActivityStatsCard stats={stats} view="daily" />
@@ -97,7 +99,10 @@ export function DashboardSection() {
               <ActivityStatsCard stats={stats} view="weekly" />
             </TabsContent>
           </Tabs>
-          <RewardsGallery unlockedBadgeIds={rewards.unlockedBadgeIds} />
+          <RewardsGallery
+            badges={badges}
+            unlockedBadgeIds={rewards.unlockedBadgeIds}
+          />
         </>
       )}
     </section>

@@ -6,7 +6,7 @@ import { ResultSection } from "@/components/result";
  * Page metadata for the activity recommendation result view.
  */
 export const metadata: Metadata = {
-  title: "PlayGo - Activity Result",
+  title: "PlayGo & Co - Activity Result",
   description: "Find something fun for your child, fast.",
 };
 

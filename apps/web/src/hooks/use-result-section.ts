@@ -20,6 +20,7 @@ import type {
   RecommendationRequest,
   ResultSearchParams,
 } from "@/types/result";
+import { readPlannableDateParam } from "@/lib/planner-dates";
 
 /**
  * Custom hook that powers the activity result page, handling recommendation fetching,
@@ -70,6 +71,7 @@ export function useResultSection() {
   const minutes = searchParams.get("minutes") || "0";
   const selectedMissionId = searchParams.get("missionId") || undefined;
   const swapsUsed = readSwapsUsed(searchParams.get("swapsUsed"));
+  const planDate = readPlannableDateParam(searchParams.get("planDate"));
 
   const shownMissionIds = useMemo(() => {
     return [
@@ -92,6 +94,7 @@ export function useResultSection() {
       lng,
       locationMode,
       minutes,
+      planDate,
       playStyle,
       canSupervise,
       selectedMissionId,
@@ -107,6 +110,7 @@ export function useResultSection() {
       lng,
       locationMode,
       minutes,
+      planDate,
       playStyle,
       canSupervise,
       selectedMissionId,
@@ -132,6 +136,7 @@ export function useResultSection() {
       lng,
       locationMode,
       minutes,
+      planDate,
       playStyle,
       canSupervise,
     });
@@ -146,6 +151,7 @@ export function useResultSection() {
     minutes,
     playStyle,
     canSupervise,
+    planDate,
   ]);
 
   const returnToSearchWithError = useCallback(

@@ -12,7 +12,7 @@ export type DataSource = {
 };
 
 export const DATA_GOVERNANCE_ABOUT =
-  "playgo recommends activities using open data from government and community sources, combined with an activity library written by our own team.";
+  "playgo & co recommends activities using open data from government and community sources, combined with an activity library written by our own team.";
 
 export const DATA_SOURCES: DataSource[] = [
   {
@@ -36,6 +36,20 @@ export const DATA_SOURCES: DataSource[] = [
     source: "Weather data by Open-Meteo.com",
     licence: "Creative Commons Attribution 4.0 International (CC BY 4.0)",
     url: "https://open-meteo.com",
+  },
+  {
+    id: "victorian-public-holidays",
+    name: "Victorian Public Holidays",
+    source: "Business Victoria, Victorian Government",
+    note: "Bundled snapshot for 2026 and 2027; dates may be updated by the Victorian Government.",
+    url: "https://business.vic.gov.au/business-information/public-holidays/victorian-public-holidays-2026",
+  },
+  {
+    id: "victorian-school-dates",
+    name: "Victorian School Term Dates",
+    source: "Department of Education, Victorian Government",
+    note: "Bundled school holiday ranges derived from published government school term dates.",
+    url: "https://www.vic.gov.au/school-term-dates-and-holidays-victoria",
   },
 ];
 

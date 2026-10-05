@@ -37,12 +37,7 @@ export const MILESTONE_BADGES: readonly MilestoneBadge[] = [
 
 export type RewardStorage = Pick<Storage, "getItem" | "setItem">;
 
-const badgeIdSchema = z.enum([
-  "koala",
-  "kangaroo",
-  "saltwater-crocodile",
-  "green-sea-turtle",
-]);
+const badgeIdSchema = z.string().min(1);
 
 const rewardStateSchema = z.object({
   currentStreak: z.number().int().nonnegative(),
@@ -123,6 +118,7 @@ export function reconcileRewards(
   records: CompletedMission[],
   now = new Date(),
   store: RewardStorage = window.localStorage,
+  badges: readonly MilestoneBadge[] = MILESTONE_BADGES,
 ): RewardState {
   const existing = readRewards(store);
   const dateKeys = orderedUniqueCompletionDates(records, now);
@@ -132,18 +128,22 @@ export function reconcileRewards(
   const yesterday = shiftLocalDateKey(today, -1);
   const currentStreak =
     latestDate === today || latestDate === yesterday ? latestRun : 0;
-  const unlocked = new Set<RewardBadgeId>(existing?.unlockedBadgeIds ?? []);
+  const unlocked = new Set<string>(existing?.unlockedBadgeIds ?? []);
 
-  for (const badge of MILESTONE_BADGES) {
-    if (longestRun >= badge.milestoneDays) unlocked.add(badge.id);
+  for (const badge of badges) {
+    if (badge.milestoneDays > 0 && longestRun >= badge.milestoneDays) {
+      unlocked.add(badge.id);
+    }
   }
 
+  const knownIds = new Set(badges.map((badge) => badge.id));
   const state: RewardState = {
     currentStreak,
     lastCompletedDate: latestDate,
-    unlockedBadgeIds: MILESTONE_BADGES.map((badge) => badge.id).filter((id) =>
-      unlocked.has(id),
-    ),
+    unlockedBadgeIds: [
+      ...badges.map((badge) => badge.id).filter((id) => unlocked.has(id)),
+      ...Array.from(unlocked).filter((id) => !knownIds.has(id)),
+    ],
   };
   persistRewards(state, store);
   return state;

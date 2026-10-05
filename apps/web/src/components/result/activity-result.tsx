@@ -17,6 +17,7 @@ import { MissionInstructionsDialog } from "./mission-instructions-dialog";
  */
 function ActivityResult({
   recommendation,
+  planDate,
   isRetrying = false,
   onTryAnother,
 }: ActivityResultProps) {
@@ -77,6 +78,7 @@ function ActivityResult({
           completionControl={
             <MissionCompletion
               isRetrying={isRetrying}
+              planDate={planDate}
               recommendation={recommendation}
             />
           }

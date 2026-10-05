@@ -33,6 +33,8 @@ export type ResultSearchParams = PlayPreferences & {
   hours: string;
   /** Duration minutes string. */
   minutes: string;
+  /** Optional valid local date preselected by the activity planner. */
+  planDate?: string;
   /** Selected mission ID if viewing a specific mission from URL. */
   selectedMissionId?: string;
   /** Number of swaps used so far. */

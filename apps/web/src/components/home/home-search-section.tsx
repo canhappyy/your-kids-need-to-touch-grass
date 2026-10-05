@@ -13,6 +13,7 @@ import {
   minuteOptions,
 } from "@/lib/home-search";
 import type { AgeBucketId } from "@/types/home-search";
+import { readPlannableDateParam } from "@/lib/planner-dates";
 import {
   HomeSearchForm,
   type HomeSearchValues,
@@ -95,6 +96,7 @@ export function HomeSearchSection() {
     invalid: "Enter a valid four-digit postcode or suburb.",
   };
   const locationErrorCode = searchParams.get("locationError") || "";
+  const planDate = readPlannableDateParam(searchParams.get("planDate"));
 
   const handleSubmit = (values: HomeSearchValues) => {
     const params = new URLSearchParams(playPreferenceParams(values));
@@ -114,6 +116,7 @@ export function HomeSearchSection() {
     }
     params.set("hours", (values.hours ?? 0).toString());
     params.set("minutes", values.minutes.toString());
+    if (planDate) params.set("planDate", planDate);
     router.push(`/result?${params.toString()}`);
   };
 
@@ -125,7 +128,7 @@ export function HomeSearchSection() {
         <h1>
           <Image
             src="/playgo&co.svg"
-            alt="PlayGo"
+            alt="PlayGo & Co"
             width={240}
             height={47}
             priority

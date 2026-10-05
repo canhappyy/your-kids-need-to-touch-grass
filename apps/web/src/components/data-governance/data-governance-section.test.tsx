@@ -23,7 +23,7 @@ describe("DataGovernanceSection", () => {
 
   it("renders About Our Data content accurately", () => {
     const markup = renderToStaticMarkup(<DataGovernanceSection />);
-    expect(markup).toContain(DATA_GOVERNANCE_ABOUT);
+    expect(markup).toContain(DATA_GOVERNANCE_ABOUT.replace("&", "&amp;"));
   });
 
   it("renders all data sources with correct external links and secure attributes", () => {
@@ -44,6 +44,15 @@ describe("DataGovernanceSection", () => {
     expect(markup).toContain(`href="${CC_BY_4_LICENCE_URL}"`);
     expect(markup).toContain('target="_blank"');
     expect(markup).toContain('rel="noopener noreferrer"');
+  });
+
+  it("attributes bundled Victorian public and school holiday data", () => {
+    const markup = renderToStaticMarkup(<DataGovernanceSection />);
+
+    expect(markup).toContain("Victorian Public Holidays");
+    expect(markup).toContain("Victorian School Term Dates");
+    expect(markup).toContain("business.vic.gov.au");
+    expect(markup).toContain("vic.gov.au/school-term-dates");
   });
 
   it("renders the open data disclaimer notice", () => {

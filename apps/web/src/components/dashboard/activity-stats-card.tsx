@@ -70,7 +70,7 @@ function DailyActivity({ stats }: Pick<ActivityStatsCardProps, "stats">) {
 
         <p className="mt-5 rounded-xl bg-[#FDF6EA] px-4 py-3 text-sm leading-relaxed text-zinc-700">
           {stats.todayMinutes < DAILY_GOAL_MINUTES
-            ? "Every 15 minutes of outdoor play counts towards today's goal!"
+            ? "Every 15 minutes of physical activity counts towards today's goal!"
             : "Today's goal reached - great work!"}
         </p>
       </CardContent>

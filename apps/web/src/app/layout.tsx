@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
  * Global application metadata defining title, description, and branding.
  */
 export const metadata: Metadata = {
-  title: "PlayGo",
+  title: "PlayGo & Co",
   description: "Find something fun for your child, fast.",
 };
 

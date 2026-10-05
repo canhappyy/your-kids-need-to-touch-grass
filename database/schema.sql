@@ -25,7 +25,7 @@ DROP TABLE IF EXISTS
     postcode,
     social_tag,
     species_badge,
-    badge_category,
+    badge_category
 CASCADE;
 
 -- 1. Lookup Tables

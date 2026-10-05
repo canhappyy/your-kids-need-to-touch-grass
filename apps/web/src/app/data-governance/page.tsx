@@ -4,9 +4,9 @@ import { DataGovernanceSection } from "@/components/data-governance";
 import { TopNav } from "@/components/layout/top-nav";
 
 export const metadata: Metadata = {
-  title: "PlayGo - Data governance",
+  title: "PlayGo & Co - Data governance",
   description:
-    "Learn about PlayGo data sources, open data licenses, activity library curation, and privacy commitments.",
+    "Learn about PlayGo & Co data sources, open data licenses, activity library curation, and privacy commitments.",
 };
 
 export default function DataGovernancePage() {
