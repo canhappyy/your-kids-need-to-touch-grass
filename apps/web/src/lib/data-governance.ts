@@ -2,6 +2,11 @@
  * Data governance and open data configuration for PlayGo.
  */
 
+import {
+  ABS_ACTIVITY_SOURCE,
+  AUSTRALIAN_GUIDELINE_SOURCE,
+} from "@/data/australian-activity-reference";
+
 export type DataSource = {
   id: string;
   name: string;
@@ -50,6 +55,20 @@ export const DATA_SOURCES: DataSource[] = [
     source: "Department of Education, Victorian Government",
     note: "Bundled school holiday ranges derived from published government school term dates.",
     url: "https://www.vic.gov.au/school-term-dates-and-holidays-victoria",
+  },
+  {
+    id: "national-activity-reference",
+    name: "National Nutrition and Physical Activity Survey 2023",
+    source: "Australian Bureau of Statistics",
+    note: "Bundled age-group averages and activity-time distributions used for device-local dashboard comparisons.",
+    url: ABS_ACTIVITY_SOURCE.url,
+  },
+  {
+    id: "national-activity-guideline",
+    name: "Australian 24-Hour Movement Guidelines",
+    source: "Australian Government Department of Health, Disability and Ageing",
+    note: "Children and young people aged 5–17 should accumulate at least 60 minutes of moderate to vigorous physical activity each day.",
+    url: AUSTRALIAN_GUIDELINE_SOURCE.url,
   },
 ];
 

@@ -38,18 +38,27 @@ vi.mock("@/hooks/use-rewards", () => ({
 
 const stats: DashboardStats = {
   days: [
-    { date: new Date(2026, 8, 27, 12), dateKey: "2026-09-27", minutes: 20, metGoal: false },
-    { date: new Date(2026, 8, 28, 12), dateKey: "2026-09-28", minutes: 35, metGoal: false },
-    { date: new Date(2026, 8, 29, 12), dateKey: "2026-09-29", minutes: 60, metGoal: true },
-    { date: new Date(2026, 8, 30, 12), dateKey: "2026-09-30", minutes: 75, metGoal: true },
-    { date: new Date(2026, 9, 1, 12), dateKey: "2026-10-01", minutes: 0, metGoal: false },
-    { date: new Date(2026, 9, 2, 12), dateKey: "2026-10-02", minutes: 40, metGoal: false },
-    { date: new Date(2026, 9, 3, 12), dateKey: "2026-10-03", minutes: 45, metGoal: false },
+    { date: new Date(2026, 8, 27, 12), dateKey: "2026-09-27", minutes: 20, metGoal: false, isFuture: false },
+    { date: new Date(2026, 8, 28, 12), dateKey: "2026-09-28", minutes: 35, metGoal: false, isFuture: false },
+    { date: new Date(2026, 8, 29, 12), dateKey: "2026-09-29", minutes: 60, metGoal: true, isFuture: false },
+    { date: new Date(2026, 8, 30, 12), dateKey: "2026-09-30", minutes: 75, metGoal: true, isFuture: false },
+    { date: new Date(2026, 9, 1, 12), dateKey: "2026-10-01", minutes: 0, metGoal: false, isFuture: false },
+    { date: new Date(2026, 9, 2, 12), dateKey: "2026-10-02", minutes: 40, metGoal: false, isFuture: false },
+    { date: new Date(2026, 9, 3, 12), dateKey: "2026-10-03", minutes: 45, metGoal: false, isFuture: false },
   ],
   todayMinutes: 45,
   weeklyMinutes: 275,
   daysMeetingGoal: 2,
   goalDayRate: 29,
+  todayGoalPercentage: 75,
+  activityCount: 7,
+  averageMinutesPerDay: 39,
+  averageWalkingKmPerDay: 1.2,
+  varietyTagCounts: [{ name: "Exploration", count: 3 }],
+  referenceAgeRange: [5, 7],
+  referenceAgeLabel: "Ages 5–7",
+  nationalAverageMinutes: 105,
+  percentileBand: "28th–53rd percentile",
 };
 
 beforeEach(() => {

@@ -5,6 +5,12 @@ export type DashboardDay = {
   dateKey: string;
   minutes: number;
   metGoal: boolean;
+  isFuture: boolean;
+};
+
+export type VarietyTagCount = {
+  name: string;
+  count: number;
 };
 
 export type DashboardStats = {
@@ -13,4 +19,13 @@ export type DashboardStats = {
   weeklyMinutes: number;
   daysMeetingGoal: number;
   goalDayRate: number;
+  todayGoalPercentage: number;
+  activityCount: number;
+  averageMinutesPerDay: number;
+  averageWalkingKmPerDay: number;
+  varietyTagCounts: VarietyTagCount[];
+  referenceAgeRange: [number, number] | null;
+  referenceAgeLabel: string;
+  nationalAverageMinutes: number;
+  percentileBand: string | null;
 };
