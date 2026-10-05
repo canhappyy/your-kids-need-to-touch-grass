@@ -1,5 +1,3 @@
-export type DashboardView = "daily" | "weekly";
-
 export type DashboardDay = {
   date: Date;
   dateKey: string;

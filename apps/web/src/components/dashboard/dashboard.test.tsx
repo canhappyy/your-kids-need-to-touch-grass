@@ -1,13 +1,42 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { DashboardStats } from "@/types/dashboard";
-import { ActivityStatsCard } from "./activity-stats-card";
+import type { CompletedMission } from "@/types/completed-mission";
 import { DashboardSection } from "./dashboard-section";
+
+const records: CompletedMission[] = [
+  {
+    id: "monday",
+    missionId: "MIS-001",
+    name: "Park play",
+    completedAt: "2026-10-05T10:00:00+11:00",
+    durationMinutes: 30,
+    walkingDistanceKm: 3,
+    varietyTags: ["Exploration"],
+    childAgeRange: [5, 7],
+  },
+  {
+    id: "tuesday",
+    missionId: "MIS-002",
+    name: "Ball game",
+    completedAt: "2026-10-06T10:00:00+11:00",
+    durationMinutes: 60,
+    varietyTags: ["Movement", "Exploration"],
+    childAgeRange: [5, 7],
+  },
+  {
+    id: "wednesday",
+    missionId: "MIS-003",
+    name: "Nature walk",
+    completedAt: "2026-10-07T10:00:00+11:00",
+    durationMinutes: 45,
+    childAgeRange: [5, 7],
+  },
+];
 
 const hookState = vi.hoisted(() => ({
   current: {
-    records: [],
+    records: [] as CompletedMission[],
     loading: false,
     error: "",
     refresh: vi.fn(),
@@ -18,9 +47,9 @@ const hookState = vi.hoisted(() => ({
 const rewardHookState = vi.hoisted(() => ({
   current: {
     rewards: {
-      currentStreak: 0,
-      lastCompletedDate: null,
-      unlockedBadgeIds: [],
+      currentStreak: 3,
+      lastCompletedDate: "2026-10-07",
+      unlockedBadgeIds: ["koala"],
     },
     loading: false,
     error: "",
@@ -32,38 +61,17 @@ vi.mock("@/hooks/use-completed-missions", () => ({
   useCompletedMissions: () => hookState.current,
 }));
 
+vi.mock("@/hooks/use-dashboard-date", () => ({
+  useDashboardDate: () => new Date(2026, 9, 7, 12),
+}));
+
 vi.mock("@/hooks/use-rewards", () => ({
   useRewards: () => rewardHookState.current,
 }));
 
-const stats: DashboardStats = {
-  days: [
-    { date: new Date(2026, 8, 27, 12), dateKey: "2026-09-27", minutes: 20, metGoal: false, isFuture: false },
-    { date: new Date(2026, 8, 28, 12), dateKey: "2026-09-28", minutes: 35, metGoal: false, isFuture: false },
-    { date: new Date(2026, 8, 29, 12), dateKey: "2026-09-29", minutes: 60, metGoal: true, isFuture: false },
-    { date: new Date(2026, 8, 30, 12), dateKey: "2026-09-30", minutes: 75, metGoal: true, isFuture: false },
-    { date: new Date(2026, 9, 1, 12), dateKey: "2026-10-01", minutes: 0, metGoal: false, isFuture: false },
-    { date: new Date(2026, 9, 2, 12), dateKey: "2026-10-02", minutes: 40, metGoal: false, isFuture: false },
-    { date: new Date(2026, 9, 3, 12), dateKey: "2026-10-03", minutes: 45, metGoal: false, isFuture: false },
-  ],
-  todayMinutes: 45,
-  weeklyMinutes: 275,
-  daysMeetingGoal: 2,
-  goalDayRate: 29,
-  todayGoalPercentage: 75,
-  activityCount: 7,
-  averageMinutesPerDay: 39,
-  averageWalkingKmPerDay: 1.2,
-  varietyTagCounts: [{ name: "Exploration", count: 3 }],
-  referenceAgeRange: [5, 7],
-  referenceAgeLabel: "Ages 5–7",
-  nationalAverageMinutes: 105,
-  percentileBand: "28th–53rd percentile",
-};
-
 beforeEach(() => {
   hookState.current = {
-    records: [],
+    records: [...records],
     loading: false,
     error: "",
     refresh: vi.fn(),
@@ -71,9 +79,9 @@ beforeEach(() => {
   };
   rewardHookState.current = {
     rewards: {
-      currentStreak: 0,
-      lastCompletedDate: null,
-      unlockedBadgeIds: [],
+      currentStreak: 3,
+      lastCompletedDate: "2026-10-07",
+      unlockedBadgeIds: ["koala"],
     },
     loading: false,
     error: "",
@@ -81,105 +89,82 @@ beforeEach(() => {
   };
 });
 
-describe("parent dashboard", () => {
-  it("renders playgo branding, heading, controls, and zero-value benchmark", () => {
+describe("compact parent dashboard", () => {
+  it("renders branding, daily progress, week chart, and four metrics", () => {
     const markup = renderToStaticMarkup(createElement(DashboardSection));
 
     expect(markup).toContain("playgo &amp; co");
     expect(markup).toContain("Parent dashboard");
-    expect(markup).toContain("Daily View");
-    expect(markup).toContain("Weekly Trends");
-    expect(markup).toContain("0 active minutes in the last 7 days");
-    expect(markup).toContain("26% of Australian children");
-    expect(markup).toContain("0 day streak");
-    expect(markup).toContain("Wildlife rewards");
-  });
-
-  it("keeps the dashboard skeleton visible while rewards hydrate", () => {
-    rewardHookState.current = { ...rewardHookState.current, loading: true };
-
-    const markup = renderToStaticMarkup(createElement(DashboardSection));
-
-    expect(markup).toContain('aria-label="Loading dashboard activity"');
-    expect(markup).not.toContain("Daily View");
-  });
-
-  it("renders a loading skeleton while local history hydrates", () => {
-    hookState.current = { ...hookState.current, loading: true };
-
-    const markup = renderToStaticMarkup(createElement(DashboardSection));
-
-    expect(markup).toContain('aria-label="Loading dashboard activity"');
-    expect(markup).not.toContain("Daily View");
-  });
-
-  it("renders a reward-storage error instead of dashboard cards", () => {
-    rewardHookState.current = {
-      ...rewardHookState.current,
-      error: "Rewards could not be read. Browser storage may be unavailable or damaged.",
-    };
-
-    const markup = renderToStaticMarkup(createElement(DashboardSection));
-
-    expect(markup).toContain('role="alert"');
-    expect(markup).toContain("Rewards could not be read");
-    expect(markup).not.toContain("Daily View");
-  });
-
-  it("renders the local-storage error instead of activity cards", () => {
-    hookState.current = {
-      ...hookState.current,
-      error: "History could not be read. Browser storage may be unavailable or damaged.",
-    };
-
-    const markup = renderToStaticMarkup(createElement(DashboardSection));
-
-    expect(markup).toContain('role="alert"');
-    expect(markup).toContain("History could not be read");
-    expect(markup).not.toContain("Daily View");
-  });
-
-  it("shows today progress and supportive guidance below target", () => {
-    const markup = renderToStaticMarkup(
-      createElement(ActivityStatsCard, { stats, view: "daily" }),
-    );
-
-    expect(markup).toContain("Today&#x27;s activity");
-    expect(markup).toContain("45 active minutes today");
-    expect(markup).toContain("45 of 60 minutes");
-    expect(markup).toContain(
-      "Every 15 minutes of physical activity counts towards today&#x27;s goal!",
-    );
-    expect(markup).toContain("275 active minutes in the last 7 days");
-    expect(markup).toContain("2 of 7 days reached the goal (29%).");
-  });
-
-  it("shows positive goal-reached copy at 60 minutes", () => {
-    const markup = renderToStaticMarkup(
-      createElement(ActivityStatsCard, {
-        stats: { ...stats, todayMinutes: 60 },
-        view: "daily",
-      }),
-    );
-
-    expect(markup).toContain("Today&#x27;s goal reached - great work!");
-    expect(markup).not.toContain("Every 15 minutes");
-  });
-
-  it("renders an accessible weekly chart with target, labels, and values", () => {
-    const markup = renderToStaticMarkup(
-      createElement(ActivityStatsCard, { stats, view: "weekly" }),
-    );
-
+    expect(markup).toContain("Daily activity goal");
+    expect(markup).toContain("45 min");
+    expect(markup).toContain("75%");
+    expect(markup).toContain("3 day streak");
     expect(markup).toContain('aria-label="Weekly active minutes chart"');
-    expect(markup).toContain('aria-describedby="weekly-activity-description"');
-    expect(markup).toContain(
-      "60-minute daily target. Sun: 20 minutes; Mon: 35 minutes; Tue: 60 minutes; Wed: 75 minutes; Thu: 0 minutes; Fri: 40 minutes; Sat: 45 minutes.",
+    expect(markup).toContain("Dashed line = 60 min");
+    for (const label of ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]) {
+      expect(markup).toContain(label);
+    }
+    expect(markup).toContain("Activity time");
+    expect(markup).toContain("Walking");
+    expect(markup).toContain("Activities logged");
+    expect(markup).toContain("Nationwide ranking");
+    expect(markup.match(/avg per day/g)).toHaveLength(2);
+    expect(markup).not.toContain("Daily View");
+    expect(markup).not.toContain("Weekly Trends");
+    expect(markup).not.toContain("26% of Australian children");
+  });
+
+  it("links supportive below-target copy to the logging flow", () => {
+    const markup = renderToStaticMarkup(createElement(DashboardSection));
+
+    expect(markup).toContain("Almost there!");
+    expect(markup).toContain("Log another activity");
+    expect(markup).toContain("to reach today&#x27;s goal.");
+    expect(markup).toContain('href="/?history=open"');
+  });
+
+  it("caps goal progress and replaces the prompt when the goal is reached", () => {
+    hookState.current.records = [
+      ...records,
+      {
+        id: "extra",
+        missionId: "MIS-004",
+        name: "Extra play",
+        completedAt: "2026-10-07T11:00:00+11:00",
+        durationMinutes: 45,
+      },
+    ];
+
+    const markup = renderToStaticMarkup(createElement(DashboardSection));
+
+    expect(markup).toContain("100%");
+    expect(markup).toContain("Today&#x27;s goal reached—great work!");
+    expect(markup).not.toContain("Almost there!");
+  });
+
+  it("shows honest empty metrics and seven empty chart days", () => {
+    hookState.current.records = [];
+
+    const markup = renderToStaticMarkup(createElement(DashboardSection));
+
+    expect(markup).toContain("0 min");
+    expect(markup).toContain("0.0 km");
+    expect(markup).toContain("—");
+    expect(markup).not.toContain("NaN");
+    expect(markup).not.toContain('data-chart-bar="true"');
+  });
+
+  it("renders loading and storage-error states", () => {
+    hookState.current.loading = true;
+    expect(renderToStaticMarkup(createElement(DashboardSection))).toContain(
+      'aria-label="Loading dashboard activity"',
     );
-    expect(markup).toContain("60-minute target");
-    expect(markup).toContain("Sun 20 minutes");
-    expect(markup).toContain("Wed 75 minutes");
-    expect(markup).toContain("Sat 45 minutes");
-    expect(markup).toContain("Australian national benchmark");
+
+    hookState.current.loading = false;
+    hookState.current.error =
+      "History could not be read. Browser storage may be unavailable or damaged.";
+    const errorMarkup = renderToStaticMarkup(createElement(DashboardSection));
+    expect(errorMarkup).toContain('role="alert"');
+    expect(errorMarkup).toContain("History could not be read");
   });
 });

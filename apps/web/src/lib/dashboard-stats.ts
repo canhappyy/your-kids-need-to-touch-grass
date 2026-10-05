@@ -11,10 +11,6 @@ import type {
 
 export const DAILY_GOAL_MINUTES = 60;
 export const WEEK_DAY_COUNT = 7;
-/** @deprecated Kept until the legacy dashboard cards are removed. */
-export const ROLLING_DAY_COUNT = WEEK_DAY_COUNT;
-/** @deprecated Superseded by the bundled ABS 2023 reference. */
-export const NATIONAL_MEETING_RATE = 26;
 
 function localDateKey(date: Date): string {
   const year = date.getFullYear();
