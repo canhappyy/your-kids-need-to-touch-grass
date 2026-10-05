@@ -38,6 +38,9 @@ function mapLocationCandidate(
     missionType: "Location-Based",
     ageBands: mapAgeBands(row),
     supervisionLevel: String(row.supervision_level) as SupervisionLevel,
+    varietyTags: Array.isArray(row.variety_tags)
+      ? row.variety_tags.map(String)
+      : [],
     venue: {
       openSpaceId: Number(row.open_space_id),
       name: String(row.open_space_name),
@@ -72,6 +75,9 @@ function mapFallbackCandidate(
     missionType: String(row.mission_type) as "Home-Based" | "Location-Agnostic",
     ageBands: mapAgeBands(row),
     supervisionLevel: String(row.supervision_level) as SupervisionLevel,
+    varietyTags: Array.isArray(row.variety_tags)
+      ? row.variety_tags.map(String)
+      : [],
     venue: null,
   };
 }
@@ -170,6 +176,12 @@ export async function findLocationBasedRecommendation(
         a.age_8_9,
         a.age_10_12,
         a.supervision_level,
+        COALESCE(
+          (SELECT ARRAY_AGG(DISTINCT avt.tag_name ORDER BY avt.tag_name)
+           FROM activity_variety_tag AS avt
+           WHERE avt.mission_id = a.mission_id),
+          '{}'
+        ) AS variety_tags,
         os.open_space_id,
         os.name AS open_space_name,
         os.category,
@@ -277,7 +289,13 @@ export async function findFallbackRecommendation(
       age_5_7,
       age_8_9,
       age_10_12,
-      supervision_level
+      supervision_level,
+      COALESCE(
+        (SELECT ARRAY_AGG(DISTINCT avt.tag_name ORDER BY avt.tag_name)
+         FROM activity_variety_tag AS avt
+         WHERE avt.mission_id = activity.mission_id),
+        '{}'
+      ) AS variety_tags
     FROM activity
     WHERE mission_type = ANY($5::text[])
       AND ($6::text IS NULL OR mission_id = $6)

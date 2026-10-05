@@ -8,6 +8,8 @@ export type ActivityResultProps = {
   recommendation: Recommendation;
   /** Optional local date carried from the activity planner. */
   planDate?: string;
+  /** Child age range selected in the activity search. */
+  childAgeRange?: [number, number];
   /** Whether a retry/swap operation is currently in flight. */
   isRetrying?: boolean;
   /** Optional callback to navigate back to the home search page. */

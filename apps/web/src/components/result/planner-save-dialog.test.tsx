@@ -46,6 +46,7 @@ const recommendation: Recommendation = {
   missionType: "Home-Based",
   ageBands: ["5-7"],
   supervisionLevel: "Needs Supervision",
+  varietyTags: [],
   reasons: [],
   venue: null,
 };

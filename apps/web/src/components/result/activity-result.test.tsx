@@ -17,6 +17,7 @@ const primary: Recommendation = {
   missionType: "Location-Based",
   ageBands: ["5-7", "8-9"],
   supervisionLevel: "Independent-Play-Safe",
+  varietyTags: [],
   reasons: [
     { kind: "age", label: "Ages 5-9" },
     { kind: "time", label: "Fits your 30m window" },

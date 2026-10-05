@@ -73,6 +73,8 @@ export type RecommendationCandidate = RecommendationTiming & {
   ageBands: AgeBand[];
   /** Required supervision level. */
   supervisionLevel: SupervisionLevel;
+  /** Variety classifications used for local dashboard summaries. */
+  varietyTags: string[];
   /** Venue details if location-based, or null for home/agnostic activities. */
   venue: RecommendationVenue | null;
 };
@@ -136,6 +138,8 @@ export type Recommendation = RecommendationTiming & {
   ageBands: AgeBand[];
   /** Required supervision level. */
   supervisionLevel: SupervisionLevel;
+  /** Variety classifications used for local dashboard summaries. */
+  varietyTags: string[];
   /** Explanatory match reasons why this activity was chosen. */
   reasons: MatchReason[];
   /** Associated open space venue if location-based, otherwise null. */

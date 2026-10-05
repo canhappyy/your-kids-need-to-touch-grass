@@ -29,6 +29,9 @@ const sampleActivity: SavedActivity = {
   durationMinutes: 30,
   instructionText: "Find 3 leaves",
   equipmentNeeded: "Bag|pencil",
+  childAgeRange: [5, 7],
+  walkingDistanceKm: 2.6,
+  varietyTags: ["Exploration", "Creativity"],
 };
 
 afterEach(() => {
@@ -54,6 +57,9 @@ describe("saved-activities", () => {
       durationMinutes: 30,
       instructionText: "Find 3 leaves",
       equipmentNeeded: "Bag|pencil",
+      childAgeRange: [5, 7],
+      walkingDistanceKm: 2.6,
+      varietyTags: ["Exploration", "Creativity"],
     });
   });
 
@@ -112,6 +118,9 @@ describe("saved-activities", () => {
     expect(completed?.name).toBe("Nature Scavenger Hunt");
     expect(completed?.instructionText).toBe("Find 3 leaves");
     expect(completed?.equipmentNeeded).toBe("Bag|pencil");
+    expect(completed?.childAgeRange).toEqual([5, 7]);
+    expect(completed?.walkingDistanceKm).toBe(2.6);
+    expect(completed?.varietyTags).toEqual(["Exploration", "Creativity"]);
 
     // It should now be gone from saved activities
     expect(readSavedActivities(storage)).toEqual([]);
