@@ -1,5 +1,5 @@
 import { type RefObject } from "react";
-import Image from "next/image";
+import { ScreenHeader } from "@/components/layout/screen-header";
 
 /**
  * Props for the {@link HistoryHeader} component.
@@ -15,23 +15,11 @@ type HistoryHeaderProps = {
  */
 export function HistoryHeader({ headingRef }: HistoryHeaderProps) {
   return (
-    <header className="space-y-3 text-center sm:text-left">
-      <Image
-        src="/playgo&co.svg"
-        alt="PlayGo & Co"
-        width={180}
-        height={36}
-        priority
-        className="mx-auto h-10 w-auto sm:mx-0"
-      />
-      <h1
-        ref={headingRef}
-        tabIndex={-1}
-        className="text-2xl font-bold tracking-tight text-zinc-900 outline-none sm:text-3xl"
-      >
-        Activity backlog
-      </h1>
-    </header>
+    <ScreenHeader
+      title="Activity backlog"
+      headingRef={headingRef}
+      tabIndex={-1}
+    />
   );
 }
 

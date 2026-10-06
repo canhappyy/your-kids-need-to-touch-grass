@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { ScreenHeader } from "@/components/layout/screen-header";
 import {
   AlertCircle,
   BookOpen,
@@ -8,12 +8,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ACTIVITY_LIBRARY_INFO,
   CC_BY_4_LICENCE_URL,
@@ -31,24 +26,10 @@ import {
 export function DataGovernanceSection() {
   return (
     <div className="mx-auto w-full max-w-2xl space-y-6">
-      <header className="space-y-3 text-center sm:text-left">
-        <Image
-          src="/playgo&co.svg"
-          alt="PlayGo & Co"
-          width={180}
-          height={36}
-          priority
-          className="mx-auto h-10 w-auto sm:mx-0"
-        />
-        <div className="space-y-1.5">
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 sm:text-3xl">
-            Data Governance
-          </h1>
-          <p className="text-sm text-zinc-600 sm:text-base">
-            Transparency about where PlayGo & Co gets data, how activities are created, and how your privacy is protected.
-          </p>
-        </div>
-      </header>
+      <ScreenHeader
+        title="Data Governance"
+        description="Transparency about where PlayGo & Co gets data, how activities are created, and how your privacy is protected."
+      />
 
       {/* About Our Data */}
       <Card className="bg-white">
@@ -106,7 +87,10 @@ export function DataGovernanceSection() {
                     className="inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 break-all hover:text-indigo-800 hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63]"
                   >
                     <span>Link: {item.url}</span>
-                    <ExternalLink className="size-3.5 shrink-0" aria-hidden="true" />
+                    <ExternalLink
+                      className="size-3.5 shrink-0"
+                      aria-hidden="true"
+                    />
                   </a>
                 </div>
               </div>
@@ -115,7 +99,9 @@ export function DataGovernanceSection() {
 
           <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-3.5 text-sm">
             <p className="text-zinc-700">
-              <span className="font-medium text-zinc-800">CC BY 4.0 licence: </span>
+              <span className="font-medium text-zinc-800">
+                CC BY 4.0 licence:{" "}
+              </span>
               <a
                 href={CC_BY_4_LICENCE_URL}
                 target="_blank"
@@ -123,7 +109,10 @@ export function DataGovernanceSection() {
                 className="inline-flex items-center gap-1 font-medium text-indigo-600 break-all hover:text-indigo-800 hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63]"
               >
                 <span>{CC_BY_4_LICENCE_URL}</span>
-                <ExternalLink className="size-3.5 shrink-0" aria-hidden="true" />
+                <ExternalLink
+                  className="size-3.5 shrink-0"
+                  aria-hidden="true"
+                />
               </a>
             </p>
           </div>
@@ -164,9 +153,7 @@ export function DataGovernanceSection() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3.5 text-zinc-700">
-          <p className="font-medium text-zinc-900">
-            {PRIVACY_INTRO}
-          </p>
+          <p className="font-medium text-zinc-900">{PRIVACY_INTRO}</p>
           <ul className="space-y-2.5 pl-5 text-sm leading-relaxed sm:text-base list-disc">
             {PRIVACY_POINTS.map((point) => (
               <li key={point} className="text-zinc-700">

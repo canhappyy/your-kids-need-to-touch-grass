@@ -1,9 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+
+import { ScreenHeader } from "@/components/layout/screen-header";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -32,7 +33,9 @@ export function PlannerSection() {
   const [selectedDate, setSelectedDate] = useState(
     () => new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12),
   );
-  const [displayedMonth, setDisplayedMonth] = useState(() => plannerMonth(today));
+  const [displayedMonth, setDisplayedMonth] = useState(() =>
+    plannerMonth(today),
+  );
 
   const periodLabel = useMemo(() => {
     if (view === "month") {
@@ -55,18 +58,18 @@ export function PlannerSection() {
   }, [displayedMonth, selectedDate, view]);
 
   const movePeriod = (amount: number) => {
-    const next = movePlannerPeriod(
-      view,
-      displayedMonth,
-      selectedDate,
-      amount,
-    );
+    const next = movePlannerPeriod(view, displayedMonth, selectedDate, amount);
     setDisplayedMonth(next.displayedMonth);
     setSelectedDate(next.selectedDate);
   };
 
   const jumpToToday = () => {
-    const next = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12);
+    const next = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+      12,
+    );
     setSelectedDate(next);
     setDisplayedMonth(plannerMonth(next));
   };
@@ -78,21 +81,7 @@ export function PlannerSection() {
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5">
-      <header className="space-y-3 text-center sm:text-left">
-        <Image
-          src="/playgo&co.svg"
-          alt="PlayGo & Co"
-          width={180}
-          height={36}
-          priority
-          className="mx-auto h-10 w-auto sm:mx-0"
-        />
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 sm:text-3xl">
-            Activity planner
-          </h1>
-        </div>
-      </header>
+      <ScreenHeader title="Activity planner" />
 
       {loading ? (
         <div aria-label="Loading activity planner" className="space-y-4">
@@ -122,8 +111,12 @@ export function PlannerSection() {
                 onValueChange={(value) => setView(value as PlannerView)}
               >
                 <TabsList className="grid h-10 w-full grid-cols-2 rounded-full bg-[#EEF2E8]">
-                  <TabsTrigger className="rounded-full" value="month">Month</TabsTrigger>
-                  <TabsTrigger className="rounded-full" value="week">Week</TabsTrigger>
+                  <TabsTrigger className="rounded-full" value="month">
+                    Month
+                  </TabsTrigger>
+                  <TabsTrigger className="rounded-full" value="week">
+                    Week
+                  </TabsTrigger>
                 </TabsList>
               </Tabs>
 

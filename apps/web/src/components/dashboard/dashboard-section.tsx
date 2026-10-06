@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { useMemo } from "react";
+import { ScreenHeader } from "@/components/layout/screen-header";
 import { HistoryErrorAlert } from "@/components/history/history-error-alert";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -68,19 +68,7 @@ export function DashboardSection() {
 
   return (
     <section className="w-full">
-      <header className="mb-3 space-y-3 text-center sm:text-left">
-        <Image
-          src="/playgo&co.svg"
-          alt="PlayGo & Co"
-          width={180}
-          height={36}
-          priority
-          className="mx-auto h-10 w-auto sm:mx-0"
-        />
-        <h1 className="text-2xl font-bold tracking-tight text-zinc-900 sm:text-3xl">
-          Parent dashboard
-        </h1>
-      </header>
+      <ScreenHeader title="Parent dashboard" className="mb-3" />
 
       {loading || rewardsLoading || badgesLoading ? (
         <DashboardLoadingState />
