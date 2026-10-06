@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { defaultRateLimiter, getClientIp } from "@/lib/rate-limit";
 
 /**
- * Next.js Edge Middleware for application-level rate limiting.
+ * Next.js Proxy Middleware for application-level rate limiting.
  *
  * Enforces a sliding-window rate limit (50 requests per minute per IP address).
  * Intercepts incoming requests before they reach Next.js pages or API route handlers:
@@ -15,7 +15,7 @@ import { defaultRateLimiter, getClientIp } from "@/lib/rate-limit";
  * @param request - The incoming Next.js request object.
  * @returns A {@link NextResponse} either allowing the request through or returning a 429 status.
  */
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   // 1. Resolve client IP from proxy headers (x-forwarded-for, x-real-ip, etc.)
   const ip = getClientIp(request.headers);
 
@@ -91,8 +91,7 @@ export const config = {
      * - _next/static (static chunks and bundles)
      * - _next/image (image optimization API)
      * - favicon.ico (browser favicon)
-     * - static image/asset extensions (*.svg, *.png, *.jpg, *.jpeg, *.gif, *.webp)
      */
-    "/((?!_next/static|_next/image|favicon\\.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico).*)",
   ],
 };

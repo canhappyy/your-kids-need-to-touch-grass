@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { NextRequest } from "next/server";
-import { middleware } from "./middleware";
+import { proxy } from "./proxy";
 import { defaultRateLimiter } from "./lib/rate-limit";
 
-describe("Application Middleware Rate Limiting", () => {
+describe("Application Proxy Rate Limiting", () => {
   beforeEach(() => {
     defaultRateLimiter.reset();
   });
@@ -15,7 +15,7 @@ describe("Application Middleware Rate Limiting", () => {
       },
     });
 
-    const response = middleware(request);
+    const response = proxy(request);
     expect(response.status).toBe(200);
     expect(response.headers.get("X-RateLimit-Limit")).toBe("50");
     expect(response.headers.get("X-RateLimit-Remaining")).toBe("49");
@@ -30,14 +30,14 @@ describe("Application Middleware Rate Limiting", () => {
       const req = new NextRequest("http://localhost:3000/api/health", {
         headers: { "x-forwarded-for": ip },
       });
-      middleware(req);
+      proxy(req);
     }
 
     // 51st request
     const blockedRequest = new NextRequest("http://localhost:3000/api/health", {
       headers: { "x-forwarded-for": ip },
     });
-    const blockedResponse = middleware(blockedRequest);
+    const blockedResponse = proxy(blockedRequest);
 
     expect(blockedResponse.status).toBe(429);
     expect(blockedResponse.headers.get("X-RateLimit-Remaining")).toBe("0");
@@ -54,7 +54,7 @@ describe("Application Middleware Rate Limiting", () => {
       const req = new NextRequest("http://localhost:3000/dashboard", {
         headers: { "x-forwarded-for": ip },
       });
-      middleware(req);
+      proxy(req);
     }
 
     const blockedRequest = new NextRequest("http://localhost:3000/dashboard", {
@@ -63,7 +63,7 @@ describe("Application Middleware Rate Limiting", () => {
         accept: "text/html",
       },
     });
-    const blockedResponse = middleware(blockedRequest);
+    const blockedResponse = proxy(blockedRequest);
 
     expect(blockedResponse.status).toBe(429);
     const body = await blockedResponse.text();

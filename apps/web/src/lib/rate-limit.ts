@@ -166,10 +166,20 @@ export function getClientIp(headers: Headers): string {
 }
 
 /**
+ * Global declaration for persistent rate limiter instance across Turbopack/HMR reloads.
+ */
+const globalForRateLimit = globalThis as unknown as {
+  rateLimiter?: SlidingWindowRateLimiter;
+};
+
+/**
  * Default application-wide singleton rate limiter:
  * Configured for 50 requests per 60 seconds (1 minute).
+ * Attached to globalThis to persist in-memory request counts across development reloads.
  */
-export const defaultRateLimiter = new SlidingWindowRateLimiter({
-  limit: 50,
-  windowMs: 60_000,
-});
+export const defaultRateLimiter =
+  globalForRateLimit.rateLimiter ??
+  (globalForRateLimit.rateLimiter = new SlidingWindowRateLimiter({
+    limit: 50,
+    windowMs: 60_000,
+  }));
