@@ -78,13 +78,14 @@ describe("activity planner", () => {
     expect(markup).toContain("1 planned activity");
   });
 
-  it("renders a Monday to Sunday weekly agenda", () => {
+  it("renders a Monday to Sunday weekly agenda with Add activity and Remove buttons", () => {
     const markup = renderToStaticMarkup(
       <WeekPlannerView
         activities={[planned]}
         selectedDate={new Date(2026, 9, 4, 12)}
         today={new Date(2026, 9, 4, 12)}
-        onSelectDate={() => undefined}
+        onAddActivity={() => undefined}
+        onRemoveActivity={() => undefined}
       />,
     );
 
@@ -93,8 +94,9 @@ describe("activity planner", () => {
     expect(markup).toContain("Sun");
     expect(markup).toContain("Backyard bug safari");
     expect(markup).toContain("Victorian school holidays");
-    expect(markup).toContain("Select date");
-    expect(markup).not.toContain("+ Add activity");
+    expect(markup).toContain("Add activity");
+    expect(markup).toContain("Remove");
+    expect(markup).not.toContain("Select date");
   });
 
   it("disables Add activity outside the planning window", () => {

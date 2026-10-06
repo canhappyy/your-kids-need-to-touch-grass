@@ -18,6 +18,7 @@ import {
   startOfLocalWeek,
 } from "@/lib/planner-dates";
 import { movePlannerPeriod, plannerMonth } from "@/lib/planner-navigation";
+import { cn } from "@/lib/utils";
 import type { PlannerView } from "@/types/planner";
 import { MonthPlannerView } from "./month-planner-view";
 import { PlannerDateDetails } from "./planner-date-details";
@@ -106,7 +107,14 @@ export function PlannerSection() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.45fr)_minmax(19rem,0.75fr)]">
+        <div
+          className={cn(
+            "items-start gap-5",
+            view === "month"
+              ? "grid lg:grid-cols-[minmax(0,1.45fr)_minmax(19rem,0.75fr)]"
+              : "block w-full",
+          )}
+        >
           <Card className="border-[#93AB63]/60 bg-white/55 shadow-sm ring-0">
             <CardContent className="space-y-4">
               <Tabs
@@ -165,20 +173,26 @@ export function PlannerSection() {
                   selectedDate={selectedDate}
                   today={today}
                   onSelectDate={selectDate}
+                  onAddActivity={(date) =>
+                    router.push(`/?planDate=${localDateKey(date)}`)
+                  }
+                  onRemoveActivity={remove}
                 />
               )}
             </CardContent>
           </Card>
 
-          <PlannerDateDetails
-            activities={activities}
-            selectedDate={selectedDate}
-            today={today}
-            onAdd={() =>
-              router.push(`/?planDate=${localDateKey(selectedDate)}`)
-            }
-            onRemove={remove}
-          />
+          {view === "month" && (
+            <PlannerDateDetails
+              activities={activities}
+              selectedDate={selectedDate}
+              today={today}
+              onAdd={() =>
+                router.push(`/?planDate=${localDateKey(selectedDate)}`)
+              }
+              onRemove={remove}
+            />
+          )}
         </div>
       )}
     </div>
