@@ -27,13 +27,13 @@ describe("weather rules", () => {
     expect(summarizeWeather(forecast, start, start + 3600000)).toMatchObject({
       status: "available",
       severity: "regular",
-      summary: "Cloudy. High UV: bring sunscreen. Bring an umbrella or rain jacket.",
+      summary: "Cloudy. High UV: bring sunscreen and a hat. Bring an umbrella or rain jacket.",
     });
   });
   it("omits umbrella recommendation when precipitation probability is below 50%", () => {
     const dryForecast = { ...forecast, precipitation_probability: [0, 49] };
     expect(summarizeWeather(dryForecast, start, start + 3600000)).toMatchObject({
-      summary: "Cloudy. High UV: bring sunscreen.",
+      summary: "Cloudy. High UV: bring sunscreen and a hat.",
     });
   });
   it("does not include an hour beginning exactly at the end", () => {
