@@ -47,12 +47,12 @@ export function HistoryOverlay({ open, onClose }: HistoryOverlayProps) {
     <div
       aria-label="Completed missions history"
       aria-modal="true"
-      className="fixed inset-0 z-40 overflow-y-auto bg-[#FDF6EA] px-6 pt-20 pb-12 text-zinc-900 animate-in fade-in duration-200 sm:px-8"
+      className="fixed inset-0 z-40 overflow-y-auto bg-[#FDF6EA] px-6 pt-16 pb-12 text-zinc-900 animate-in fade-in duration-200 sm:px-8 sm:pt-20"
       role="dialog"
     >
       <div
         aria-hidden="true"
-        className="pointer-events-none fixed top-0 inset-x-0 z-45 h-24 bg-gradient-to-b from-[#FDF6EA] via-[#FDF6EA]/80 to-transparent backdrop-blur-md transition-colors [mask-image:linear-gradient(to_bottom,black_0%,black_45%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_0%,black_45%,transparent_100%)] sm:h-28"
+        className="pointer-events-none fixed top-0 inset-x-0 z-45 h-16 bg-gradient-to-b from-[#FDF6EA] via-[#FDF6EA]/80 to-transparent backdrop-blur-md transition-colors [mask-image:linear-gradient(to_bottom,black_0%,black_45%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_0%,black_45%,transparent_100%)] sm:h-28"
       />
       <button
         aria-label="Close history"

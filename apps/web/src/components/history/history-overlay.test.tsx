@@ -64,7 +64,9 @@ describe("HistoryOverlay", () => {
       }),
     );
 
-    expect(markup).toContain('role="dialog"');
+    expect(markup).toContain("PlayGo &amp; Co");
+    expect(markup).toContain("Activity backlog");
+    expect(markup).not.toContain("Saved and completed activities on this device");
     expect(markup).toContain("Saved activities");
     expect(markup).toContain("Nature Walk");
     expect(markup).toContain("Completed missions");
