@@ -15,7 +15,7 @@ export const metadata: Metadata = {
  */
 export default function DashboardPage() {
   return (
-    <main className="relative min-h-svh bg-[#FDF6EA] px-3 pt-16 pb-24 text-zinc-900 sm:px-8 sm:pt-20">
+    <main className="relative min-h-svh bg-[#FDF6EA] px-4 pt-16 pb-24 text-zinc-900 sm:px-6 md:px-8 sm:pt-20">
       <TopNav showHistory />
       <div className="mx-auto w-full max-w-5xl">
         <DashboardSection />

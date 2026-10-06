@@ -31,9 +31,12 @@ export function NationalGuidelines({ stats }: NationalGuidelinesProps) {
 
   return (
     <div>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
         {figures.map((figure) => (
-          <div className="rounded-lg bg-[#FDF6EA] p-2" key={figure.label}>
+          <div
+            className="rounded-lg bg-[#FDF6EA] p-2.5 sm:p-3"
+            key={figure.label}
+          >
             <p className="text-[11px] leading-tight text-zinc-500">
               {figure.label}
             </p>

@@ -23,12 +23,12 @@ function DashboardLoadingState() {
   return (
     <div
       aria-label="Loading dashboard activity"
-      className="grid gap-2"
+      className="grid gap-3 sm:gap-4"
       role="status"
     >
       <Skeleton className="h-32 rounded-xl" />
       <Skeleton className="h-32 rounded-xl" />
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
         <Skeleton className="h-20 rounded-xl" />
         <Skeleton className="h-20 rounded-xl" />
         <Skeleton className="h-20 rounded-xl" />
@@ -68,7 +68,7 @@ export function DashboardSection() {
 
   return (
     <section className="w-full">
-      <ScreenHeader title="Parent dashboard" className="mb-3" />
+      <ScreenHeader title="Parent dashboard" className="mb-4 sm:mb-6" />
 
       {loading || rewardsLoading || badgesLoading ? (
         <DashboardLoadingState />
@@ -82,17 +82,17 @@ export function DashboardSection() {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-2">
-          <div className="grid gap-2 md:grid-cols-2">
+        <div className="space-y-4 sm:space-y-5">
+          <div className="grid gap-3 sm:gap-4 md:grid-cols-2">
             <DailyGoalCard stats={stats} streak={rewards.currentStreak} />
-            <Card className="border border-[#93AB63]/60 bg-white/55 py-3 shadow-sm ring-0">
-              <CardContent className="px-3 sm:px-4">
+            <Card className="border border-[#93AB63]/60 bg-white/55 py-3.5 sm:py-4 shadow-sm ring-0">
+              <CardContent className="px-4 sm:px-5">
                 <WeeklyActivityChart days={stats.days} />
               </CardContent>
             </Card>
           </div>
           <DashboardMetrics stats={stats} />
-          <div className="space-y-1.5 pt-0.5">
+          <div className="space-y-2.5 sm:space-y-3 pt-1">
             <DashboardDisclosure
               id="reward-badges"
               isNew={hasNewBadges}

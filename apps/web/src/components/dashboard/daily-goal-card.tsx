@@ -17,8 +17,8 @@ export function DailyGoalCard({ stats, streak }: DailyGoalCardProps) {
   const activeStreak = streak > 0;
 
   return (
-    <Card className="border border-[#93AB63]/70 bg-white/60 py-3 shadow-sm ring-0">
-      <CardContent className="space-y-2 px-3 sm:px-4">
+    <Card className="border border-[#93AB63]/70 bg-white/60 py-3.5 sm:py-4 shadow-sm ring-0">
+      <CardContent className="space-y-2.5 px-4 sm:px-5">
         <div className="flex items-center justify-between gap-3">
           <h2 className="font-semibold text-zinc-800">Daily activity goal</h2>
           <span

@@ -7,7 +7,7 @@ type DashboardMetricsProps = {
 };
 
 const tileClass =
-  "border border-[#93AB63]/60 bg-white/55 py-2.5 shadow-sm ring-0";
+  "border border-[#93AB63]/60 bg-white/55 py-3 sm:py-3.5 shadow-sm ring-0";
 
 /** Four all-time metrics calculated only from local completion history. */
 export function DashboardMetrics({ stats }: DashboardMetricsProps) {
@@ -39,10 +39,13 @@ export function DashboardMetrics({ stats }: DashboardMetricsProps) {
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-2" aria-label="All-time activity metrics">
+    <div
+      className="grid grid-cols-2 gap-3 sm:gap-4"
+      aria-label="All-time activity metrics"
+    >
       {metrics.map(({ label, value, detail, icon: Icon }) => (
         <Card className={tileClass} key={label}>
-          <CardContent className="px-3">
+          <CardContent className="px-3.5 sm:px-4">
             <div className="flex items-center gap-1.5 text-xs font-medium text-zinc-600">
               <Icon aria-hidden="true" className="size-3.5 text-[#728A46]" />
               <span>{label}</span>

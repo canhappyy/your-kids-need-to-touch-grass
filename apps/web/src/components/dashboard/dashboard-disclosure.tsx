@@ -31,7 +31,7 @@ export function DashboardDisclosure({
       <button
         aria-controls={panelId}
         aria-expanded={open}
-        className="flex min-h-10 w-full items-center justify-between gap-3 px-3 py-2 text-left font-semibold text-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#93AB63]"
+        className="flex min-h-11 w-full items-center justify-between gap-3 px-3.5 py-2.5 text-left font-semibold text-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#93AB63] sm:px-4 sm:py-3"
         id={id}
         onClick={onToggle}
         type="button"
@@ -52,7 +52,7 @@ export function DashboardDisclosure({
       {open ? (
         <div
           aria-labelledby={id}
-          className="border-t border-[#93AB63]/30 p-3"
+          className="border-t border-[#93AB63]/30 p-3.5 sm:p-4"
           id={panelId}
           role="region"
         >
