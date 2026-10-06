@@ -1,5 +1,16 @@
-Vernacular Name,Badge Category,Requirement
-Koala,Streak,3
-Green Turtle,Streak,5
-Saltwater Crocodile,Streak,7
-Red Kangaroo,Streak,14
+vernacular_name,badge_type,target_metric,target_value
+Rainbow Lorikeet,discovery,variety_tag,Coordination
+Sulphur-crested Cockatoo,social,social_tag,Group/Family
+Koala,streak,consecutive_days,3
+Green Turtle,streak,consecutive_days,5
+Short-beaked Echidna,duration,duration_minutes,15
+Blue-winged Kookaburra,discovery,variety_tag,Creative
+Saltwater Crocodile,streak,consecutive_days,7
+Red Kangaroo,streak,consecutive_days,14
+Dingo,variety,variety_tag,Exploration
+Southern Emu-wren,discovery,variety_tag,Nature
+Tasmanian Devil,variety,variety_tag,Energised Activity
+Sugar Glider,variety,variety_tag,Quiet
+Platypus,milestone,total_activities,1
+Australian Hump-backed Dolphin,variety,variety_tag,Water Play
+Quokka,frequency,daily_activities,2
