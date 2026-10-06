@@ -25,7 +25,7 @@ DROP TABLE IF EXISTS
     postcode,
     social_tag,
     species_badge,
-    badge_category
+    badge_type
 CASCADE;
 
 -- 1. Lookup Tables
@@ -138,21 +138,23 @@ CREATE TABLE ACTIVITY (
 -- tagged with the lookup values above; tags are optional (NULL
 -- allowed) since not every activity fits every dimension.
  
- CREATE TABLE BADGE_CATEGORY (
-    category_name VARCHAR(50) PRIMARY KEY
+ CREATE TABLE BADGE_TYPE (
+    type_name VARCHAR(50) PRIMARY KEY
 );
-INSERT INTO BADGE_CATEGORY (category_name) VALUES ('Streak'), ('Variety Tag');
--- The two ways a species badge can be earned.
+INSERT INTO BADGE_TYPE (type_name) VALUES 
+('streak'), ('variety'), ('milestone'), ('frequency'), ('duration'), ('social'), ('discovery');
+-- The different logic mechanics used to earn a species badge.
 
 CREATE TABLE SPECIES_BADGE (
-    animal_name     VARCHAR(100) PRIMARY KEY,
-    badge_category  VARCHAR(50) NOT NULL,
-    requirement     VARCHAR(50) NOT NULL,
-    CONSTRAINT fk_badge_category FOREIGN KEY (badge_category) REFERENCES BADGE_CATEGORY(category_name) ON UPDATE CASCADE ON DELETE RESTRICT
+    vernacular_name VARCHAR(100) PRIMARY KEY,
+    badge_type      VARCHAR(50) NOT NULL,
+    target_metric   VARCHAR(50) NOT NULL,
+    target_value    VARCHAR(50) NOT NULL,
+    CONSTRAINT fk_badge_type FOREIGN KEY (badge_type) REFERENCES BADGE_TYPE(type_name) ON UPDATE CASCADE ON DELETE RESTRICT
 );
--- One row per collectible species badge. For Streak badges, requirement
--- holds the number of consecutive days needed (e.g. '7'). For Variety Tag
--- badges, requirement holds the tag name that unlocks it (e.g. 'Quiet').
+-- One row per collectible species badge. badge_type defines how it is earned,
+-- target_metric defines the database counter or column to check, 
+-- and target_value defines the required threshold or tag.
  
 -- 3. Junction Tables
 -- Link activities to the location categories and variety tags they
