@@ -87,6 +87,113 @@ describe("GET /api/recommendations", () => {
     expect((await response.json()).recommendation.weather).toEqual(weather);
   });
 
+  it("switches to a home activity when nearby UV reaches 10", async () => {
+    const outdoor = {
+      missionId: "MIS-OUTDOOR",
+      venue: { latitude: -37.92, longitude: 145.12 },
+      durationMinutes: 30,
+      totalMinutes: 42,
+    };
+    const home = {
+      missionId: "MIS-HOME",
+      missionType: "Home-Based",
+      venue: null,
+      durationMinutes: 30,
+      totalMinutes: 30,
+    };
+    getRecommendation.mockResolvedValueOnce(outdoor).mockResolvedValueOnce(home);
+    vi.mocked(getMissionWeather).mockResolvedValueOnce({
+      status: "available",
+      summary: "Clear skies.",
+      severity: "regular",
+      maxUvIndex: 10,
+      startsAt: "2026-09-13T10:00:00Z",
+      endsAt: "2026-09-13T10:42:00Z",
+    });
+
+    const response = await GET(request());
+
+    expect(getRecommendation).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        locationMode: "home",
+        homeBasedOnly: true,
+      }),
+    );
+    expect((await response.json()).recommendation).toMatchObject({
+      missionId: "MIS-HOME",
+      weather: { status: "unavailable" },
+    });
+  });
+
+  it("keeps a nearby activity when UV is 9", async () => {
+    const outdoor = {
+      missionId: "MIS-OUTDOOR",
+      missionType: "Location-Based",
+      venue: { latitude: -37.92, longitude: 145.12 },
+      durationMinutes: 30,
+      totalMinutes: 42,
+    };
+    getRecommendation.mockResolvedValueOnce(outdoor);
+    vi.mocked(getMissionWeather).mockResolvedValueOnce({
+      status: "available",
+      summary: "Clear skies. High UV: bring sunscreen and a hat.",
+      severity: "regular",
+      maxUvIndex: 9,
+      startsAt: "2026-09-13T10:00:00Z",
+      endsAt: "2026-09-13T10:42:00Z",
+    });
+
+    const response = await GET(request());
+
+    expect(getRecommendation).toHaveBeenCalledTimes(1);
+    expect((await response.json()).recommendation).toMatchObject({
+      missionId: "MIS-OUTDOOR",
+      missionType: "Location-Based",
+      weather: { maxUvIndex: 9 },
+    });
+  });
+
+  it.each([10, 12])(
+    "always selects a Home-Based activity for extreme UV (%s)",
+    async (maxUvIndex) => {
+      const outdoor = {
+        missionId: "MIS-OUTDOOR",
+        missionType: "Location-Based",
+        venue: { latitude: -37.92, longitude: 145.12 },
+        durationMinutes: 30,
+        totalMinutes: 42,
+      };
+      const home = {
+        missionId: "MIS-HOME",
+        missionType: "Home-Based",
+        venue: null,
+        durationMinutes: 30,
+        totalMinutes: 30,
+      };
+      getRecommendation.mockResolvedValueOnce(outdoor).mockResolvedValueOnce(home);
+      vi.mocked(getMissionWeather).mockResolvedValueOnce({
+        status: "available",
+        summary: "Clear skies.",
+        severity: "regular",
+        maxUvIndex,
+        startsAt: "2026-09-13T10:00:00Z",
+        endsAt: "2026-09-13T10:42:00Z",
+      });
+
+      const response = await GET(request());
+
+      expect(getRecommendation).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          locationMode: "home",
+          homeBasedOnly: true,
+        }),
+      );
+      expect((await response.json()).recommendation).toMatchObject({
+        missionType: "Home-Based",
+      });
+    },
+  );
+
   it("accepts home mode without a location", async () => {
     const response = await GET(
       request({ location: null, locationMode: "home" }),

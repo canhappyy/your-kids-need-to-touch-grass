@@ -121,6 +121,9 @@ export async function getRecommendation(
   dependencies?: RecommendationDependencies,
 ): Promise<Recommendation | null> {
   const deps = dependencies ?? (await loadDefaultDependencies());
+  const fallbackMissionTypes = input.homeBasedOnly
+    ? (["Home-Based"] as const)
+    : (["Home-Based", "Location-Agnostic"] as const);
 
   if (input.locationMode === "home") {
     const homeMission = await deps.repository.findFallback({
@@ -131,7 +134,7 @@ export async function getRecommendation(
       canSupervise: input.canSupervise,
       excludeMissionIds: input.excludeMissionIds,
       missionId: input.missionId,
-      missionTypes: ["Home-Based", "Location-Agnostic"],
+      missionTypes: [...fallbackMissionTypes],
       equipmentRequiredTag: "None",
     });
 
@@ -172,7 +175,7 @@ export async function getRecommendation(
     canSupervise: input.canSupervise,
     excludeMissionIds: input.excludeMissionIds,
     missionId: input.missionId,
-    missionTypes: ["Home-Based", "Location-Agnostic"],
+    missionTypes: [...fallbackMissionTypes],
     equipmentRequiredTag: "None",
   });
 

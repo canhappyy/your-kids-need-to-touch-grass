@@ -120,6 +120,8 @@ export type Recommendation = RecommendationTiming & {
   requestId?: string;
   /** Added by the API after selection; absent on unenriched service results. */
   weather?: MissionWeather;
+  /** Optional notice explaining a weather-driven recommendation change. */
+  weatherNotice?: string;
   /** Unique mission identifier. */
   missionId: string;
   /** Activity title. */
@@ -168,6 +170,8 @@ export type RecommendationInputBase = PlayPreferences & {
   excludeMissionIds?: string[];
   /** Optional specific mission ID to fetch. */
   missionId?: string;
+  /** Restricts fallback selection to activities explicitly marked Home-Based. */
+  homeBasedOnly?: boolean;
 };
 
 /**

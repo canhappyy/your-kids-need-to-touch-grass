@@ -26,16 +26,39 @@ describe("weather rules", () => {
   it("includes all overlapping hours across midnight and packing thresholds", () => {
     expect(summarizeWeather(forecast, start, start + 3600000)).toMatchObject({
       status: "available",
+      maxUvIndex: 3,
       severity: "regular",
-      summary: "Cloudy. High UV: bring sunscreen. Bring an umbrella or rain jacket.",
+      summary: "Cloudy. High UV: bring sunscreen and a hat. Bring an umbrella or rain jacket.",
     });
   });
   it("omits umbrella recommendation when precipitation probability is below 50%", () => {
     const dryForecast = { ...forecast, precipitation_probability: [0, 49] };
     expect(summarizeWeather(dryForecast, start, start + 3600000)).toMatchObject({
-      summary: "Cloudy. High UV: bring sunscreen.",
+      summary: "Cloudy. High UV: bring sunscreen and a hat.",
     });
   });
+  it.each<[number, boolean]>([
+    [2, false],
+    [3, true],
+    [9, true],
+    [10, false],
+  ])(
+    "recommends sunscreen only for UV indexes from 3 through 9 (%s)",
+    (uvIndex, recommendsSunscreen) => {
+      const result = summarizeWeather(
+        { ...forecast, uv_index: [uvIndex, 0] },
+        start,
+        start + 60000,
+      );
+
+      expect(result).toMatchObject({ status: "available" });
+      if (result.status !== "available") return;
+
+      expect(result.summary.includes("High UV: bring sunscreen and a hat.")).toBe(
+        recommendsSunscreen,
+      );
+    },
+  );
   it("does not include an hour beginning exactly at the end", () => {
     expect(summarizeWeather(forecast, start, start + 1800000)).toMatchObject({
       summary: "Clear skies.",

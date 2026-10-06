@@ -32,6 +32,7 @@ const primary: Recommendation = {
   },
   weather: {
     status: "available",
+    maxUvIndex: 3,
     severity: "regular",
     summary: "Cloudy. Bring a rain jacket.",
     startsAt: "2026-09-14T00:00:00.000Z",
@@ -79,6 +80,7 @@ describe("ActivityResult", () => {
       ...primary,
       weather: {
         status: "available",
+        maxUvIndex: 0,
         severity: "severe",
         summary: "Thunderstorms expected. Bring an umbrella or rain jacket.",
         weatherCode: 95,
@@ -91,6 +93,21 @@ describe("ActivityResult", () => {
     expect(markup).toContain("Weather caution");
     expect(markup).toContain("Thunderstorms expected");
     expect(markup).toContain("Bring an umbrella or rain jacket.");
+  });
+
+  it("renders the extreme UV indoor activity notice", () => {
+    const markup = render({
+      ...primary,
+      missionType: "Home-Based",
+      venue: null,
+      weather: { status: "unavailable" },
+      weatherNotice: "Extreme UV: recommending an indoor activity.",
+    });
+
+    expect(markup).toContain(
+      "Extreme UV: recommending an indoor activity.",
+    );
+    expect(markup).toContain('role="status"');
   });
 
   it("renders fallback when weather is unavailable", () => {

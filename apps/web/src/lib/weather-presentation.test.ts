@@ -195,7 +195,7 @@ describe("weather-presentation utilities", () => {
       const presentation = getWeatherPresentation({
         status: "available",
         severity: "regular",
-        summary: "Cloudy. Bring a rain jacket. High UV: bring sunscreen.",
+        summary: "Cloudy. Bring a rain jacket. High UV: bring sunscreen and a hat.",
         weatherCode: 3,
         startsAt: "2026-09-14T00:00:00.000Z",
         endsAt: "2026-09-14T01:00:00.000Z",
@@ -207,7 +207,7 @@ describe("weather-presentation utilities", () => {
       expect(presentation.Icon).toBe(Cloud);
       expect(presentation.tips).toEqual([
         "Bring a rain jacket.",
-        "High UV: bring sunscreen.",
+        "High UV: bring sunscreen and a hat.",
       ]);
     });
 
