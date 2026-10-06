@@ -1,3 +1,4 @@
+import Image from "next/image";
 import {
   AlertCircle,
   BookOpen,
@@ -30,13 +31,23 @@ import {
 export function DataGovernanceSection() {
   return (
     <div className="mx-auto w-full max-w-2xl space-y-6">
-      <header className="space-y-1.5 pt-2">
-        <h1 className="text-2xl font-bold tracking-tight text-zinc-900 sm:text-3xl">
-          Data Governance
-        </h1>
-        <p className="text-sm text-zinc-600 sm:text-base">
-          Transparency about where PlayGo & Co gets data, how activities are created, and how your privacy is protected.
-        </p>
+      <header className="space-y-3 text-center sm:text-left">
+        <Image
+          src="/playgo&co.svg"
+          alt="PlayGo & Co"
+          width={180}
+          height={36}
+          priority
+          className="mx-auto h-10 w-auto sm:mx-0"
+        />
+        <div className="space-y-1.5">
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 sm:text-3xl">
+            Data Governance
+          </h1>
+          <p className="text-sm text-zinc-600 sm:text-base">
+            Transparency about where PlayGo & Co gets data, how activities are created, and how your privacy is protected.
+          </p>
+        </div>
       </header>
 
       {/* About Our Data */}

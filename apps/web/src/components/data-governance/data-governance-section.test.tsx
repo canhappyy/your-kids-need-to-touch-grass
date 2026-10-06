@@ -12,6 +12,16 @@ import {
 import { DataGovernanceSection } from "./data-governance-section";
 
 describe("DataGovernanceSection", () => {
+  it("renders screen header with PlayGo & Co logo and heading", () => {
+    const markup = renderToStaticMarkup(<DataGovernanceSection />);
+
+    expect(markup).toContain("PlayGo &amp; Co");
+    expect(markup).toContain("Data Governance");
+    expect(markup).toContain(
+      "Transparency about where PlayGo &amp; Co gets data",
+    );
+  });
+
   it("renders all four main data governance sections", () => {
     const markup = renderToStaticMarkup(<DataGovernanceSection />);
 
