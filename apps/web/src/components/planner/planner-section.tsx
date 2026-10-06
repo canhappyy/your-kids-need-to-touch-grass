@@ -90,9 +90,6 @@ export function PlannerSection() {
           <h1 className="text-2xl font-bold tracking-tight text-zinc-900 sm:text-3xl">
             Activity planner
           </h1>
-          <p className="mt-1 text-sm text-zinc-600">
-            Plan screen-free family time around Victorian holidays.
-          </p>
         </div>
       </header>
 

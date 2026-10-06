@@ -77,7 +77,7 @@ export function DashboardSection() {
           priority
           className="mx-auto h-10 w-auto sm:mx-0"
         />
-        <h1 className="text-xl font-bold tracking-tight text-zinc-800 sm:text-2xl">
+        <h1 className="text-2xl font-bold tracking-tight text-zinc-900 sm:text-3xl">
           Parent dashboard
         </h1>
       </header>
