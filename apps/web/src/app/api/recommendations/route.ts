@@ -94,6 +94,7 @@ export async function GET(request: Request) {
     if (
       input.locationMode === "nearby" &&
       weather?.status === "available" &&
+      weather.maxUvIndex !== undefined &&
       weather.maxUvIndex >= 10
     ) {
       recommendation = await getRecommendation({
