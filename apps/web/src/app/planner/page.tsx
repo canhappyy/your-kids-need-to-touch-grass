@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { TopNav } from "@/components/layout/top-nav";
 import { PlannerSection } from "@/components/planner";
 
 /**
@@ -14,7 +15,8 @@ export const metadata: Metadata = {
  */
 export default function PlannerPage() {
   return (
-    <main className="relative min-h-svh bg-[#FDF6EA] px-4 pt-8 pb-24 text-zinc-900 sm:px-8 sm:pt-10">
+    <main className="relative min-h-svh bg-[#FDF6EA] px-4 pt-16 pb-24 text-zinc-900 sm:px-8 sm:pt-20">
+      <TopNav showHistory />
       <PlannerSection />
     </main>
   );
