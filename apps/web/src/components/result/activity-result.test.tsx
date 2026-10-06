@@ -76,7 +76,7 @@ describe("ActivityResult", () => {
     expect(markup).toContain("Give me another");
   });
 
-  it("renders weather caution message when weather is severe", () => {
+  it("renders weather caution icon on the section label when weather is severe", () => {
     const severeRecommendation: Recommendation = {
       ...primary,
       weather: {
@@ -91,7 +91,8 @@ describe("ActivityResult", () => {
     };
     const markup = render(severeRecommendation);
 
-    expect(markup).toContain("Weather caution");
+    expect(markup).toContain('aria-label="Weather caution"');
+    expect(markup).not.toContain("<span>Weather caution</span>");
     expect(markup).toContain("Thunderstorms expected");
     expect(markup).toContain("Bring an umbrella or rain jacket.");
   });
@@ -105,9 +106,7 @@ describe("ActivityResult", () => {
       weatherNotice: "Extreme UV: recommending an indoor activity.",
     });
 
-    expect(markup).toContain(
-      "Extreme UV: recommending an indoor activity.",
-    );
+    expect(markup).toContain("Extreme UV: recommending an indoor activity.");
     expect(markup).toContain('role="status"');
   });
 
