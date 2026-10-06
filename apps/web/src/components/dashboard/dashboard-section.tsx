@@ -57,8 +57,9 @@ export function DashboardSection() {
     () => buildDashboardStats(records, currentDate),
     [records, currentDate],
   );
-  const { openSections, hasNewBadges, toggleSection } =
-    useDashboardDisclosures(rewards.unlockedBadgeIds);
+  const { openSections, hasNewBadges, toggleSection } = useDashboardDisclosures(
+    rewards.unlockedBadgeIds,
+  );
 
   const handleRetry = () => {
     refresh();
@@ -67,16 +68,16 @@ export function DashboardSection() {
 
   return (
     <section className="w-full">
-      <header className="mb-3 pr-12">
+      <header className="mb-3 space-y-3 text-center sm:text-left">
         <Image
-          alt="playgo & co"
-          className="h-auto w-28 sm:w-36"
-          height={47}
-          priority
           src="/playgo&co.svg"
-          width={240}
+          alt="PlayGo & Co"
+          width={180}
+          height={36}
+          priority
+          className="mx-auto h-10 w-auto sm:mx-0"
         />
-        <h1 className="mt-2 text-xl font-bold tracking-tight text-zinc-800 sm:text-2xl">
+        <h1 className="text-xl font-bold tracking-tight text-zinc-800 sm:text-2xl">
           Parent dashboard
         </h1>
       </header>
@@ -95,10 +96,7 @@ export function DashboardSection() {
       ) : (
         <div className="space-y-2">
           <div className="grid gap-2 md:grid-cols-2">
-            <DailyGoalCard
-              stats={stats}
-              streak={rewards.currentStreak}
-            />
+            <DailyGoalCard stats={stats} streak={rewards.currentStreak} />
             <Card className="border border-[#93AB63]/60 bg-white/55 py-3 shadow-sm ring-0">
               <CardContent className="px-3 sm:px-4">
                 <WeeklyActivityChart days={stats.days} />
