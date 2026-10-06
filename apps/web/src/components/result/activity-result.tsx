@@ -41,6 +41,14 @@ function ActivityResult({
       aria-labelledby="activity-title"
       className="flex min-h-[calc(100svh-6.5rem)] flex-col pt-3 pb-[72px]"
     >
+      {recommendation.weatherNotice && (
+        <div
+          role="status"
+          className="fixed top-4 left-1/2 z-30 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-center text-sm font-medium text-amber-900 shadow-sm"
+        >
+          {recommendation.weatherNotice}
+        </div>
+      )}
       <Dialog key={recommendation.missionId}>
         <div className="relative">
           <DialogTrigger

@@ -81,7 +81,8 @@ const conditions: Record<number, { label: string; priority: number }> = {
  *    - Wind: Wind gusts >= 50 km/h indicate strong winds that could affect outdoor play.
  *    Either hazard escalates the outing's severity status to `"severe"`.
  * 5. Practical Advice:
- *    - Sunscreen: Suggested if the UV index is 3 or higher, in line with Australian SunSmart guidelines.
+ *    - Sunscreen: Suggested if the UV index is between 3 and 9, in line with Australian SunSmart guidelines.
+ *    - Indoor activities: Suggested when the UV index reaches 10 or higher.
  *    - Rain gear: Suggested if the probability of precipitation reaches 50% or higher.
  *
  * @param hourly - Raw hourly weather forecast data.
@@ -107,6 +108,7 @@ export function summarizeWeather(
   let wind = false;
   let sunscreen = false;
   let umbrella = false;
+  let maxUvIndex = 0;
   for (const index of indices) {
     const time = hourly.time[index] * 1000;
     const nextCondition = conditions[hourly.weather_code[index]];
@@ -128,7 +130,8 @@ export function summarizeWeather(
     }
     storm ||= [95, 96, 99].includes(hourly.weather_code[index]);
     wind ||= hourly.wind_gusts_10m[index] >= 50;
-    sunscreen ||= hourly.uv_index[index] >= 3;
+    sunscreen ||= hourly.uv_index[index] >= 3 && hourly.uv_index[index] <= 9;
+    maxUvIndex = Math.max(maxUvIndex, hourly.uv_index[index]);
     umbrella ||= hourly.precipitation_probability[index] >= 50;
   }
   if (coveredUntil < end) return { status: "unavailable" };
@@ -145,6 +148,7 @@ export function summarizeWeather(
   return {
     status: "available",
     severity: storm || wind ? "severe" : "regular",
+    maxUvIndex,
     summary: messages.join(" "),
     weatherCode: conditionCode,
     startsAt: new Date(start).toISOString(),

@@ -85,18 +85,38 @@ export async function GET(request: Request) {
       );
     }
 
-    const recommendation = await getRecommendation(input);
+    let recommendation = await getRecommendation(input);
+    let weatherNotice: string | undefined;
+    let weather = recommendation
+      ? await getMissionWeather(recommendation.venue, recommendation.totalMinutes)
+      : undefined;
+
+    if (
+      input.locationMode === "nearby" &&
+      weather?.status === "available" &&
+      weather.maxUvIndex >= 10
+    ) {
+      recommendation = await getRecommendation({
+        ageMin: input.ageMin,
+        ageMax: input.ageMax,
+        durationMinutes: input.durationMinutes,
+        playStyle: input.playStyle,
+        canSupervise: input.canSupervise,
+        excludeMissionIds: input.excludeMissionIds,
+        missionId: input.missionId,
+        locationMode: "home",
+        homeBasedOnly: true,
+      });
+      weatherNotice = recommendation
+        ? "Extreme UV: recommending an indoor activity."
+        : undefined;
+      weather = recommendation ? { status: "unavailable" } : undefined;
+    }
 
     return NextResponse.json(
       {
         recommendation: recommendation
-          ? {
-              ...recommendation,
-              weather: await getMissionWeather(
-                recommendation.venue,
-                recommendation.totalMinutes,
-              ),
-            }
+          ? { ...recommendation, weather, weatherNotice }
           : null,
       },
       { headers: NO_STORE_HEADERS },
