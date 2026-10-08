@@ -8,18 +8,12 @@ import type {
 } from "@/types/result";
 
 /**
- * Maximum number of activity swaps ("Try another") permitted per search session.
- * Prevents decision fatigue for families by limiting recommendations to 3 total choices.
- */
-export const MAX_SWAPS = 2;
-
-/**
  * Validates and normalizes the swaps used count from URL search parameters.
  */
 export function readSwapsUsed(value: string | null): number {
   const parsed = Number(value);
 
-  return Number.isInteger(parsed) && parsed >= 0 && parsed <= MAX_SWAPS
+  return Number.isInteger(parsed) && parsed >= 0
     ? parsed
     : 0;
 }

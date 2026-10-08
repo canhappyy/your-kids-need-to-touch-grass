@@ -21,11 +21,6 @@ describe("result-search lib utilities", () => {
       expect(readSwapsUsed("1")).toBe(1)
       expect(readSwapsUsed("2")).toBe(2)
     })
-
-    it("returns 0 when value exceeds MAX_SWAPS", () => {
-      expect(readSwapsUsed("3")).toBe(0)
-      expect(readSwapsUsed("10")).toBe(0)
-    })
   })
 
   describe("buildSearchQuery", () => {
