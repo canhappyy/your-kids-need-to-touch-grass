@@ -98,6 +98,7 @@ function ActivityResult({
         />
         <MissionInstructionsDialog
           equipmentNeeded={recommendation.equipmentNeeded}
+          iconFile={recommendation.iconFile}
           instructionText={recommendation.instructionText}
           title={recommendation.title}
         />

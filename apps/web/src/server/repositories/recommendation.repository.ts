@@ -27,6 +27,7 @@ function mapLocationCandidate(
   return {
     missionId: String(row.mission_id),
     title: String(row.activity_title),
+    iconFile: row.icon_file === null ? null : String(row.icon_file),
     description: row.description === null ? null : String(row.description),
     equipmentNeeded:
       row.equipment_needed === null ? null : String(row.equipment_needed),
@@ -64,6 +65,7 @@ function mapFallbackCandidate(
   return {
     missionId: String(row.mission_id),
     title: String(row.activity_title),
+    iconFile: row.icon_file === null ? null : String(row.icon_file),
     description: row.description === null ? null : String(row.description),
     equipmentNeeded:
       row.equipment_needed === null ? null : String(row.equipment_needed),
@@ -166,6 +168,7 @@ export async function findLocationBasedRecommendation(
       SELECT DISTINCT ON (a.mission_id)
         a.mission_id,
         a.activity_title,
+        a.icon_file,
         a.description,
         a.equipment_needed,
         a.instruction_text,
@@ -281,6 +284,7 @@ export async function findFallbackRecommendation(
     SELECT
       mission_id,
       activity_title,
+      icon_file,
       description,
       equipment_needed,
       instruction_text,

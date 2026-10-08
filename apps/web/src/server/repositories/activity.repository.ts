@@ -24,6 +24,7 @@ export async function findAllActivities() {
     SELECT
       mission_id,
       activity_title,
+      icon_file,
       description,
       equipment_needed,
       instruction_text,
@@ -80,6 +81,7 @@ export async function findActivityById(missionId: string) {
     SELECT
       a.mission_id,
       a.activity_title,
+      a.icon_file,
       a.description,
       a.equipment_needed,
       a.instruction_text,

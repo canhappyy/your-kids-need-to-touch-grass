@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import {
   DialogClose,
   DialogContent,
@@ -17,6 +18,8 @@ export type MissionInstructionsDialogProps = Pick<
   Recommendation,
   "title" | "instructionText"
 > & {
+  /** Local SVG filename for the activity icon, when available. */
+  iconFile?: string | null;
   /** Required equipment description or pipe-separated items, or null. */
   equipmentNeeded?: string | null;
 };
@@ -30,6 +33,7 @@ export type MissionInstructionsDialogProps = Pick<
 export function MissionInstructionsDialog({
   title,
   instructionText,
+  iconFile,
   equipmentNeeded,
 }: MissionInstructionsDialogProps) {
   const steps = getMissionSteps(instructionText);
@@ -44,6 +48,15 @@ export function MissionInstructionsDialog({
         <DialogDescription className="text-sm font-medium text-zinc-600">
           {title}
         </DialogDescription>
+        {iconFile ? (
+          <Image
+            src={`/activity-icons/${iconFile}`}
+            alt=""
+            className="mx-auto size-24 object-contain"
+            height={96}
+            width={96}
+          />
+        ) : null}
       </DialogHeader>
 
       <div className="overflow-y-auto overscroll-contain space-y-5 break-words">
