@@ -65,26 +65,39 @@ function renderDialog({
   title = "Nature Scavenger Hunt",
   instructionText = "Find a leaf.\nLook closely.",
   equipmentNeeded = "Scavenger hunt checklist|pencil",
+  iconFile,
 }: {
   title?: string;
   instructionText?: string | null;
   equipmentNeeded?: string | null;
+  iconFile?: string | null;
 } = {}) {
   return renderToStaticMarkup(
     createElement(MissionInstructionsDialog, {
       title,
       instructionText,
       equipmentNeeded,
+      iconFile,
     }),
   );
 }
 
 describe("MissionInstructionsDialog", () => {
-  it("renders 'How to Play' as the centered header with activity title", () => {
+  it("renders 'How to Play' as the left-aligned header with activity title", () => {
     const markup = renderDialog({ title: "Kite Flying Session" });
 
     expect(markup).toContain("How to Play");
     expect(markup).toContain("Kite Flying Session");
+    expect(markup).toContain("text-left");
+  });
+
+  it("renders the activity icon when iconFile is provided", () => {
+    const markup = renderDialog({
+      title: "Kite Flying Session",
+      iconFile: "kite.svg",
+    });
+
+    expect(markup).toContain("/activity-icons/kite.svg");
   });
 
   it("renders equipment needed badges when equipment is provided", () => {
