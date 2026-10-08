@@ -25,18 +25,40 @@ import { MonthPlannerView } from "./month-planner-view";
 import { PlannerDateDetails } from "./planner-date-details";
 import { WeekPlannerView } from "./week-planner-view";
 
+/**
+ * Top-level container component for the Activity Planner feature.
+ *
+ * Responsibilities:
+ * 1. Synchronizes planned activities via `usePlannedActivities` hook (loading, error, deleting).
+ * 2. Manages active display view ("month" vs. "week") using tab switcher.
+ * 3. Handles period navigation (Previous / Next month or week, plus "Jump to today" shortcut).
+ * 4. In Month View: renders side-by-side grid and details panel on desktop, stacking gracefully on mobile.
+ * 5. In Week View: renders a 7-day chronological agenda with inline "Add activity" actions.
+ *
+ * @returns The rendered activity planner section.
+ */
 export function PlannerSection() {
   const router = useRouter();
+  // Get active local reference date
   const today = useDashboardDate();
+
+  // Load planned activities and deletion handler from local storage
   const { activities, loading, error, remove } = usePlannedActivities(today);
+
+  // Active view mode: "month" or "week"
   const [view, setView] = useState<PlannerView>("month");
+
+  // Selected date (anchored at noon to avoid timezone daylight saving edge cases)
   const [selectedDate, setSelectedDate] = useState(
     () => new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12),
   );
+
+  // First day of currently viewed month
   const [displayedMonth, setDisplayedMonth] = useState(() =>
     plannerMonth(today),
   );
 
+  // Human-readable header label for active period (e.g., "October 2026" or "5 Oct – 11 Oct 2026")
   const periodLabel = useMemo(() => {
     if (view === "month") {
       return displayedMonth.toLocaleDateString("en-AU", {
@@ -57,12 +79,14 @@ export function PlannerSection() {
     })}`;
   }, [displayedMonth, selectedDate, view]);
 
+  // Navigate forward or backward in time (+1 or -1 month/week)
   const movePeriod = (amount: number) => {
     const next = movePlannerPeriod(view, displayedMonth, selectedDate, amount);
     setDisplayedMonth(next.displayedMonth);
     setSelectedDate(next.selectedDate);
   };
 
+  // Reset focus back to today's date
   const jumpToToday = () => {
     const next = new Date(
       today.getFullYear(),
@@ -74,6 +98,7 @@ export function PlannerSection() {
     setDisplayedMonth(plannerMonth(next));
   };
 
+  // Select a new date and align the displayed month
   const selectDate = (date: Date) => {
     setSelectedDate(date);
     setDisplayedMonth(plannerMonth(date));
@@ -82,6 +107,7 @@ export function PlannerSection() {
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5">
       <ScreenHeader title="Activity planner" />
+
 
       {loading ? (
         <div aria-label="Loading activity planner" className="space-y-4">

@@ -9,22 +9,32 @@ import { Dialog } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import type { PlannedActivity } from "@/types/planner";
 
+/**
+ * Properties for the `PlannedActivityItem` card component.
+ */
 export type PlannedActivityItemProps = {
-  /** The planned activity record to display. */
+  /** The planned activity record containing mission details, schedule, and equipment needed. */
   activity: PlannedActivity;
-  /** Optional callback fired when the remove button is clicked. */
+  /** Optional callback fired when the user clicks the remove/delete action button. */
   onRemove?: (id: string) => void;
-  /** Visual button style for the remove action. */
+  /** Visual button styling variant for the remove action ("ghost" for subtle week list or "destructive" for details panel). */
   removeVariant?: "destructive" | "ghost";
-  /** Optional custom class name for the wrapper. */
+  /** Optional CSS class name overrides. */
   className?: string;
 };
 
 /**
- * Card component displaying a planned activity in the planner.
+ * Interactive card component representing a scheduled activity within the planner views.
  *
- * Displays activity name, duration, location, and an affordance to view instructions.
- * Clicking the card opens the step-by-step instruction pop up dialog.
+ * Visual Features:
+ * - Shows the mission title, duration in minutes, and venue/home location label.
+ * - Entire card functions as an accessible button: tapping opens the `MissionInstructionsDialog`
+ *   to view step-by-step game rules and required equipment.
+ * - Provides an optional Remove button with event stopping to prevent accidentally triggering
+ *   the instruction dialog when removing an item.
+ *
+ * @param props - Component configuration including activity data and delete callback.
+ * @returns The rendered activity card with embedded instruction dialog.
  */
 export function PlannedActivityItem({
   activity,
@@ -32,16 +42,19 @@ export function PlannedActivityItem({
   removeVariant = "ghost",
   className,
 }: PlannedActivityItemProps) {
+  // Controls the visibility of the full-screen mission instructions dialog
   const [open, setOpen] = useState(false);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
+      {/* Clickable article card triggering the instructions dialog */}
       <article
         role="button"
         tabIndex={0}
         aria-label={`View instructions for ${activity.name}`}
         onClick={() => setOpen(true)}
         onKeyDown={(e) => {
+          // Allow keyboard users to open instructions with Space or Enter
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
             setOpen(true);
@@ -52,6 +65,7 @@ export function PlannedActivityItem({
           className,
         )}
       >
+        {/* Activity Details Column */}
         <div className="min-w-0 flex-1 space-y-1.5">
           <h4 className="truncate text-sm font-semibold text-zinc-900 transition-colors group-hover:text-[#728A46]">
             {activity.name}
@@ -71,6 +85,7 @@ export function PlannedActivityItem({
           </p>
         </div>
 
+        {/* Optional Remove Activity Button */}
         {onRemove && (
           <Button
             type="button"
@@ -78,6 +93,7 @@ export function PlannedActivityItem({
             variant={removeVariant}
             aria-label={`Remove ${activity.name}`}
             onClick={(e) => {
+              // Crucial: stop propagation so clicking Remove doesn't open the instructions dialog
               e.stopPropagation();
               onRemove(activity.id);
             }}
@@ -103,6 +119,7 @@ export function PlannedActivityItem({
         )}
       </article>
 
+      {/* Pop-up dialog rendering detailed game rules and equipment */}
       <MissionInstructionsDialog
         equipmentNeeded={activity.equipmentNeeded ?? null}
         instructionText={activity.instructionText ?? null}
@@ -112,3 +129,4 @@ export function PlannedActivityItem({
     </Dialog>
   );
 }
+

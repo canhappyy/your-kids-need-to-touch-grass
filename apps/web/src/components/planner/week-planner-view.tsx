@@ -15,15 +15,36 @@ import type { PlannedActivity } from "@/types/planner";
 
 import { PlannedActivityItem } from "./planned-activity-item";
 
+/**
+ * Properties for the `WeekPlannerView` component.
+ */
 type WeekPlannerViewProps = {
+  /** List of all planned activities scheduled by the user. */
   activities: PlannedActivity[];
+  /** The anchor date determining which 7-day Monday-to-Sunday week is displayed. */
   selectedDate: Date;
+  /** Today's active date (for styling current day badges and calculating plannable window). */
   today: Date;
+  /** Optional callback fired when a day is focused or clicked. */
   onSelectDate?: (date: Date) => void;
+  /** Optional callback fired when clicking "Add activity" on a particular day row. */
   onAddActivity?: (date: Date) => void;
+  /** Optional callback fired when removing an activity by ID. */
   onRemoveActivity?: (id: string) => void;
 };
 
+/**
+ * Weekly chronological planner view.
+ *
+ * Renders a vertical 7-day timeline (Monday through Sunday) for the selected week:
+ * - Each row features a day badge with day of the week and date number, highlighting "Today".
+ * - Shows Victorian public holiday and school term event indicators.
+ * - Displays all planned activities scheduled on that day with direct removal affordances.
+ * - Provides an inline "+ Add activity" button for eligible dates within the 14-day window.
+ *
+ * @param props - Week planner properties including activities and event callbacks.
+ * @returns The rendered 7-day weekly schedule timeline.
+ */
 export function WeekPlannerView({
   activities,
   selectedDate,
@@ -32,8 +53,11 @@ export function WeekPlannerView({
   onAddActivity,
   onRemoveActivity,
 }: WeekPlannerViewProps) {
+  // Compute Monday date key of the active week
   const weekStartKey = localDateKey(startOfLocalWeek(selectedDate));
+  // Today's date key for highlighting current day badge
   const todayKey = localDateKey(today);
+
 
   return (
     <div aria-label="Weekly activity planner" className="space-y-3">
