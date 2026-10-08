@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarClock, MapPin, Plus, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +8,8 @@ import { getImportantDatesForDate } from "@/data/victorian-important-dates";
 import { isPlannableDate, localDateKey } from "@/lib/planner-dates";
 import { PLANNING_WINDOW_MESSAGE } from "@/lib/planned-activities";
 import type { PlannedActivity } from "@/types/planner";
+
+import { PlannedActivityItem } from "./planned-activity-item";
 
 type PlannerDateDetailsProps = {
   activities: PlannedActivity[];
@@ -58,37 +60,12 @@ export function PlannerDateDetails({
         ) : (
           <div className="space-y-3">
             {planned.map((activity) => (
-              <article
+              <PlannedActivityItem
                 key={activity.id}
-                className="rounded-xl border border-[#93AB63]/50 bg-white/70 p-3"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <h3 className="font-semibold text-zinc-800">
-                      {activity.name}
-                    </h3>
-                    <p className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-zinc-600">
-                      <span className="inline-flex items-center gap-1">
-                        <CalendarClock className="size-3.5" />
-                        {activity.durationMinutes} min
-                      </span>
-                      <span className="inline-flex items-center gap-1">
-                        <MapPin className="size-3.5" />
-                        {activity.locationLabel}
-                      </span>
-                    </p>
-                  </div>
-                  <Button
-                    aria-label={`Remove ${activity.name}`}
-                    onClick={() => onRemove(activity.id)}
-                    size="sm"
-                    variant="destructive"
-                  >
-                    <Trash2 />
-                    Remove
-                  </Button>
-                </div>
-              </article>
+                activity={activity}
+                onRemove={onRemove}
+                removeVariant="destructive"
+              />
             ))}
           </div>
         )}

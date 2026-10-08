@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, MapPin, Plus, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { getImportantDatesForDate } from "@/data/victorian-important-dates";
@@ -12,6 +12,8 @@ import {
 } from "@/lib/planner-dates";
 import { cn } from "@/lib/utils";
 import type { PlannedActivity } from "@/types/planner";
+
+import { PlannedActivityItem } from "./planned-activity-item";
 
 type WeekPlannerViewProps = {
   activities: PlannedActivity[];
@@ -50,7 +52,9 @@ export function WeekPlannerView({
             key={dateKey}
             className={cn(
               "grid grid-cols-[3.25rem_1fr] gap-3 rounded-2xl border bg-white/55 p-3.5 shadow-xs transition-colors sm:p-4",
-              isToday ? "border-[#93AB63]/80 bg-white/80" : "border-zinc-200/90",
+              isToday
+                ? "border-[#93AB63]/80 bg-white/80"
+                : "border-zinc-200/90",
             )}
           >
             {/* Date column */}
@@ -97,40 +101,12 @@ export function WeekPlannerView({
               ) : (
                 <div className="space-y-2">
                   {planned.map((activity) => (
-                    <div
+                    <PlannedActivityItem
                       key={activity.id}
-                      className="flex items-start justify-between gap-3 rounded-xl border border-[#93AB63]/40 bg-white/85 p-2.5 shadow-2xs sm:items-center sm:p-3"
-                    >
-                      <div className="min-w-0 space-y-1">
-                        <h4 className="font-semibold text-sm text-zinc-900 truncate">
-                          {activity.name}
-                        </h4>
-                        <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-zinc-600">
-                          <span className="inline-flex items-center gap-1">
-                            <CalendarDays className="size-3.5 text-zinc-400" />
-                            {activity.durationMinutes} min
-                          </span>
-                          <span className="inline-flex items-center gap-1">
-                            <MapPin className="size-3.5 text-zinc-400" />
-                            {activity.locationLabel}
-                          </span>
-                        </div>
-                      </div>
-
-                      {onRemoveActivity && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          aria-label={`Remove ${activity.name}`}
-                          onClick={() => onRemoveActivity(activity.id)}
-                          className="h-8 shrink-0 px-2.5 text-xs font-medium text-red-600 hover:bg-red-50 hover:text-red-700 focus-visible:ring-red-400"
-                        >
-                          <Trash2 className="size-3.5 sm:mr-1" />
-                          <span className="hidden sm:inline">Remove</span>
-                        </Button>
-                      )}
-                    </div>
+                      activity={activity}
+                      onRemove={onRemoveActivity}
+                      removeVariant="ghost"
+                    />
                   ))}
                 </div>
               )}

@@ -23,4 +23,5 @@ export type PlannedActivity = {
   locationLabel: string;
   instructionText?: string | null;
   equipmentNeeded?: string | null;
+  iconFile?: string | null;
 };

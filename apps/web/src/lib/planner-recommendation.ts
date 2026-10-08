@@ -24,5 +24,6 @@ export function plannedActivityFromRecommendation(
     locationLabel,
     instructionText: recommendation.instructionText,
     equipmentNeeded: recommendation.equipmentNeeded,
+    ...(recommendation.iconFile ? { iconFile: recommendation.iconFile } : {}),
   };
 }

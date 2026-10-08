@@ -8,7 +8,10 @@ export const PLANNER_CHANGE_EVENT = "playgo:planner-change";
 export const PLANNING_WINDOW_MESSAGE =
   "Activities can only be planned up to 365 days in advance.";
 
-export type PlannerStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
+export type PlannerStorage = Pick<
+  Storage,
+  "getItem" | "setItem" | "removeItem"
+>;
 
 const plannedActivitySchema = z.object({
   id: z.string().min(1),
@@ -17,14 +20,11 @@ const plannedActivitySchema = z.object({
   plannedDate: z.iso.date(),
   createdAt: z.iso.datetime(),
   durationMinutes: z.number().int().positive(),
-  missionType: z.enum([
-    "Location-Based",
-    "Home-Based",
-    "Location-Agnostic",
-  ]),
+  missionType: z.enum(["Location-Based", "Home-Based", "Location-Agnostic"]),
   locationLabel: z.string().trim().min(1),
   instructionText: z.string().nullable().optional(),
   equipmentNeeded: z.string().nullable().optional(),
+  iconFile: z.string().nullable().optional(),
 });
 
 function dispatchPlannerChangeEvent(): void {
@@ -60,10 +60,7 @@ export function savePlannedActivity(
   }
   const activities = readPlannedActivities(store);
   if (activities.some((activity) => activity.id === valid.id)) return false;
-  store.setItem(
-    PLANNED_ACTIVITIES_KEY,
-    JSON.stringify([...activities, valid]),
-  );
+  store.setItem(PLANNED_ACTIVITIES_KEY, JSON.stringify([...activities, valid]));
   dispatchPlannerChangeEvent();
   return true;
 }
