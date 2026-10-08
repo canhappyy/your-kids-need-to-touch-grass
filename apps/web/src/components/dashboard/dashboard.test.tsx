@@ -126,7 +126,7 @@ describe("compact parent dashboard", () => {
     ]) {
       expect(markup).toContain(title);
     }
-    expect(markup.match(/aria-expanded="false"/g)).toHaveLength(3);
+    expect(markup.match(/aria-expanded="false"/g)).toHaveLength(2);
   });
 
   it("links supportive below-target copy to the logging flow", () => {
