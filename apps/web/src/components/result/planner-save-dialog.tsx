@@ -172,7 +172,7 @@ export function PlannerSaveDialog({
           <DialogHeader>
             <DialogTitle>Choose a date</DialogTitle>
             <DialogDescription>
-              Plan this activity from today up to 365 days ahead.
+              Plan this activity from today up to 12 months ahead.
             </DialogDescription>
           </DialogHeader>
           <Calendar

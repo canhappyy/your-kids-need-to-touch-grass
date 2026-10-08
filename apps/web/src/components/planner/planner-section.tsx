@@ -46,7 +46,7 @@ export function PlannerSection() {
   const { activities, loading, error, remove } = usePlannedActivities(today);
 
   // Active view mode: "month" or "week"
-  const [view, setView] = useState<PlannerView>("month");
+  const [view, setView] = useState<PlannerView>("week");
 
   // Selected date (anchored at noon to avoid timezone daylight saving edge cases)
   const [selectedDate, setSelectedDate] = useState(
@@ -137,11 +137,11 @@ export function PlannerSection() {
                 onValueChange={(value) => setView(value as PlannerView)}
               >
                 <TabsList className="grid h-10 w-full grid-cols-2 rounded-full bg-[#EEF2E8]">
-                  <TabsTrigger className="rounded-full" value="month">
-                    Month
-                  </TabsTrigger>
                   <TabsTrigger className="rounded-full" value="week">
                     Week
+                  </TabsTrigger>
+                  <TabsTrigger className="rounded-full" value="month">
+                    Month
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
