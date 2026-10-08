@@ -139,14 +139,6 @@ export function DashboardSection() {
             >
               <FavouriteActivities tags={stats.varietyTagCounts} />
             </DashboardDisclosure>
-            <DashboardDisclosure
-              id="national-guidelines"
-              onToggle={() => toggleSection("nationalGuidelines")}
-              open={openSections.nationalGuidelines}
-              title="National guidelines"
-            >
-              <NationalGuidelines stats={stats} />
-            </DashboardDisclosure>
           </div>
         </div>
       )}

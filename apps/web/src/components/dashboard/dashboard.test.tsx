@@ -122,12 +122,11 @@ describe("compact parent dashboard", () => {
     expect(markup).not.toContain("26% of Australian children");
     for (const title of [
       "Your Child&#x27;s Achievements",
-      "Your Child&#x27;s Favourites",
-      "National guidelines",
+      "Your Child&#x27;s Favourites"
     ]) {
       expect(markup).toContain(title);
     }
-    expect(markup.match(/aria-expanded="false"/g)).toHaveLength(3);
+    expect(markup.match(/aria-expanded="false"/g)).toHaveLength(2);
   });
 
   it("links supportive below-target copy to the logging flow", () => {

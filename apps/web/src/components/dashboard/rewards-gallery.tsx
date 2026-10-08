@@ -51,7 +51,7 @@ function getBadgeExplanation(
     case "completed_in_one_day":
       return "Complete 2 activities in one day";
     case "first_matching_activity":
-      return `Try ${requirement.toLowerCase()} activity`;
+      return `Try a ${requirement.toLowerCase()} activity`;
     default:
       return requirement || "Complete the activity goal";
   }
