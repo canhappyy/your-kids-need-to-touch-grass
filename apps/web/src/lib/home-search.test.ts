@@ -57,7 +57,7 @@ describe("home-search lib utilities", () => {
         interests: "",
         location: "",
         locationMode: "nearby",
-        minutes: 45,
+        minutes: 0,
         selectedBuckets: [],
       });
     });
@@ -148,8 +148,21 @@ describe("home-search lib utilities", () => {
         ageError: "",
         isValid: false,
         locationError: "",
-        timeError: "Choose at least 5 minutes.",
+        timeError: "Select at least one duration.",
       });
+    });
+
+    it("returns an error when no duration is selected", () => {
+      const result = validateSearchForm({
+        hours: 0,
+        location: "3000",
+        locationMode: "nearby",
+        minutes: 0,
+        selectedBuckets: ["5-7"],
+      });
+
+      expect(result.timeError).toBe("Select at least one duration.");
+      expect(result.isValid).toBe(false);
     });
 
     it.each([5, 10])("accepts %s-minute searches", (minutes) => {

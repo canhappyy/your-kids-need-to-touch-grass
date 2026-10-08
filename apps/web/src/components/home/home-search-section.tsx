@@ -39,13 +39,12 @@ export function HomeSearchSection() {
 
   const queryHours = getNumberParam("hours", 0);
   const queryMinutes = getNumberParam("minutes", 0);
-  const totalMinutesFromQuery =
-    queryHours > 0 && queryMinutes === 0 ? queryHours * 60 : queryMinutes || 45;
+  const totalMinutesFromQuery = queryHours * 60 + queryMinutes;
   const initialMinutes = minuteOptions.some(
     (option) => option.value === totalMinutesFromQuery,
   )
     ? totalMinutesFromQuery
-    : 45;
+    : 0;
 
   const hasAgeParams = searchParams.has("ageMin") || searchParams.has("ageMax");
   const ageBucketsParam = searchParams.get("ageBuckets");

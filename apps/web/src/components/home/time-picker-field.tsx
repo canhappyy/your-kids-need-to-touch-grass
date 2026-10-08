@@ -15,7 +15,7 @@ export type TimePickerFieldProps = {
   hours?: number;
   /** Selected duration in minutes. */
   minutes: number;
-  /** Validation error message for duration (e.g. minimum 5 minutes). */
+  /** Validation error message for duration selection or minimum duration. */
   timeError: string;
   /** Optional callback for changing duration hours. */
   onHoursChange?: (value: number) => void;
@@ -46,10 +46,10 @@ export function TimePickerField({
           onValueChange={(value) => {
             if (value !== null) onMinutesChange(value);
           }}
-          value={minutes}
+          value={minutes === 0 ? null : minutes}
         >
           <SelectTrigger className="h-[52px] data-[size=default]:h-[52px] w-full rounded-xl border-zinc-200 bg-[#F0B6A31F] px-4 text-base font-semibold focus-visible:border-[#E4633C] focus-visible:ring-[#E4633C]/20">
-            <SelectValue />
+            <SelectValue placeholder="Select duration" />
           </SelectTrigger>
           <SelectContent align="start">
             {minuteOptions.map((option) => (
