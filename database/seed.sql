@@ -340,9 +340,6 @@ DROP TABLE staging_activity;
 \copy activity_location_category (mission_id, category_name) FROM '/csvdata/Activity_LocationCategory.csv' WITH (FORMAT csv, HEADER true, NULL '')
  
 -- 5. SPECIES_BADGE
-\copy species_badge (
-    vernacular_name, badge_type, requirement, badge_id, rule_type, rule_field,
-    rule_operator, rule_value, description, image_earned, image_locked
-) FROM '/csvdata/species_badge_db.csv' WITH (FORMAT csv, HEADER true, NULL '')
+\copy species_badge (vernacular_name, badge_type, requirement, badge_id, rule_type, rule_field, rule_operator, rule_value, description, image_earned, image_locked) FROM '/csvdata/species_badge_db.csv' WITH (FORMAT csv, HEADER true, NULL '')
 
 COMMIT;
