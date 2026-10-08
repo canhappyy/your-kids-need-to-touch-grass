@@ -3,7 +3,7 @@ import { TopNav } from "@/components/layout/top-nav";
 import { PlannerSection } from "@/components/planner";
 
 /**
- * Page metadata for the planner view.
+ * Page metadata for the activity planner view.
  */
 export const metadata: Metadata = {
   title: "PlayGo & Co - Planner",
@@ -11,7 +11,14 @@ export const metadata: Metadata = {
 };
 
 /**
- * Parent activity planner with local schedules and Victorian important dates.
+ * Activity Planner page component.
+ *
+ * Provides a dedicated space for parents to organize family outdoor and indoor play schedules:
+ * - Switches dynamically between Month and Week views.
+ * - Integrates Victorian school term calendars and public holiday milestones.
+ * - Provides navigation back to search or opening the completion history drawer.
+ *
+ * @returns The rendered activity planner page.
  */
 export default function PlannerPage() {
   return (
@@ -21,3 +28,4 @@ export default function PlannerPage() {
     </main>
   );
 }
+

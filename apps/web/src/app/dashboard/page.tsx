@@ -11,7 +11,15 @@ export const metadata: Metadata = {
 };
 
 /**
- * Parent dashboard page showing locally recorded activity insights.
+ * Parent Dashboard page component.
+ *
+ * Provides parents with a private, judgment-free window into their child's active play milestones:
+ * - Daily goal progress vs. the 60-minute Australian national recommendation.
+ * - Weekly activity minutes bar chart with daily breakdown.
+ * - Milestone wildlife badges gallery celebrating consistency and variety.
+ * - Discovery of child's emerging favorite play categories.
+ *
+ * @returns The rendered parent dashboard page.
  */
 export default function DashboardPage() {
   return (
@@ -23,3 +31,4 @@ export default function DashboardPage() {
     </main>
   );
 }
+

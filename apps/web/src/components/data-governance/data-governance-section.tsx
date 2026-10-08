@@ -20,10 +20,19 @@ import {
 } from "@/lib/data-governance";
 
 /**
- * Renders the full Data Governance content organized into cards covering data sources,
- * licensing attributions, activity curation, and privacy policies.
+ * Comprehensive transparency and data governance section.
+ *
+ * Organized into four accessible educational cards:
+ * 1. **About Our Data:** Details how activities were curated to promote unstructured, screen-free outdoor play.
+ * 2. **Where Our Data Comes From:** Open dataset citations (Victorian Government open space records,
+ *    BOM/Open-Meteo weather APIs, ABS physical activity surveys) with CC BY 4.0 licenses.
+ * 3. **Our Activity Library:** Explains activity taxonomy, age ranges, and safety checks.
+ * 4. **Your Privacy:** Unambiguous disclosure that PlayGo does not track users, operate accounts, or send personal logs to any external server.
+ *
+ * @returns The rendered data governance information cards.
  */
 export function DataGovernanceSection() {
+
   return (
     <div className="mx-auto w-full max-w-2xl space-y-6">
       <ScreenHeader
