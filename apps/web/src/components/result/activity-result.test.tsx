@@ -51,11 +51,12 @@ function render(recommendation = primary) {
 }
 
 describe("ActivityResult", () => {
-  it("renders activity title, match reasons, and details", () => {
+  it("renders activity title and details without metadata badges", () => {
     const markup = render();
 
     expect(markup).toContain("Park Explorer");
-    expect(markup).toContain("Ages 5-7, 8-9");
+    expect(markup).not.toContain("Ages 5-7, 8-9");
+    expect(markup).not.toContain("Independent play");
     expect(markup).toContain("Clayton Reserve");
     expect(markup).toContain("20 mins activity");
     expect(markup).toContain("~12 mins round-trip walk");

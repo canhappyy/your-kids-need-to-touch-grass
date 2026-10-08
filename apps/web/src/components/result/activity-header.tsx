@@ -1,20 +1,9 @@
-import { Badge } from "@/components/ui/badge";
-import type { MatchReason } from "@/types/recommendation";
-
 /**
  * Props for the `ActivityHeader` component.
  */
 export type ActivityHeaderProps = {
   /** The title of the recommended activity mission. */
   title: string;
-  /** Array of structured match reason badges explaining why this activity fits search criteria. */
-  reasons: MatchReason[];
-  /** Human-readable age suitability label (e.g. "Ages 5-7, 8-9"). */
-  agesLabel: string;
-  /** Formatted duration label (e.g. "30 minutes"). */
-  formattedDuration: string;
-  /** Formatted supervision label ("Independent play" or "Adult supervision"). */
-  formattedSupervision: string;
   /** Heading element used for the mission title. */
   headingLevel?: "h1" | "h2";
   /** DOM identifier used by the surrounding labelled region. */
@@ -28,9 +17,6 @@ export type ActivityHeaderProps = {
  */
 export function ActivityHeader({
   title,
-  agesLabel,
-  formattedDuration,
-  formattedSupervision,
   headingLevel = "h1",
   titleId = "activity-title",
 }: ActivityHeaderProps) {
@@ -44,29 +30,6 @@ export function ActivityHeader({
       >
         {title}
       </Heading>
-      <div
-        aria-label="Mission details"
-        className="mt-4 flex flex-wrap justify-center gap-2"
-      >
-        <Badge
-          className="border-transparent bg-[#F5C24C38] text-zinc-800"
-          variant="outline"
-        >
-          Ages {agesLabel}
-        </Badge>
-        <Badge
-          className="border-transparent bg-[#F5C24C38] text-zinc-800"
-          variant="outline"
-        >
-          {formattedDuration}
-        </Badge>
-        <Badge
-          className="border-transparent bg-[#F5C24C38] text-zinc-800"
-          variant="outline"
-        >
-          {formattedSupervision}
-        </Badge>
-      </div>
     </div>
   );
 }
