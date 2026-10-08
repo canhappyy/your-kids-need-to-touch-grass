@@ -7,11 +7,13 @@ import { Bookmark, RotateCw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSaveActivity } from "@/hooks/use-save-activity";
+import { calculateDailyGoalProgress } from "@/lib/activity";
 import { getEquipmentList, getMissionSteps } from "@/lib/mission-instructions";
 import { cn } from "@/lib/utils";
 import type { Recommendation } from "@/types/recommendation";
 
 import { ActivityDetails } from "./activity-details";
+import { ActivityProgress } from "./activity-progress";
 import { PlannerSaveDialog } from "./planner-save-dialog";
 import { SaveOptionsDialog } from "./save-options-dialog";
 
@@ -22,12 +24,15 @@ export type ActivityCardProps = {
   formattedCommuteDuration: string | null;
   locationLabel: string;
   isHomeBased: boolean;
+  dailyGoalPercentage?: number;
+  goalAriaText?: string;
+  progressValue?: number;
   planDate?: string;
   childAgeRange?: [number, number];
 };
 
 /**
- * Interactive card displaying activity details on the front and instructions on the back,
+ * Interactive card displaying activity details and daily progress on the front and instructions on the back,
  * flipping smoothly with a 3D animation while preserving identical dimensions before and after.
  * Includes an Instagram-style bookmark save icon at the top right to choose between saving to backlog or planner.
  */
@@ -38,6 +43,9 @@ export function ActivityCard({
   formattedCommuteDuration,
   locationLabel,
   isHomeBased,
+  dailyGoalPercentage,
+  goalAriaText,
+  progressValue,
   planDate,
   childAgeRange,
 }: ActivityCardProps) {
@@ -53,6 +61,14 @@ export function ActivityCard({
   );
 
   const isSaved = isBacklogSaved || isPlannedSaved;
+
+  const fallbackProgress = calculateDailyGoalProgress(
+    recommendation.durationMinutes,
+  );
+  const activeDailyGoalPercentage =
+    dailyGoalPercentage ?? fallbackProgress.dailyGoalPercentage;
+  const activeGoalAriaText = goalAriaText ?? fallbackProgress.label;
+  const activeProgressValue = progressValue ?? fallbackProgress.progressValue;
 
   const steps = getMissionSteps(recommendation.instructionText);
   const equipmentItems = getEquipmentList(recommendation.equipmentNeeded);
@@ -146,14 +162,14 @@ export function ActivityCard({
                   locationLabel={locationLabel}
                   weather={recommendation.weather}
                 />
-              </div>
 
-              <div className="mt-4 flex items-center justify-center gap-1.5 rounded-lg border border-[#93AB63]/30 bg-[#93AB63]/10 px-3 py-2 text-xs font-semibold text-[#5b7234] transition-colors group-hover:bg-[#93AB63]/20">
-                <RotateCw
-                  aria-hidden="true"
-                  className="size-3.5 text-[#728A46] transition-transform duration-300 group-hover:rotate-45"
-                />
-                <span>Tap card to see How to Play instructions</span>
+                <div className="mt-4 pt-3 border-t border-zinc-200/60">
+                  <ActivityProgress
+                    dailyGoalPercentage={activeDailyGoalPercentage}
+                    goalAriaText={activeGoalAriaText}
+                    progressValue={activeProgressValue}
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -237,11 +253,6 @@ export function ActivityCard({
                     </p>
                   )}
                 </div>
-              </div>
-
-              <div className="mt-2 flex items-center justify-center gap-1.5 rounded-lg border border-[#93AB63]/30 bg-[#93AB63]/10 px-3 py-1.5 text-xs font-semibold text-[#5b7234] transition-colors group-hover:bg-[#93AB63]/20">
-                <RotateCw aria-hidden="true" className="size-3.5 text-[#728A46]" />
-                <span>Tap card to return to details</span>
               </div>
             </CardContent>
           </Card>

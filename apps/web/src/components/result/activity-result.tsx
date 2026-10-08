@@ -6,7 +6,6 @@ import type { ActivityResultProps } from "@/types/activity";
 import { ActivityActions } from "./activity-actions";
 import { ActivityCard } from "./activity-card";
 import { ActivityHeader } from "./activity-header";
-import { ActivityProgress } from "./activity-progress";
 
 /**
  * Renders the single recommended activity result view, displaying flippable activity details,
@@ -49,19 +48,16 @@ function ActivityResult({
 
       <ActivityCard
         childAgeRange={childAgeRange}
+        dailyGoalPercentage={dailyGoalPercentage}
         formattedCommuteDuration={formattedCommuteDuration}
         formattedDuration={formattedDuration}
         formattedTotalDuration={formattedTotalDuration}
+        goalAriaText={goalAriaText}
         isHomeBased={isHomeBased}
         locationLabel={locationLabel}
         planDate={planDate}
-        recommendation={recommendation}
-      />
-
-      <ActivityProgress
-        dailyGoalPercentage={dailyGoalPercentage}
-        goalAriaText={goalAriaText}
         progressValue={progressValue}
+        recommendation={recommendation}
       />
 
       <ActivityActions

@@ -137,5 +137,42 @@ describe("ActivityCard", () => {
     expect(markup).toContain('aria-label="Save activity"');
     expect(markup).toContain("lucide-bookmark");
   });
+
+  it("renders daily active play progress bar inside the card", () => {
+    const markup = renderToStaticMarkup(
+      createElement(ActivityCard, {
+        recommendation: mockRecommendation,
+        formattedDuration: "25 mins",
+        formattedTotalDuration: "35 mins",
+        formattedCommuteDuration: "10 mins",
+        locationLabel: "Gardners Creek Reserve",
+        isHomeBased: false,
+        dailyGoalPercentage: 42,
+        goalAriaText: "42% of daily outdoor play goal",
+        progressValue: 42,
+      }),
+    );
+
+    expect(markup).toContain("42% of the 60-minute daily goal");
+    expect(markup).toContain('aria-valuetext="42% of daily outdoor play goal"');
+    expect(markup).toContain('data-slot="progress"');
+  });
+
+  it("calculates fallback progress bar values when props are omitted", () => {
+    const markup = renderToStaticMarkup(
+      createElement(ActivityCard, {
+        recommendation: mockRecommendation,
+        formattedDuration: "25 mins",
+        formattedTotalDuration: "35 mins",
+        formattedCommuteDuration: "10 mins",
+        locationLabel: "Gardners Creek Reserve",
+        isHomeBased: false,
+      }),
+    );
+
+    // 25 mins out of 60 mins is 42%
+    expect(markup).toContain("42% of the 60-minute daily goal");
+    expect(markup).toContain('data-slot="progress"');
+  });
 });
 
