@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Sparkles, Trophy } from "lucide-react";
 import {
   DialogContent,
   DialogDescription,
@@ -21,7 +22,12 @@ export function BadgeDetailDialog({ badge }: BadgeDetailDialogProps) {
       : `Earned by completing ${badge.targetValue} qualifying activity.`;
 
   return (
-    <DialogContent className="rounded-2xl bg-[#FDF6EA] p-6 text-center sm:max-w-sm">
+    <DialogContent className="rounded-2xl border-[#D9C99E] bg-[#FDF6EA] p-6 text-center sm:max-w-sm">
+      <div className="mx-auto mb-2 inline-flex items-center gap-1.5 rounded-full bg-[#E4633C] px-3 py-1 text-xs font-bold uppercase tracking-wide text-white">
+        <Trophy aria-hidden="true" className="size-3.5" />
+        Badge earned
+        <Sparkles aria-hidden="true" className="size-3.5" />
+      </div>
       {badge.icon.endsWith(".svg") ? (
         <Image
           alt=""
