@@ -61,6 +61,9 @@ describe("dashboard detail sections", () => {
     expect(markup).toContain("2 logged activities");
     expect(markup).toContain("width:100%");
     expect(markup).toContain("width:50%");
+    expect(markup).toContain(
+      "[&amp;_[data-slot=progress-indicator]]:bg-[#E4633C]",
+    );
   });
 
   it("labels PlayGo figures and both published guideline sources", () => {

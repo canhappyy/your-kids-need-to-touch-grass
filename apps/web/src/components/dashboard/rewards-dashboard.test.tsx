@@ -31,6 +31,7 @@ describe("dashboard streak and wildlife rewards", () => {
         rewards: {
           currentStreak: 0,
           lastCompletedDate: null,
+          completionCount: 0,
           unlockedBadgeIds: [],
         },
       }),
@@ -48,6 +49,7 @@ describe("dashboard streak and wildlife rewards", () => {
         rewards: {
           currentStreak: 5,
           lastCompletedDate: "2026-10-03",
+          completionCount: 2,
           unlockedBadgeIds: ["koala", "kangaroo"],
         },
       }),
