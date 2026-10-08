@@ -170,7 +170,6 @@ export function moveSavedToCompleted(
     walkingDistanceKm: target.walkingDistanceKm,
     varietyTags: target.varietyTags,
     socialTag: target.socialTag,
-    socialTag: target.socialTag,
   };
 
   try {
