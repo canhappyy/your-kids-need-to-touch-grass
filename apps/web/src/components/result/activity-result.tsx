@@ -1,5 +1,6 @@
 "use client";
 
+import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { useActivityResult } from "@/hooks/use-activity-result";
 import type { ActivityResultProps } from "@/types/activity";
@@ -48,23 +49,25 @@ function ActivityResult({
         </div>
       )}
       <Dialog key={recommendation.missionId}>
-        <div className="relative">
+        <ActivityHeader title={recommendation.title} />
+
+        <div className="group relative mt-6">
           <DialogTrigger
             aria-label={`How to Play: ${recommendation.title}`}
             className="absolute inset-0 z-10 cursor-pointer rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63] focus-visible:ring-offset-4"
           />
-          <ActivityHeader
-            title={recommendation.title}
-          />
-
-          <ActivityDetails
-            formattedCommuteDuration={formattedCommuteDuration}
-            formattedDuration={formattedDuration}
-            formattedTotalDuration={formattedTotalDuration}
-            isHomeBased={isHomeBased}
-            locationLabel={locationLabel}
-            weather={recommendation.weather}
-          />
+          <Card className="border border-[#93AB63]/60 bg-white/70 shadow-sm ring-0 transition-all group-hover:border-[#93AB63] group-hover:shadow-md">
+            <CardContent className="p-5 sm:p-6">
+              <ActivityDetails
+                formattedCommuteDuration={formattedCommuteDuration}
+                formattedDuration={formattedDuration}
+                formattedTotalDuration={formattedTotalDuration}
+                isHomeBased={isHomeBased}
+                locationLabel={locationLabel}
+                weather={recommendation.weather}
+              />
+            </CardContent>
+          </Card>
         </div>
 
         <ActivityProgress

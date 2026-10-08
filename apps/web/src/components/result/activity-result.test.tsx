@@ -152,4 +152,11 @@ describe("ActivityResult", () => {
     expect(markup).not.toContain("Discover Another Activity");
     expect(markup).not.toContain("activity-slide-add");
   });
+
+  it("renders activity detail section inside a card component", () => {
+    const markup = render();
+
+    expect(markup).toContain('data-slot="card"');
+    expect(markup).toContain('data-slot="card-content"');
+  });
 });

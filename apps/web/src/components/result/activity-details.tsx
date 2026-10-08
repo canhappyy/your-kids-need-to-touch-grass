@@ -20,6 +20,8 @@ export type ActivityDetailsProps = {
   weather?: MissionWeather;
   /** Whether the activity is home-based or venue-free. When true, weather details are hidden. */
   isHomeBased?: boolean;
+  /** Optional additional class name for the details list. */
+  className?: string;
 };
 
 /**
@@ -34,6 +36,7 @@ export function ActivityDetails({
   formattedCommuteDuration,
   weather,
   isHomeBased = false,
+  className,
 }: ActivityDetailsProps) {
   const showWeather = !isHomeBased;
   const {
@@ -45,7 +48,7 @@ export function ActivityDetails({
   } = getWeatherPresentation(weather);
 
   return (
-    <dl className="mt-7 space-y-6">
+    <dl className={cn("space-y-6", className)}>
       <div className="grid grid-cols-[24px_1fr_24px] items-center gap-3">
         <MapPin
           aria-hidden="true"
