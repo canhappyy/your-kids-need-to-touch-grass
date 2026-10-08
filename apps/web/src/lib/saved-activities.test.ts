@@ -7,8 +7,10 @@ import {
   readSavedActivities,
   removeSavedActivity,
   saveActivity,
+  syncSavedActivities,
 } from "./saved-activities";
-import { readCompletedMissions } from "./completed-missions";
+import { readCompletedMissions, saveCompletedMission } from "./completed-missions";
+import { savePlannedActivity } from "./planned-activities";
 import { readRewards } from "./rewards";
 import type { SavedActivity } from "@/types/saved-activity";
 
@@ -172,5 +174,150 @@ describe("saved-activities", () => {
     // 3. Removed from both
     clearSavedActivities(storage);
     expect(isActivityInBacklog("MIS-001", storage)).toBe(true); // still in completed!
+  });
+
+  describe("syncSavedActivities (midnight clearing & planner promotion)", () => {
+    it("clears uncompleted saved activities when a new date starts (midnight rollover)", () => {
+      const storage = createMockStorage();
+      saveActivity(
+        {
+          ...sampleActivity,
+          savedAt: new Date(2026, 9, 7, 10, 0, 0).toISOString(),
+        },
+        storage,
+      );
+      expect(readSavedActivities(storage)).toHaveLength(1);
+
+      // Midnight rollover to 2026-10-08
+      const nextDay = new Date(2026, 9, 8, 8, 0, 0);
+      const synced = syncSavedActivities(nextDay, storage);
+
+      expect(synced).toEqual([]);
+      expect(readSavedActivities(storage)).toEqual([]);
+    });
+
+    it("promotes planned activities scheduled for today into saved activities", () => {
+      const storage = createMockStorage();
+      const today = new Date(2026, 9, 8, 10, 0, 0);
+
+      savePlannedActivity(
+        {
+          id: "plan-today",
+          missionId: "MIS-002",
+          name: "Tree Climbing Challenge",
+          plannedDate: "2026-10-08",
+          createdAt: "2026-10-07T12:00:00.000Z",
+          durationMinutes: 20,
+          missionType: "Home-Based",
+          locationLabel: "Backyard",
+          instructionText: "Find a sturdy branch",
+          equipmentNeeded: null,
+        },
+        storage,
+        today,
+      );
+
+      const synced = syncSavedActivities(today, storage);
+      expect(synced).toHaveLength(1);
+      expect(synced[0]).toMatchObject({
+        id: "plan-today",
+        missionId: "MIS-002",
+        name: "Tree Climbing Challenge",
+        durationMinutes: 20,
+      });
+      expect(readSavedActivities(storage)).toHaveLength(1);
+    });
+
+    it("does not promote planned activities scheduled for future dates", () => {
+      const storage = createMockStorage();
+      const today = new Date(2026, 9, 8, 10, 0, 0);
+
+      savePlannedActivity(
+        {
+          id: "plan-tomorrow",
+          missionId: "MIS-003",
+          name: "Beach Run",
+          plannedDate: "2026-10-09",
+          createdAt: "2026-10-08T10:00:00.000Z",
+          durationMinutes: 30,
+          missionType: "Location-Based",
+          locationLabel: "Beach",
+        },
+        storage,
+        today,
+      );
+
+      const synced = syncSavedActivities(today, storage);
+      expect(synced).toHaveLength(0);
+      expect(readSavedActivities(storage)).toHaveLength(0);
+    });
+
+    it("does not promote planned activities if already completed today", () => {
+      const storage = createMockStorage();
+      const today = new Date(2026, 9, 8, 10, 0, 0);
+
+      savePlannedActivity(
+        {
+          id: "plan-done",
+          missionId: "MIS-004",
+          name: "Morning Yoga",
+          plannedDate: "2026-10-08",
+          createdAt: "2026-10-07T10:00:00.000Z",
+          durationMinutes: 15,
+          missionType: "Home-Based",
+          locationLabel: "Living Room",
+        },
+        storage,
+        today,
+      );
+
+      saveCompletedMission(
+        {
+          id: "comp-1",
+          missionId: "MIS-004",
+          name: "Morning Yoga",
+          completedAt: "2026-10-08T08:00:00.000Z",
+          durationMinutes: 15,
+        },
+        storage,
+        today,
+      );
+
+      const synced = syncSavedActivities(today, storage);
+      expect(synced).toHaveLength(0);
+    });
+
+    it("does not re-promote a planned activity if user removed it from to-do today", () => {
+      const storage = createMockStorage();
+      const today = new Date(2026, 9, 8, 10, 0, 0);
+
+      savePlannedActivity(
+        {
+          id: "plan-dismiss",
+          missionId: "MIS-005",
+          name: "Sack Race",
+          plannedDate: "2026-10-08",
+          createdAt: "2026-10-07T10:00:00.000Z",
+          durationMinutes: 15,
+          missionType: "Home-Based",
+          locationLabel: "Backyard",
+        },
+        storage,
+        today,
+      );
+
+      // First sync promotes it
+      const firstSync = syncSavedActivities(today, storage);
+      expect(firstSync).toHaveLength(1);
+
+      // User removes it from saved / to-do
+      removeSavedActivity("plan-dismiss", storage);
+      expect(readSavedActivities(storage)).toHaveLength(0);
+
+      // Subsequent sync today does not re-add it
+      const secondSync = syncSavedActivities(today, storage);
+      expect(secondSync).toHaveLength(0);
+      expect(readSavedActivities(storage)).toHaveLength(0);
+    });
   });
 });

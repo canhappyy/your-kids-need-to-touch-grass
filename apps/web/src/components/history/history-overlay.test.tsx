@@ -67,7 +67,7 @@ describe("HistoryOverlay", () => {
     expect(markup).toContain("PlayGo &amp; Co");
     expect(markup).toContain("Activity backlog");
     expect(markup).not.toContain("Saved and completed activities on this device");
-    expect(markup).toContain("Saved activities");
+    expect(markup).toContain("To do/Doing Activities");
     expect(markup).toContain("Nature Walk");
     expect(markup).toContain("Completed missions");
     expect(markup).toContain("Climb the Big Tree");

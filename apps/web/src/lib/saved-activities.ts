@@ -2,8 +2,11 @@ import { z } from "zod";
 import {
   dispatchBacklogChangeEvent,
   isMissionCompleted,
+  readCompletedMissions,
   saveCompletedMission,
 } from "@/lib/completed-missions";
+import { localDateKey } from "@/lib/planner-dates";
+import { readPlannedActivities } from "@/lib/planned-activities";
 import type { CompletedMission } from "@/types/completed-mission";
 import type { SavedActivity } from "@/types/saved-activity";
 
@@ -11,6 +14,11 @@ import type { SavedActivity } from "@/types/saved-activity";
  * Storage key used to persist saved activities in browser localStorage.
  */
 export const SAVED_ACTIVITIES_KEY = "playgo.saved-activities.v1";
+
+/**
+ * Storage key used to track planned activities that were already transferred today.
+ */
+export const PLANNER_TRANSFERRED_KEY = "playgo.planner-transferred.v1";
 
 type ActivityStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 
@@ -25,6 +33,7 @@ const savedActivitySchema = z.object({
   childAgeRange: z.tuple([z.number().int(), z.number().int()]).optional(),
   walkingDistanceKm: z.number().nonnegative().optional(),
   varietyTags: z.array(z.string().trim().min(1)).optional(),
+  socialTag: z.string().optional(),
 });
 
 /**
@@ -43,6 +52,99 @@ export function readSavedActivities(
   if (raw === null) return [];
   const records = z.array(savedActivitySchema).parse(JSON.parse(raw));
   return records.sort((a, b) => Date.parse(b.savedAt) - Date.parse(a.savedAt));
+}
+
+/**
+ * Synchronizes saved activities for the active local day:
+ * 1. Clears any uncompleted saved activities saved on prior dates (resets at midnight).
+ * 2. If the current date has planned activities scheduled for today, adds them to saved activities
+ *    (unless already completed today, already present, or previously transferred today).
+ *
+ * @param now - Current clock date (defaults to `new Date()`).
+ * @param store - The storage backend to synchronize.
+ * @returns Array of validated `SavedActivity` records for the active date.
+ */
+export function syncSavedActivities(
+  now = new Date(),
+  store: ActivityStorage = window.localStorage,
+): SavedActivity[] {
+  const todayKey = localDateKey(now);
+  const existing = readSavedActivities(store);
+
+  // 1. Midnight clearing: purge any activities saved before today
+  const currentDayActivities = existing.filter((item) => {
+    const savedDate = new Date(item.savedAt);
+    if (!Number.isFinite(savedDate.getTime())) return false;
+    return localDateKey(savedDate) >= todayKey;
+  });
+
+  // 2. Read planned activities and completed missions for today
+  const plannedActivities = readPlannedActivities(store);
+  const completedMissions = readCompletedMissions(store);
+
+  let transferred: Record<string, string> = {};
+  try {
+    const raw = store.getItem(PLANNER_TRANSFERRED_KEY);
+    if (raw) transferred = JSON.parse(raw);
+  } catch {
+    transferred = {};
+  }
+
+  // Prune transferred entries older than today
+  const cleanedTransferred: Record<string, string> = {};
+  for (const [id, date] of Object.entries(transferred)) {
+    if (date >= todayKey) {
+      cleanedTransferred[id] = date;
+    }
+  }
+
+  let changed = currentDayActivities.length !== existing.length;
+
+  // 3. Promote planned activities scheduled for today
+  const todayPlanned = plannedActivities.filter(
+    (item) => item.plannedDate === todayKey,
+  );
+
+  for (const planned of todayPlanned) {
+    const isCompletedToday = completedMissions.some(
+      (c) =>
+        c.missionId === planned.missionId &&
+        localDateKey(new Date(c.completedAt)) === todayKey,
+    );
+    if (isCompletedToday) continue;
+
+    const isAlreadySaved = currentDayActivities.some(
+      (item) => item.id === planned.id || item.missionId === planned.missionId,
+    );
+    if (isAlreadySaved) continue;
+
+    if (cleanedTransferred[planned.id] === todayKey) continue;
+
+    currentDayActivities.push({
+      id: planned.id,
+      missionId: planned.missionId,
+      name: planned.name,
+      savedAt: now.toISOString(),
+      durationMinutes: planned.durationMinutes,
+      instructionText: planned.instructionText ?? null,
+      equipmentNeeded: planned.equipmentNeeded ?? null,
+    });
+
+    cleanedTransferred[planned.id] = todayKey;
+    changed = true;
+  }
+
+  store.setItem(PLANNER_TRANSFERRED_KEY, JSON.stringify(cleanedTransferred));
+
+  if (changed) {
+    currentDayActivities.sort(
+      (a, b) => Date.parse(b.savedAt) - Date.parse(a.savedAt),
+    );
+    store.setItem(SAVED_ACTIVITIES_KEY, JSON.stringify(currentDayActivities));
+    dispatchBacklogChangeEvent();
+  }
+
+  return currentDayActivities;
 }
 
 /**

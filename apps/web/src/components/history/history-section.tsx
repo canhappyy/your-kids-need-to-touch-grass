@@ -103,17 +103,17 @@ export function HistorySection({
 
         {!loading && (
           <>
-            {/* Saved activities section */}
+            {/* To do/Doing activities section */}
             <section
-              aria-labelledby="saved-activities-heading"
+              aria-labelledby="todo-activities-heading"
               className="space-y-3"
             >
               <div className="flex items-center justify-between">
                 <h2
                   className="text-xl font-bold tracking-tight text-zinc-900"
-                  id="saved-activities-heading"
+                  id="todo-activities-heading"
                 >
-                  Saved activities
+                  To do/Doing Activities
                 </h2>
                 <Badge
                   className="border-[#93AB63]/40 bg-white font-semibold text-zinc-800"
@@ -126,18 +126,18 @@ export function HistorySection({
               {savedActivities.length === 0 ? (
                 <Card className="border-dashed bg-white/50">
                   <CardContent className="py-6 text-center text-sm text-zinc-600">
-                    <p>No saved activities yet.</p>
+                    <p>No to do/doing activities yet.</p>
                     <Link
                       className="mt-2 inline-flex min-h-11 items-center font-medium text-[#93AB63] underline"
                       href="/"
                       onClick={onClose}
                     >
-                      Find an activity to save
+                      Find an activity to do
                     </Link>
                   </CardContent>
                 </Card>
               ) : (
-                <ul className="space-y-3" aria-label="Saved activities">
+                <ul className="space-y-3" aria-label="To do/Doing Activities">
                   {savedActivities.map((activity) => (
                     <li key={activity.id}>
                       <SavedActivityItem
