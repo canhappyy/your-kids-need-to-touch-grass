@@ -6,7 +6,12 @@ import {
   HISTORY_KEY,
   readCompletedMissions,
 } from "@/lib/completed-missions";
-import { MILESTONE_BADGES, REWARDS_KEY, reconcileRewards } from "@/lib/rewards";
+import {
+  MILESTONE_BADGES,
+  REWARDS_KEY,
+  readRewards,
+  reconcileRewards,
+} from "@/lib/rewards";
 import type { CompletedMission } from "@/types/completed-mission";
 import type { MilestoneBadge, RewardState } from "@/types/reward";
 
@@ -40,6 +45,11 @@ export function useRewards(
 
   const refresh = useCallback(() => {
     try {
+      if (badges.length === 0) {
+        const existing = readRewards(window.localStorage);
+        if (existing) setRewards(existing);
+        return;
+      }
       setRewards(synchronizeRewards(window.localStorage, new Date(), badges));
       setError("");
     } catch {

@@ -88,7 +88,7 @@ describe("activity streak rewards", () => {
     ).toBe(0);
   });
 
-  it("limits historical starter unlocks to two badges", () => {
+  it("unlocks all streak milestones crossed during historical streaks", () => {
     const records = Array.from({ length: 14 }, (_, index) =>
       mission(`day-${index}`, new Date(2026, 8, 20 + index, 12)),
     );
@@ -99,7 +99,9 @@ describe("activity streak rewards", () => {
     );
 
     expect(state.currentStreak).toBe(14);
-    expect(state.unlockedBadgeIds).toEqual(["green-sea-turtle", "kangaroo"]);
+    expect(state.unlockedBadgeIds).toEqual(
+      MILESTONE_BADGES.map((badge) => badge.id),
+    );
   });
 
   it("unlocks database badges for activity metrics", () => {
@@ -116,11 +118,54 @@ describe("activity streak rewards", () => {
       },
     ];
     const badges = [
-      { id: "duration", milestoneDays: 0, speciesName: "A", icon: "", ruleType: "first_matching_activity", ruleField: "duration_minutes", ruleOperator: "gte", ruleValue: "30" },
-      { id: "total", milestoneDays: 0, speciesName: "B", icon: "", ruleType: "total_completed", ruleOperator: "gte", ruleValue: "2" },
-      { id: "daily", milestoneDays: 0, speciesName: "C", icon: "", ruleType: "completed_in_one_day", ruleOperator: "gte", ruleValue: "2" },
-      { id: "variety", milestoneDays: 0, speciesName: "D", icon: "", ruleType: "first_matching_activity", ruleField: "variety_tags", ruleOperator: "contains", ruleValue: "creativity" },
-      { id: "social", milestoneDays: 0, speciesName: "E", icon: "", ruleType: "first_matching_activity", ruleField: "social_tag", ruleOperator: "equals", ruleValue: "family" },
+      {
+        id: "duration",
+        milestoneDays: 0,
+        speciesName: "A",
+        icon: "",
+        ruleType: "first_matching_activity",
+        ruleField: "duration_minutes",
+        ruleOperator: "gte",
+        ruleValue: "30",
+      },
+      {
+        id: "total",
+        milestoneDays: 0,
+        speciesName: "B",
+        icon: "",
+        ruleType: "total_completed",
+        ruleOperator: "gte",
+        ruleValue: "2",
+      },
+      {
+        id: "daily",
+        milestoneDays: 0,
+        speciesName: "C",
+        icon: "",
+        ruleType: "completed_in_one_day",
+        ruleOperator: "gte",
+        ruleValue: "2",
+      },
+      {
+        id: "variety",
+        milestoneDays: 0,
+        speciesName: "D",
+        icon: "",
+        ruleType: "first_matching_activity",
+        ruleField: "variety_tags",
+        ruleOperator: "contains",
+        ruleValue: "creativity",
+      },
+      {
+        id: "social",
+        milestoneDays: 0,
+        speciesName: "E",
+        icon: "",
+        ruleType: "first_matching_activity",
+        ruleField: "social_tag",
+        ruleOperator: "equals",
+        ruleValue: "family",
+      },
     ];
 
     const state = reconcileRewards(
@@ -131,6 +176,91 @@ describe("activity streak rewards", () => {
     );
 
     expect(state.unlockedBadgeIds).toEqual(["duration", "daily"]);
+  });
+
+  it("grants streak badges directly when streak milestones are reached even if completion count matches", () => {
+    const records = [
+      {
+        ...mission("one", new Date(2026, 9, 6, 8)),
+        durationMinutes: 15,
+        varietyTags: ["Coordination", "Energised Activity"],
+      },
+      {
+        ...mission("two", new Date(2026, 9, 7, 8)),
+        durationMinutes: 15,
+        varietyTags: ["Coordination", "Energised Activity"],
+      },
+      {
+        ...mission("three", new Date(2026, 9, 8, 8)),
+        durationMinutes: 15,
+        varietyTags: ["Coordination", "Energised Activity"],
+      },
+    ];
+    const badges = [
+      {
+        id: "platypus",
+        milestoneDays: 0,
+        speciesName: "Platypus",
+        icon: "platypus.svg",
+        ruleType: "total_completed",
+        ruleOperator: "gte",
+        ruleValue: "1",
+        unlockPriority: 10,
+      },
+      {
+        id: "echidna",
+        milestoneDays: 0,
+        speciesName: "Echidna",
+        icon: "echidna.svg",
+        ruleType: "first_matching_activity",
+        ruleField: "duration_minutes",
+        ruleOperator: "lte",
+        ruleValue: "15",
+        unlockPriority: 20,
+      },
+      {
+        id: "koala",
+        milestoneDays: 3,
+        speciesName: "Koala",
+        icon: "koala.svg",
+        ruleType: "streak_days",
+        ruleOperator: "gte",
+        ruleValue: "3",
+        unlockPriority: 30,
+      },
+      {
+        id: "tasmanian_devil",
+        milestoneDays: 0,
+        speciesName: "Tasmanian Devil",
+        icon: "tasmanian_devil.svg",
+        ruleType: "first_matching_activity",
+        ruleField: "variety_tags",
+        ruleOperator: "contains",
+        ruleValue: "Energised Activity",
+        unlockPriority: 90,
+      },
+    ];
+
+    const store = storage({
+      [REWARDS_KEY]: JSON.stringify({
+        currentStreak: 3,
+        lastCompletedDate: "2026-10-08",
+        unlockedBadgeIds: [],
+        completionCount: 3,
+      }),
+    });
+
+    const state = reconcileRewards(
+      records,
+      new Date(2026, 9, 8, 12),
+      store,
+      badges,
+    );
+
+    expect(state.currentStreak).toBe(3);
+    expect(state.unlockedBadgeIds).toContain("koala");
+    expect(state.unlockedBadgeIds).toContain("platypus");
+    expect(state.unlockedBadgeIds).toContain("echidna");
   });
 
   it("unlocks at most one later badge while keeping eligible badges pending", () => {
@@ -231,9 +361,9 @@ describe("activity streak rewards", () => {
       throw new Error("Storage blocked");
     };
 
-    expect(() =>
-      reconcileRewards([], new Date(2026, 9, 3), blocked),
-    ).toThrow("Storage blocked");
+    expect(() => reconcileRewards([], new Date(2026, 9, 3), blocked)).toThrow(
+      "Storage blocked",
+    );
   });
 
   it("does not rewrite unchanged state during synchronization", () => {

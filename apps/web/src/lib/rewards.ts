@@ -1,36 +1,37 @@
 import { z } from "zod";
 import type { CompletedMission } from "@/types/completed-mission";
-import type {
-  MilestoneBadge,
-  RewardState,
-} from "@/types/reward";
+import type { MilestoneBadge, RewardState } from "@/types/reward";
 
 export const REWARDS_KEY = "playgo.rewards.v1";
 
 export const MILESTONE_BADGES: readonly MilestoneBadge[] = [
-  { 
-    id: "koala", 
-    milestoneDays: 3, 
-    speciesName: "Koala", 
-    icon: "🐨" 
+  {
+    id: "koala",
+    milestoneDays: 3,
+    speciesName: "Koala",
+    icon: "koala.svg",
+    lockedIcon: "koala_locked.svg",
   },
   {
     id: "green-sea-turtle",
     milestoneDays: 5,
     speciesName: "Green Sea Turtle",
-    icon: "🐢",
+    icon: "green_turtle.svg",
+    lockedIcon: "green_turtle_locked.svg",
   },
   {
     id: "saltwater-crocodile",
     milestoneDays: 7,
     speciesName: "Saltwater Crocodile",
-    icon: "🐊",
+    icon: "saltwater_crocodile.svg",
+    lockedIcon: "saltwater_crocodile_locked.svg",
   },
   {
     id: "kangaroo",
     milestoneDays: 14,
     speciesName: "Kangaroo",
-    icon: "🦘",
+    icon: "red_kangaroo.svg",
+    lockedIcon: "red_kangaroo_locked.svg",
   },
 ] as const;
 
@@ -111,7 +112,6 @@ function persistRewards(state: RewardState, store: RewardStorage): void {
   if (store.getItem(REWARDS_KEY) !== serialized) {
     store.setItem(REWARDS_KEY, serialized);
   }
-
 }
 
 function hasEarnedBadge(
@@ -185,30 +185,52 @@ export function reconcileRewards(
   const currentStreak =
     latestDate === today || latestDate === yesterday ? latestRun : 0;
   const unlocked = new Set<string>(existing?.unlockedBadgeIds ?? []);
-  const eligible = badges
+
+  // 1. Streak milestones unlock directly when the streak criteria is met
+  for (const badge of badges) {
+    const isStreak =
+      badge.milestoneDays > 0 ||
+      (badge.ruleType === "streak_days" && Number(badge.ruleValue) > 0);
+    const requiredDays =
+      badge.milestoneDays > 0
+        ? badge.milestoneDays
+        : Number(badge.ruleValue) || 0;
+
+    if (isStreak && requiredDays > 0 && longestRun >= requiredDays) {
+      unlocked.add(badge.id);
+    }
+  }
+
+  // 2. Non-streak activity metric badges are paced by completions
+  const eligibleNonStreak = badges
     .filter(
       (badge) =>
         !unlocked.has(badge.id) &&
-        ((badge.milestoneDays > 0 && longestRun >= badge.milestoneDays) ||
-          hasEarnedBadge(badge, records, longestRun)),
+        badge.milestoneDays === 0 &&
+        badge.ruleType !== "streak_days" &&
+        hasEarnedBadge(badge, records, longestRun),
     )
     .sort(
       (a, b) =>
         (a.unlockPriority ?? 100) - (b.unlockPriority ?? 100) ||
         a.id.localeCompare(b.id),
     );
+
   const newCompletions = Math.max(
     0,
     records.length - (existing?.completionCount ?? 0),
   );
-  const unlockLimit =
-    newCompletions === 0
-      ? 0
-      : unlocked.size === 0
-        ? 2
-        : newCompletions;
 
-  for (const badge of eligible.slice(0, unlockLimit)) {
+  const hasActivityBadges = Array.from(unlocked).some((id) => {
+    const b = badges.find((badge) => badge.id === id);
+    return b && b.milestoneDays === 0 && b.ruleType !== "streak_days";
+  });
+
+  const unlockLimit = !hasActivityBadges
+    ? Math.max(2, newCompletions)
+    : newCompletions;
+
+  for (const badge of eligibleNonStreak.slice(0, unlockLimit)) {
     unlocked.add(badge.id);
   }
 

@@ -5,14 +5,35 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("@/components/ui/dialog", () => ({
   Dialog: ({ children }: { children: React.ReactNode }) =>
     createElement("div", { "data-slot": "dialog" }, children),
-  DialogTrigger: ({ children, render, ...props }: { children: React.ReactNode; render?: React.ReactNode }) =>
+  DialogTrigger: ({
+    children,
+    render,
+    ...props
+  }: {
+    children: React.ReactNode;
+    render?: React.ReactNode;
+  }) =>
     createElement(
       "button",
-      { ...props, "data-has-render": Boolean(render), "data-slot": "dialog-trigger" },
+      {
+        ...props,
+        "data-has-render": Boolean(render),
+        "data-slot": "dialog-trigger",
+      },
       children,
     ),
-  DialogContent: ({ children, className }: { children: React.ReactNode; className?: string }) =>
-    createElement("div", { className, "data-slot": "dialog-content" }, children),
+  DialogContent: ({
+    children,
+    className,
+  }: {
+    children: React.ReactNode;
+    className?: string;
+  }) =>
+    createElement(
+      "div",
+      { className, "data-slot": "dialog-content" },
+      children,
+    ),
   DialogHeader: ({ children }: { children: React.ReactNode }) =>
     createElement("div", { "data-slot": "dialog-header" }, children),
   DialogTitle: ({ children }: { children: React.ReactNode }) =>
@@ -70,7 +91,7 @@ describe("dashboard streak and wildlife rewards", () => {
     expect(markup).not.toContain("Saltwater Crocodile");
     expect(markup).not.toContain("Green Sea Turtle");
     expect(markup).not.toContain("Hidden species");
-    expect(markup).toContain("🐨");
+    expect(markup).toContain("koala_locked.svg");
     expect(markup).toContain("14 day streak");
     expect(markup.match(/disabled/g)).toHaveLength(4);
     expect(markup).toContain("grid-cols-2");
