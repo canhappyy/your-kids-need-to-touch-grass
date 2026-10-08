@@ -23,13 +23,11 @@ function ActivityResult({
   onTryAnother,
 }: ActivityResultProps) {
   const {
-    agesLabel,
     dailyGoalPercentage,
     directionsUrl,
     formattedDuration,
     formattedTotalDuration,
     formattedCommuteDuration,
-    formattedSupervision,
     goalAriaText,
     isHomeBased,
     locationLabel,
@@ -56,14 +54,6 @@ function ActivityResult({
             className="absolute inset-0 z-10 cursor-pointer rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63] focus-visible:ring-offset-4"
           />
           <ActivityHeader
-            agesLabel={agesLabel}
-            formattedDuration={
-              formattedCommuteDuration !== null
-                ? `${formattedTotalDuration} total (est.)`
-                : formattedDuration
-            }
-            formattedSupervision={formattedSupervision}
-            reasons={recommendation.reasons}
             title={recommendation.title}
           />
 
