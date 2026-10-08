@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" class="lk" role="img" aria-label="Southern Emu-wren badge (locked)"><title>Southern Emu-wren badge (locked)</title><style>.lk .bg{display:none}.lk [fill]:not([fill=none]):not(.keep){fill:#D8CFBF}.lk [stroke]:not([stroke=none]):not(.keep){stroke:#D8CFBF}.lk [opacity]{opacity:1}</style><defs><clipPath id="c-emu_wren-l"><circle cx="120" cy="120" r="110"/></clipPath></defs><circle class="keep" cx="120" cy="120" r="112" fill="#FDF6E9"/><g clip-path="url(#c-emu_wren-l)">
+<path class="bg" fill="#F5C24C" d="M22 124c-6-56 42-100 98-98 54 2 100 42 98 96-2 58-46 100-100 98-52-2-90-42-96-96z"/>
+<path class="bg" fill="none" stroke="#93AB63" stroke-width="8" stroke-linecap="round" d="M40 236c0-40 6-60 18-84M176 236c2-30 10-50 24-70M200 236c0-20 4-34 12-46M22 236c2-20 0-36-6-50"/>
+<path class="bg" fill="#FDF6E9" d="M52 50l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/>
+<path fill="none" stroke="#93AB63" stroke-width="9" stroke-linecap="round" d="M96 240c6-40 14-70 18-110"/>
+<ellipse fill="#93AB63" cx="128" cy="204" rx="18" ry="7" transform="rotate(-35 128 204)"/>
+<path fill="none" stroke="#22304A" stroke-width="4" stroke-linecap="round" d="M134 132C150 96 150 62 142 30M136 134c24-30 34-62 34-94M138 136c30-24 50-52 58-84M140 138c34-18 58-40 72-66M134 130c8-34 0-66-14-92"/>
+<path fill="none" stroke="#22304A" stroke-width="4" stroke-linecap="round" d="M110 160l2 14M122 160l-6 14"/>
+<ellipse fill="#E4633C" cx="110" cy="140" rx="32" ry="25" transform="rotate(-12 110 140)"/>
+<path fill="#22304A" opacity=".0" d="M0 0"/>
+<path fill="none" stroke="#22304A" stroke-width="3" stroke-linecap="round" d="M112 134c10 2 18 8 22 14M108 142c8 2 14 6 18 12"/>
+<circle fill="#E4633C" cx="84" cy="116" r="20"/>
+<path fill="#7B8FD6" d="M66 122c2 20 16 32 34 30 6-10 2-24-10-32z"/>
+<path fill="#22304A" d="M66 110l-18 4 18 6z"/>
+<circle fill="#22304A" cx="80" cy="110" r="4.500"/><circle fill="#FDF6E9" cx="81.200" cy="108.800" r="1.300"/>
+<path fill="none" stroke="#7B8FD6" stroke-width="3.500" stroke-linecap="round" d="M74 102q8-5 16 0"/>
+</g><circle class="keep" cx="120" cy="120" r="112" fill="none" stroke="#D8CFBF" stroke-width="5" stroke-dasharray="3 13" stroke-linecap="round"/></svg>

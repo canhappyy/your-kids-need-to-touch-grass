@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="Green Turtle badge"><title>Green Turtle badge</title><defs><clipPath id="c-green_turtle"><circle cx="120" cy="120" r="110"/></clipPath></defs><circle class="keep" cx="120" cy="120" r="112" fill="#FDF6E9"/><g clip-path="url(#c-green_turtle)">
+<path class="bg" fill="#7B8FD6" d="M22 124c-6-56 42-100 98-98 54 2 100 42 98 96-2 58-46 100-100 98-52-2-90-42-96-96z"/>
+<path class="bg" fill="none" stroke="#FDF6E9" stroke-width="5" stroke-linecap="round" opacity=".8" d="M30 70c10-8 20 8 30 0M170 196c10-8 20 8 30 0"/>
+<circle class="bg" fill="#FDF6E9" cx="188" cy="60" r="6"/><circle class="bg" fill="#FDF6E9" cx="204" cy="84" r="4"/><circle class="bg" fill="#FDF6E9" cx="46" cy="186" r="5"/>
+<g transform="rotate(32 120 120)">
+<path fill="#F5C24C" d="M98 100C66 66 38 76 26 104c26-8 48 2 68 18z"/>
+<path fill="#F5C24C" d="M142 100C174 66 202 76 214 104c-26-8-48 2-68 18z"/>
+<ellipse fill="#F5C24C" cx="88" cy="174" rx="12" ry="20" transform="rotate(30 88 174)"/>
+<ellipse fill="#F5C24C" cx="152" cy="174" rx="12" ry="20" transform="rotate(-30 152 174)"/>
+<ellipse fill="#F5C24C" cx="120" cy="60" rx="19" ry="23"/>
+<circle fill="#22304A" cx="110" cy="54" r="4"/><circle fill="#22304A" cx="130" cy="54" r="4"/>
+<ellipse fill="#93AB63" cx="120" cy="126" rx="46" ry="54"/>
+<path fill="none" stroke="#FDF6E9" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" d="M120 96l22 14v30l-22 14-22-14v-30zM120 96V74M142 110l20-10M142 140l20 12M120 154v24M98 140l-20 12M98 110L78 100"/>
+</g>
+</g><circle cx="120" cy="120" r="112" fill="none" stroke="#22304A" stroke-width="5"/></svg>

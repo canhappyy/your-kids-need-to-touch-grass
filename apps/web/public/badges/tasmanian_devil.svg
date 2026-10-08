@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="Tasmanian Devil badge"><title>Tasmanian Devil badge</title><defs><clipPath id="c-tasmanian_devil"><circle cx="120" cy="120" r="110"/></clipPath></defs><circle class="keep" cx="120" cy="120" r="112" fill="#FDF6E9"/><g clip-path="url(#c-tasmanian_devil)">
+<path class="bg" fill="#F5C24C" d="M22 124c-6-56 42-100 98-98 54 2 100 42 98 96-2 58-46 100-100 98-52-2-90-42-96-96z"/>
+<path class="bg" fill="none" stroke="#E4633C" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" d="M176 50l12 10-12 10 12 10M30 150l14-6-6 16 14-6"/>
+<path class="bg" fill="none" stroke="#FDF6E9" stroke-width="6" stroke-linecap="round" d="M190 150h22M196 166h16M184 134h18"/>
+<path fill="none" stroke="#22304A" stroke-width="12" stroke-linecap="round" d="M174 122c22-8 30-24 30-40"/>
+<path fill="none" stroke="#22304A" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" d="M104 156l-22 22M122 160l6 26M160 152l22 18M150 158l-2 24"/>
+<ellipse fill="#22304A" cx="130" cy="132" rx="52" ry="34"/>
+<path fill="none" stroke="#FDF6E9" stroke-width="9" stroke-linecap="round" d="M104 106c10 16 10 36 0 54"/>
+<circle fill="#22304A" cx="52" cy="80" r="16"/><circle fill="#22304A" cx="96" cy="76" r="16"/>
+<circle fill="#F0B6A3" cx="52" cy="80" r="9"/><circle fill="#F0B6A3" cx="96" cy="76" r="9"/>
+<circle fill="#22304A" cx="72" cy="112" r="36"/>
+<ellipse fill="#22304A" cx="44" cy="122" rx="20" ry="15"/>
+<path fill="#E4633C" d="M34 128c8 20 30 22 42 4z"/>
+<path fill="#FDF6E9" d="M40 129l4 8 4-8zM60 131l4 8 4-8z"/>
+<ellipse fill="#F0B6A3" cx="30" cy="116" rx="7" ry="5"/>
+<circle fill="#FDF6E9" cx="68" cy="102" r="8"/><circle fill="#22304A" cx="66" cy="103" r="4"/>
+<path fill="none" stroke="#FDF6E9" stroke-width="3" stroke-linecap="round" d="M58 90l14 4"/>
+</g><circle cx="120" cy="120" r="112" fill="none" stroke="#22304A" stroke-width="5"/></svg>

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="Sugar Glider badge"><title>Sugar Glider badge</title><defs><clipPath id="c-sugar_glider"><circle cx="120" cy="120" r="110"/></clipPath></defs><circle class="keep" cx="120" cy="120" r="112" fill="#FDF6E9"/><g clip-path="url(#c-sugar_glider)">
+<path class="bg" fill="#22304A" d="M22 124c-6-56 42-100 98-98 54 2 100 42 98 96-2 58-46 100-100 98-52-2-90-42-96-96z"/>
+<path class="bg" fill="#F5C24C" d="M186 40a26 26 0 1 0 22 40 22 22 0 0 1-22-40z"/>
+<path class="bg" fill="#FDF6E9" d="M40 60l3 8 8 3-8 3-3 8-3-8-8-3 8-3zM60 192l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/>
+<circle class="bg" fill="#FDF6E9" cx="196" cy="150" r="3"/><circle class="bg" fill="#FDF6E9" cx="78" cy="38" r="3"/>
+<g transform="rotate(-14 120 120)">
+<path fill="none" stroke="#7B8FD6" stroke-width="15" stroke-linecap="round" d="M120 164c2 24 22 30 28 54"/>
+<path fill="#7B8FD6" d="M62 84q58 26 116 0-12 44 2 92-60-20-120 0 14-48 2-92z"/>
+<circle fill="#F0B6A3" cx="64" cy="84" r="9"/><circle fill="#F0B6A3" cx="176" cy="84" r="9"/><circle fill="#F0B6A3" cx="62" cy="176" r="9"/><circle fill="#F0B6A3" cx="178" cy="176" r="9"/>
+<ellipse fill="#FDF6E9" opacity=".45" cx="120" cy="134" rx="22" ry="30"/>
+<ellipse fill="#7B8FD6" cx="92" cy="58" rx="13" ry="18" transform="rotate(-24 92 58)"/>
+<ellipse fill="#7B8FD6" cx="148" cy="58" rx="13" ry="18" transform="rotate(24 148 58)"/>
+<ellipse fill="#F0B6A3" cx="93" cy="60" rx="6" ry="10" transform="rotate(-24 93 60)"/>
+<ellipse fill="#F0B6A3" cx="147" cy="60" rx="6" ry="10" transform="rotate(24 147 60)"/>
+<ellipse fill="#7B8FD6" cx="120" cy="86" rx="32" ry="28"/>
+<path fill="none" stroke="#22304A" stroke-width="6" stroke-linecap="round" d="M120 60v20"/>
+<circle fill="#22304A" cx="105" cy="88" r="9"/><circle fill="#22304A" cx="135" cy="88" r="9"/>
+<circle fill="#FDF6E9" cx="108" cy="85" r="3"/><circle fill="#FDF6E9" cx="138" cy="85" r="3"/>
+<ellipse fill="#F0B6A3" cx="120" cy="103" rx="5" ry="4"/>
+</g>
+</g><circle cx="120" cy="120" r="112" fill="none" stroke="#22304A" stroke-width="5"/></svg>

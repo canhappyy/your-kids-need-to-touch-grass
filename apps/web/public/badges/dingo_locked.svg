@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" class="lk" role="img" aria-label="Dingo badge (locked)"><title>Dingo badge (locked)</title><style>.lk .bg{display:none}.lk [fill]:not([fill=none]):not(.keep){fill:#D8CFBF}.lk [stroke]:not([stroke=none]):not(.keep){stroke:#D8CFBF}.lk [opacity]{opacity:1}</style><defs><clipPath id="c-dingo-l"><circle cx="120" cy="120" r="110"/></clipPath></defs><circle class="keep" cx="120" cy="120" r="112" fill="#FDF6E9"/><g clip-path="url(#c-dingo-l)">
+<path class="bg" fill="#7B8FD6" d="M22 124c-6-56 42-100 98-98 54 2 100 42 98 96-2 58-46 100-100 98-52-2-90-42-96-96z"/>
+<path class="bg" fill="#93AB63" d="M0 190c50-30 110-26 150-8s70 10 90-6v70H0z"/>
+<path class="bg" fill="none" stroke="#FDF6E9" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 12" d="M176 76c18 10 24 28 18 48"/>
+<path class="bg" fill="#E4633C" d="M172 30l5 14 14 5-14 5-5 14-5-14-14-5 14-5z"/>
+<path fill="none" stroke="#F5C24C" stroke-width="18" stroke-linecap="round" d="M158 196c30 6 46-12 42-36"/>
+<circle fill="#FDF6E9" cx="200" cy="158" r="9"/>
+<ellipse fill="#F5C24C" cx="130" cy="154" rx="36" ry="50" transform="rotate(14 130 154)"/>
+<path fill="none" stroke="#F5C24C" stroke-width="16" stroke-linecap="round" d="M106 140l-4 64M130 180l-6 24"/>
+<path fill="#FDF6E9" opacity=".7" d="M92 120c16 4 22 30 12 56-10-16-14-36-12-56z"/>
+<path fill="#F5C24C" d="M78 78L72 36l30 30zM102 70l12-38 14 44z"/>
+<path fill="#F0B6A3" d="M82 68l-3-18 13 14z"/>
+<ellipse fill="#F5C24C" cx="96" cy="94" rx="30" ry="26"/>
+<path fill="#FDF6E9" d="M84 92c-20-2-40 2-42 12s22 16 46 10c8-4 6-20-4-22z"/>
+<circle fill="#22304A" cx="45" cy="102" r="6"/>
+<circle fill="#22304A" cx="92" cy="86" r="5"/>
+<path fill="none" stroke="#22304A" stroke-width="3" stroke-linecap="round" d="M56 114q10 4 18-2"/>
+</g><circle class="keep" cx="120" cy="120" r="112" fill="none" stroke="#D8CFBF" stroke-width="5" stroke-dasharray="3 13" stroke-linecap="round"/></svg>

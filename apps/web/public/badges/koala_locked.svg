@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" class="lk" role="img" aria-label="Koala badge (locked)"><title>Koala badge (locked)</title><style>.lk .bg{display:none}.lk [fill]:not([fill=none]):not(.keep){fill:#D8CFBF}.lk [stroke]:not([stroke=none]):not(.keep){stroke:#D8CFBF}.lk [opacity]{opacity:1}</style><defs><clipPath id="c-koala-l"><circle cx="120" cy="120" r="110"/></clipPath></defs><circle class="keep" cx="120" cy="120" r="112" fill="#FDF6E9"/><g clip-path="url(#c-koala-l)">
+<path class="bg" fill="#F5C24C" d="M30 120c-6-52 40-92 92-88 50 4 92 38 88 92-4 56-44 96-96 92-48-4-78-44-84-96z"/>
+<path class="bg" fill="none" stroke="#E4633C" stroke-width="7" stroke-linecap="round" d="M34 190c14-16 28 10 42-6"/>
+<path fill="none" stroke="#93AB63" stroke-width="14" stroke-linecap="round" d="M166 236C160 170 172 100 164 20"/>
+<path fill="none" stroke="#93AB63" stroke-width="8" stroke-linecap="round" d="M166 78c14-10 22-12 34-26"/>
+<ellipse fill="#93AB63" cx="204" cy="46" rx="17" ry="8" transform="rotate(-50 204 46)"/>
+<ellipse fill="#93AB63" cx="192" cy="80" rx="16" ry="7" transform="rotate(10 192 80)"/>
+<ellipse fill="#93AB63" cx="142" cy="36" rx="16" ry="7" transform="rotate(35 142 36)"/>
+<ellipse fill="#7B8FD6" cx="110" cy="164" rx="42" ry="46"/>
+<ellipse fill="#FDF6E9" opacity=".45" cx="104" cy="170" rx="20" ry="26"/>
+<path fill="none" stroke="#7B8FD6" stroke-width="20" stroke-linecap="round" d="M128 142c14-8 26-8 38-6M126 192c14 4 26 2 40-2"/>
+<path fill="none" stroke="#22304A" stroke-width="3" stroke-linecap="round" d="M168 130v12M174 131v11M168 184v12M174 185v11"/>
+<circle fill="#7B8FD6" cx="62" cy="72" r="25"/><circle fill="#7B8FD6" cx="150" cy="70" r="25"/>
+<circle fill="#F0B6A3" cx="62" cy="72" r="13"/><circle fill="#F0B6A3" cx="150" cy="70" r="13"/>
+<ellipse fill="#7B8FD6" cx="106" cy="98" rx="44" ry="38"/>
+<ellipse fill="#22304A" cx="106" cy="104" rx="10" ry="14"/>
+<path fill="none" stroke="#22304A" stroke-width="4" stroke-linecap="round" d="M78 94q7 6 14 0M120 94q7 6 14 0"/>
+<circle fill="#F0B6A3" cx="74" cy="108" r="6"/><circle fill="#F0B6A3" cx="138" cy="108" r="6"/>
+<path fill="none" stroke="#22304A" stroke-width="3" stroke-linecap="round" d="M98 124q8 5 16 0"/>
+</g><circle class="keep" cx="120" cy="120" r="112" fill="none" stroke="#D8CFBF" stroke-width="5" stroke-dasharray="3 13" stroke-linecap="round"/></svg>

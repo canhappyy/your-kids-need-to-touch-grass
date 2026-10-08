@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" class="lk" role="img" aria-label="Platypus badge (locked)"><title>Platypus badge (locked)</title><style>.lk .bg{display:none}.lk [fill]:not([fill=none]):not(.keep){fill:#D8CFBF}.lk [stroke]:not([stroke=none]):not(.keep){stroke:#D8CFBF}.lk [opacity]{opacity:1}</style><defs><clipPath id="c-platypus-l"><circle cx="120" cy="120" r="110"/></clipPath></defs><circle class="keep" cx="120" cy="120" r="112" fill="#FDF6E9"/><g clip-path="url(#c-platypus-l)">
+<path class="bg" fill="#F0B6A3" d="M28 110c0-50 44-84 94-82 52 2 92 36 90 86-2 30-20 44-92 44s-92-12-92-48z"/>
+<circle class="bg" fill="#F5C24C" cx="176" cy="62" r="17"/>
+<path class="bg" fill="#7B8FD6" d="M0 150c20-12 40 12 60 0s40 12 60 0 40 12 60 0 40 12 60 0v90H0z"/>
+<path class="bg" fill="none" stroke="#FDF6E9" stroke-width="5" stroke-linecap="round" d="M44 188c12-8 24 8 36 0M130 204c12-8 24 8 36 0"/>
+<g transform="translate(0 14) rotate(-6 120 124)">
+<path fill="#E4633C" stroke="#E4633C" stroke-width="10" stroke-linejoin="round" d="M170 112c22-14 44-8 46 6s-22 22-46 12z"/>
+<path fill="none" stroke="#22304A" stroke-width="3" stroke-linecap="round" d="M184 112l6 16M196 110l5 17"/>
+<path fill="#F5C24C" stroke="#F5C24C" stroke-width="6" stroke-linejoin="round" d="M92 146l-12 20 14-4 6 10 6-12 12 2zM150 146l-4 22 12-8 10 8 0-14 12-4z"/>
+<ellipse fill="#E4633C" cx="124" cy="124" rx="60" ry="32"/>
+<ellipse fill="#FDF6E9" opacity=".3" cx="120" cy="136" rx="36" ry="12"/>
+<circle fill="#E4633C" cx="74" cy="112" r="29"/>
+<path fill="#22304A" d="M56 104c-22-2-40 4-40 14s20 16 42 12c8-2 8-24-2-26z"/>
+<circle fill="#FDF6E9" cx="30" cy="114" r="2.5"/>
+<circle fill="#22304A" cx="80" cy="102" r="6"/><circle fill="#FDF6E9" cx="82" cy="100" r="2"/>
+<circle fill="#F0B6A3" cx="84" cy="118" r="6"/>
+</g>
+<path class="bg" fill="#7B8FD6" d="M0 166c20-12 40 12 60 0s40 12 60 0 40 12 60 0 40 12 60 0v80H0z"/>
+<path class="bg" fill="none" stroke="#FDF6E9" stroke-width="5" stroke-linecap="round" d="M44 196c12-8 24 8 36 0M130 210c12-8 24 8 36 0"/>
+<path class="bg" fill="#F5C24C" d="M52 40l4 11 11 4-11 4-4 11-4-11-11-4 11-4z"/>
+</g><circle class="keep" cx="120" cy="120" r="112" fill="none" stroke="#D8CFBF" stroke-width="5" stroke-dasharray="3 13" stroke-linecap="round"/></svg>
