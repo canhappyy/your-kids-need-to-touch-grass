@@ -8,17 +8,34 @@ import {
 } from "@/components/ui/dialog";
 import type { MilestoneBadge } from "@/types/reward";
 
+/**
+ * Properties for the `BadgeDetailDialog` component.
+ */
 type BadgeDetailDialogProps = {
+  /** The specific milestone badge whose artwork and unlock story are being presented. */
   badge: MilestoneBadge;
 };
 
-/** Details for one earned Australian wildlife badge. */
+/**
+ * Celebration modal dialog presenting full details and artwork for an earned wildlife badge.
+ *
+ * Displays:
+ * 1. Celebration header with sparkles and trophy icons.
+ * 2. High-resolution custom SVG artwork of the native Australian species (or emoji fallback).
+ * 3. Species name (e.g. "Eastern Blue-Tongued Lizard", "Platypus").
+ * 4. Milestone accomplishment story (e.g. streak length, missions completed).
+ *
+ * @param props - Component configuration containing the badge object.
+ * @returns The rendered celebration dialog content.
+ */
 export function BadgeDetailDialog({ badge }: BadgeDetailDialogProps) {
+  // Construct a descriptive unlock explanation if not already provided
   const description =
     badge.description ??
     (badge.milestoneDays > 0
       ? `Earned for a ${badge.milestoneDays}-day activity streak.`
       : badge.requirement ?? "Activity goal completed.");
+
 
   return (
     <DialogContent className="rounded-2xl border-[#D9C99E] bg-[#FDF6EA] p-6 text-center sm:max-w-sm">

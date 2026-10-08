@@ -6,21 +6,41 @@ import { DAILY_GOAL_MINUTES } from "@/lib/dashboard-stats";
 import { cn } from "@/lib/utils";
 import type { DashboardStats } from "@/types/dashboard";
 
+/**
+ * Properties for the `DailyGoalCard` component.
+ */
 type DailyGoalCardProps = {
+  /** Aggregated dashboard statistics containing today's active minutes and completion percentage. */
   stats: DashboardStats;
+  /** Current consecutive days of active outdoor/indoor mission completions. */
   streak: number;
 };
 
-/** Compact daily progress summary with the current activity streak. */
+/**
+ * Compact daily progress summary with the current activity streak.
+ *
+ * Displays:
+ * 1. Daily activity goal title alongside a flame-highlighted streak counter badge.
+ * 2. Total active minutes completed today versus the national 60-minute target.
+ * 3. Animated progress bar showing percentage of today's target achieved.
+ * 4. Encouraging parent feedback: celebration message if goal met (>= 60 min),
+ *    or a gentle prompt with a direct link to log an activity.
+ *
+ * @param props - Component properties including stats and current streak.
+ * @returns The rendered daily goal summary card.
+ */
 export function DailyGoalCard({ stats, streak }: DailyGoalCardProps) {
+  // Check if today's logged minutes reach or exceed the 60-minute national goal
   const reachedGoal = stats.todayMinutes >= DAILY_GOAL_MINUTES;
+  // Indicates whether a consecutive active day streak is currently in progress
   const activeStreak = streak > 0;
 
   return (
-    <Card className="border border-[#93AB63]/70 bg-white/60 py-3 shadow-sm ring-0">
-      <CardContent className="space-y-2 px-3 sm:px-4">
+    <Card className="border border-[#93AB63]/70 bg-white/60 py-3.5 sm:py-4 shadow-sm ring-0">
+      <CardContent className="space-y-2.5 px-4 sm:px-5">
         <div className="flex items-center justify-between gap-3">
           <h2 className="font-semibold text-zinc-800">Daily activity goal</h2>
+
           <span
             className={cn(
               "inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold tabular-nums",

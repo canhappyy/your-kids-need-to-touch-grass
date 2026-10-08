@@ -1,16 +1,6 @@
 import { z } from "zod";
 
-/**
- * Validates route parameters for postcode lookup endpoints (e.g. `/api/postcodes/[postcode]`).
- *
- * Validation rules:
- * 1. `postcode`:
- *    - Type: string.
- *    - Format: must be exactly 4 digits (`/^\d{4}$/`), adhering to Australian postcode standards.
- */
-export const postcodeParamsSchema = z.object({
-  postcode: z.string().regex(/^\d{4}$/),
-});
+
 
 /**
  * Validates request payload for reverse geocoding to the nearest postcode (`POST /api/postcodes/nearest`).

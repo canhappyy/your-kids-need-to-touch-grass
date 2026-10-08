@@ -9,9 +9,22 @@ import type {
   VarietyTagCount,
 } from "@/types/dashboard";
 
+/**
+ * Australian Department of Health guideline target: 60 minutes of daily physical activity for children aged 5–17.
+ */
 export const DAILY_GOAL_MINUTES = 60;
+
+/**
+ * Number of days in a standard weekly rolling window.
+ */
 export const WEEK_DAY_COUNT = 7;
 
+/**
+ * Converts a JavaScript Date into a local date key formatted as YYYY-MM-DD.
+ *
+ * @param date - The Date object to format.
+ * @returns An ISO date key string in YYYY-MM-DD format.
+ */
 function localDateKey(date: Date): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -19,15 +32,29 @@ function localDateKey(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
+/**
+ * Anchors a Date at local midday (12:00:00) to prevent daylight savings shifts from rolling across midnight.
+ *
+ * @param date - Input date.
+ * @returns Midday Date instance on the same calendar day.
+ */
 function localNoon(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12);
 }
 
+/**
+ * Generates an array of 7 consecutive dates representing the current week (Monday through Sunday).
+ *
+ * @param now - Reference date determining the active week.
+ * @returns An array of 7 Date objects anchored at local midday starting on Monday.
+ */
 function currentWeekDates(now: Date): Date[] {
   const today = localNoon(now);
+  // (getDay() + 6) % 7 calculates days since Monday (where Sunday is day 0 -> 6 days since Monday)
   const mondayOffset = (today.getDay() + 6) % WEEK_DAY_COUNT;
   const monday = new Date(today);
   monday.setDate(monday.getDate() - mondayOffset);
+
   return Array.from({ length: WEEK_DAY_COUNT }, (_, index) => {
     const date = new Date(monday);
     date.setDate(monday.getDate() + index);
@@ -35,6 +62,13 @@ function currentWeekDates(now: Date): Date[] {
   });
 }
 
+/**
+ * Computes the inclusive number of calendar days between two dates.
+ *
+ * @param first - Earliest date in the range.
+ * @param last - Latest date in the range.
+ * @returns Total count of unique calendar days spanned (minimum 1).
+ */
 function inclusiveCalendarDays(first: Date, last: Date): number {
   let count = 1;
   const cursor = localNoon(first);
@@ -46,6 +80,13 @@ function inclusiveCalendarDays(first: Date, last: Date): number {
   return count;
 }
 
+/**
+ * Converts an integer into its English ordinal representation (e.g. 1 -> "1st", 2 -> "2nd", 3 -> "3rd", 4 -> "4th").
+ * Correctly accounts for English teens exceptions (11th, 12th, 13th).
+ *
+ * @param value - Integer number to format.
+ * @returns Formatted ordinal string.
+ */
 function ordinal(value: number): string {
   const remainder100 = value % 100;
   const remainder10 = value % 10;
@@ -62,11 +103,21 @@ function ordinal(value: number): string {
   return `${value}${suffix}`;
 }
 
-/** Maps an average daily minute value to a normalized ABS distribution band. */
+/**
+ * Maps an average daily active play minute value to a normalized Australian Bureau of Statistics (ABS) percentile band.
+ *
+ * Categorizes activity minutes into 30-minute intervals and sums the population distribution percentages
+ * to present parents with an encouraging, benchmarked comparative range (e.g. "45th–60th percentile").
+ *
+ * @param averageMinutes - Child's average daily active play minutes.
+ * @param distribution - Population distribution frequencies across 30-minute bins.
+ * @returns A descriptive percentile range string, or "0th–0th percentile" if distribution is empty.
+ */
 export function calculatePercentileBand(
   averageMinutes: number,
   distribution: readonly number[],
 ): string {
+  // Determine which 30-minute bracket the child's average falls into
   const binIndex =
     averageMinutes <= 0
       ? 0
@@ -83,22 +134,38 @@ export function calculatePercentileBand(
                 : averageMinutes < 180
                   ? 6
                   : 7;
+
   const total = distribution.reduce((sum, value) => sum + value, 0);
   if (total <= 0) return "0th–0th percentile";
+
+  // Cumulative distribution up to the lower boundary of the bracket
   const lower = distribution
     .slice(0, binIndex)
     .reduce((sum, value) => sum + value, 0);
+  // Upper boundary including the current bracket
   const upper = lower + (distribution[binIndex] ?? 0);
+
   return `${ordinal(Math.round((lower / total) * 100))}–${ordinal(
     Math.round((upper / total) * 100),
   )} percentile`;
 }
 
+/**
+ * Builds the weighted national activity reference dataset matching the child's specific age range.
+ *
+ * When an age range overlaps multiple national survey brackets (e.g. 5–12 spanning 5–8 and 9–11),
+ * this function computes a weighted blend of average minutes and distribution curves proportional to
+ * the number of overlapping years.
+ *
+ * @param ageRange - Tuple of [minAge, maxAge], or null if unspecified.
+ * @returns An object with benchmark averageMinutes, distribution curve, and age label.
+ */
 function buildNationalReference(ageRange: [number, number] | null): {
   averageMinutes: number;
   distribution: number[];
   label: string;
 } {
+  // Default to broader national 5–17 benchmark if no specific age is provided
   if (!ageRange || ageRange[0] > ageRange[1]) {
     return {
       averageMinutes: OVERALL_NATIONAL_ACTIVITY_REFERENCE.averageMinutes,
@@ -107,6 +174,7 @@ function buildNationalReference(ageRange: [number, number] | null): {
     };
   }
 
+  // Calculate year overlap weights with standard survey bands
   const overlaps = NATIONAL_ACTIVITY_BANDS.map((band) => ({
     band,
     weight: Math.max(
@@ -116,21 +184,26 @@ function buildNationalReference(ageRange: [number, number] | null): {
         1,
     ),
   })).filter(({ weight }) => weight > 0);
+
   const totalWeight = overlaps.reduce((sum, item) => sum + item.weight, 0);
   if (totalWeight === 0) return buildNationalReference(null);
 
+  // Compute weighted average distribution across the 8 activity time bins
   const distribution = Array.from({ length: 8 }, (_, index) =>
     overlaps.reduce(
       (sum, item) => sum + (item.band.distribution[index] ?? 0) * item.weight,
       0,
     ) / totalWeight,
   );
+
+  // Compute weighted average daily active minutes
   const averageMinutes = Math.round(
     overlaps.reduce(
       (sum, item) => sum + item.band.averageMinutes * item.weight,
       0,
     ) / totalWeight,
   );
+
   return {
     averageMinutes,
     distribution,
@@ -138,6 +211,12 @@ function buildNationalReference(ageRange: [number, number] | null): {
   };
 }
 
+/**
+ * Aggregates frequency counts of completed activities grouped by developmental variety tags.
+ *
+ * @param records - List of completed mission history records.
+ * @returns Array of tag counts sorted by popularity (descending), then alphabetically.
+ */
 function countVarietyTags(records: CompletedMission[]): VarietyTagCount[] {
   const counts = new Map<string, number>();
   for (const record of records) {
@@ -150,11 +229,26 @@ function countVarietyTags(records: CompletedMission[]): VarietyTagCount[] {
   );
 }
 
-/** Builds current-week and all-time statistics from device-local completions. */
+/**
+ * Aggregates device-local completed mission records into comprehensive dashboard metrics and national comparisons.
+ *
+ * Calculations performed:
+ * 1. Filters and validates timestamps to include only valid records occurring on or before `now`.
+ * 2. Compiles daily active minutes across Monday through Sunday of the active week.
+ * 3. Evaluates daily goal attainment (60 minutes) for each day.
+ * 4. Derives all-time observed activity days, average daily minutes, and average walking distances.
+ * 5. Correlates child age bounds with Australian Bureau of Statistics (ABS) benchmark curves.
+ * 6. Categorizes play diversity via variety tag frequency counts.
+ *
+ * @param records - Array of completed mission records stored locally.
+ * @param now - Reference timestamp (defaults to current system time).
+ * @returns Comprehensive `DashboardStats` view-model object.
+ */
 export function buildDashboardStats(
   records: CompletedMission[],
   now = new Date(),
 ): DashboardStats {
+  // Filter valid historical records up to current moment
   const validRecords = records
     .map((record) => ({ record, completedAt: new Date(record.completedAt) }))
     .filter(
@@ -163,12 +257,14 @@ export function buildDashboardStats(
         completedAt.getTime() <= now.getTime(),
     )
     .sort((a, b) => a.completedAt.getTime() - b.completedAt.getTime());
+
   const weekDates = currentWeekDates(now);
   const todayKey = localDateKey(now);
   const minutesByDate = new Map<string, number>(
     weekDates.map((date) => [localDateKey(date), 0]),
   );
 
+  // Accumulate minutes for each day in the current week
   for (const { record, completedAt } of validRecords) {
     const key = localDateKey(completedAt);
     if (minutesByDate.has(key)) {
@@ -176,6 +272,7 @@ export function buildDashboardStats(
     }
   }
 
+  // Construct weekly day records
   const days: DashboardDay[] = weekDates.map((date) => {
     const dateKey = localDateKey(date);
     const minutes = minutesByDate.get(dateKey) ?? 0;
@@ -187,11 +284,13 @@ export function buildDashboardStats(
       isFuture: dateKey > todayKey,
     };
   });
+
   const completedRecords = validRecords.map(({ record }) => record);
   const firstDate = validRecords.at(0)?.completedAt;
   const latestDate = validRecords.at(-1)?.completedAt;
   const observedDays =
     firstDate && latestDate ? inclusiveCalendarDays(firstDate, latestDate) : 0;
+
   const totalMinutes = completedRecords.reduce(
     (sum, record) => sum + record.durationMinutes,
     0,
@@ -200,11 +299,14 @@ export function buildDashboardStats(
     (sum, record) => sum + (record.walkingDistanceKm ?? 0),
     0,
   );
+
+  // Find most recently selected child age range to benchmark against
   const referenceAgeRange =
     [...completedRecords]
       .reverse()
       .find((record) => record.childAgeRange)?.childAgeRange ?? null;
   const reference = buildNationalReference(referenceAgeRange);
+
   const averageMinutesPerDay = observedDays
     ? Math.round(totalMinutes / observedDays)
     : 0;

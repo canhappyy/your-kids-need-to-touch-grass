@@ -42,6 +42,8 @@ export type HomeSearchValues = PlayPreferences & {
   latitude?: number;
   /** Optional device longitude if acquired from geolocation. */
   longitude?: number;
+  /** Optional free-text input describing child's interests for AI matching. */
+  interests?: string;
 };
 
 /**

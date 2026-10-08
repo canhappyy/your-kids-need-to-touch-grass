@@ -41,6 +41,7 @@ export function buildSearchQuery(
     | "lat"
     | "lng"
     | "planDate"
+    | "interests"
   >,
 ): URLSearchParams {
   const query = new URLSearchParams({
@@ -56,6 +57,9 @@ export function buildSearchQuery(
   if (params.locationMode === "nearby" && params.lat && params.lng) {
     query.set("lat", params.lat);
     query.set("lng", params.lng);
+  }
+  if (params.interests) {
+    query.set("interests", params.interests);
   }
   if (params.planDate) query.set("planDate", params.planDate);
 
@@ -89,6 +93,7 @@ export function buildRecommendationApiUrl(
     | "canSupervise"
     | "lat"
     | "lng"
+    | "interests"
   >,
   request: RecommendationRequest = {},
 ): string {
@@ -113,6 +118,10 @@ export function buildRecommendationApiUrl(
   ) {
     params.set("lat", searchParams.lat);
     params.set("lng", searchParams.lng);
+  }
+
+  if (searchParams.interests) {
+    params.set("interests", searchParams.interests);
   }
 
   request.excludeMissionIds?.forEach((excludedMissionId) =>

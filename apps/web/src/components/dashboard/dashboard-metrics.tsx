@@ -2,15 +2,32 @@ import { Activity, Footprints, ListChecks, Trophy } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import type { DashboardStats } from "@/types/dashboard";
 
+/**
+ * Properties for the `DashboardMetrics` component.
+ */
 type DashboardMetricsProps = {
+  /** Aggregated dashboard statistics containing daily averages, total counts, and national percentile. */
   stats: DashboardStats;
 };
 
+/** Shared styling for each metric card tile */
 const tileClass =
-  "border border-[#93AB63]/60 bg-white/55 py-2.5 shadow-sm ring-0";
+  "border border-[#93AB63]/60 bg-white/55 py-3 sm:py-3.5 shadow-sm ring-0";
 
-/** Four all-time metrics calculated only from local completion history. */
+/**
+ * Four all-time summary metric cards calculated strictly from local completion history.
+ *
+ * Displays a 2x2 grid of key engagement markers:
+ * 1. **Activity Time:** Average daily active minutes across active days.
+ * 2. **Walking:** Estimated daily walking distance in kilometers based on park visits and missions.
+ * 3. **Activities Logged:** Total count of completed missions stored on device.
+ * 4. **Nationwide Ranking:** Percentile band comparing active minutes against published ABS child health benchmarks.
+ *
+ * @param props - Component properties containing aggregated stats.
+ * @returns The rendered 2x2 metric cards grid.
+ */
 export function DashboardMetrics({ stats }: DashboardMetricsProps) {
+
   const metrics = [
     {
       label: "Activity time",
@@ -39,10 +56,13 @@ export function DashboardMetrics({ stats }: DashboardMetricsProps) {
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-2" aria-label="All-time activity metrics">
+    <div
+      className="grid grid-cols-2 gap-3 sm:gap-4"
+      aria-label="All-time activity metrics"
+    >
       {metrics.map(({ label, value, detail, icon: Icon }) => (
         <Card className={tileClass} key={label}>
-          <CardContent className="px-3">
+          <CardContent className="px-3.5 sm:px-4">
             <div className="flex items-center gap-1.5 text-xs font-medium text-zinc-600">
               <Icon aria-hidden="true" className="size-3.5 text-[#728A46]" />
               <span>{label}</span>

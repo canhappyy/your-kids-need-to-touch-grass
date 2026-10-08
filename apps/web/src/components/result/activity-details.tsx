@@ -20,6 +20,8 @@ export type ActivityDetailsProps = {
   weather?: MissionWeather;
   /** Whether the activity is home-based or venue-free. When true, weather details are hidden. */
   isHomeBased?: boolean;
+  /** Optional additional class name for the details list. */
+  className?: string;
 };
 
 /**
@@ -34,6 +36,7 @@ export function ActivityDetails({
   formattedCommuteDuration,
   weather,
   isHomeBased = false,
+  className,
 }: ActivityDetailsProps) {
   const showWeather = !isHomeBased;
   const {
@@ -45,7 +48,7 @@ export function ActivityDetails({
   } = getWeatherPresentation(weather);
 
   return (
-    <dl className="mt-7 space-y-6">
+    <dl className={cn("space-y-6", className)}>
       <div className="grid grid-cols-[24px_1fr_24px] items-center gap-3">
         <MapPin
           aria-hidden="true"
@@ -92,25 +95,25 @@ export function ActivityDetails({
         <div className="grid grid-cols-[24px_1fr_24px] items-center gap-3">
           <WeatherIcon
             aria-hidden="true"
-            className={cn("size-5", isSevere ? "text-amber-600" : "text-zinc-500")}
+            className={cn(
+              "size-5",
+              isSevere ? "text-amber-600" : "text-zinc-500",
+            )}
             strokeWidth={1.75}
           />
           <div className="col-start-2 text-center">
-            <dt className="text-xs font-medium tracking-wide text-zinc-500 uppercase">
-              Weather
+            <dt className="flex items-center justify-center gap-1 text-xs font-medium tracking-wide text-zinc-500 uppercase">
+              <span>Weather</span>
+              {isSevere && (
+                <TriangleAlert
+                  aria-label="Weather caution"
+                  className="size-3.5 text-amber-600"
+                />
+              )}
             </dt>
             <dd className="mt-1 text-lg leading-tight font-semibold text-zinc-900">
               {headline}
             </dd>
-            {isSevere && (
-              <dd className="mt-2 flex items-center justify-center gap-1.5 text-sm font-semibold text-amber-800">
-                <TriangleAlert
-                  aria-hidden="true"
-                  className="size-4 shrink-0 text-amber-600"
-                />
-                <span>Weather caution</span>
-              </dd>
-            )}
             {tips.length > 0 && (
               <dd className="mt-2 space-y-1 text-sm text-zinc-600">
                 {tips.map((tip, index) => (

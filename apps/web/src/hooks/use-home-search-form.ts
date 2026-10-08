@@ -72,6 +72,7 @@ export function useHomeSearchForm({
   );
   const [hours, setHours] = useState(initialValues.hours);
   const [minutes, setMinutes] = useState(initialValues.minutes);
+  const [interests, setInterests] = useState(initialValues.interests ?? "");
   const [locationError, setLocationError] = useState(initialLocationError);
   const [timeError, setTimeError] = useState("");
   const [ageError, setAgeError] = useState("");
@@ -172,6 +173,10 @@ export function useHomeSearchForm({
     setTimeError("");
   }, []);
 
+  const handleInterestsChange = useCallback((value: string) => {
+    setInterests(value);
+  }, []);
+
   const handleSubmit = useCallback(
     (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
@@ -194,6 +199,7 @@ export function useHomeSearchForm({
         playStyle,
         canSupervise,
         hours,
+        interests: interests.trim(),
         location: locationMode === "nearby" ? location.trim() : "",
         latitude:
           locationMode === "nearby" && deviceCoords
@@ -212,6 +218,7 @@ export function useHomeSearchForm({
       canSupervise,
       deviceCoords,
       hours,
+      interests,
       location,
       locationMode,
       minutes,
@@ -230,6 +237,7 @@ export function useHomeSearchForm({
     setCanSupervise,
     gpsStatus,
     handleHoursChange,
+    handleInterestsChange,
     handleLocationChange,
     handleLocationModeChange,
     handleMinutesChange,
@@ -237,6 +245,7 @@ export function useHomeSearchForm({
     handleSubmit,
     handleUseMyLocation,
     hours,
+    interests,
     isLocating,
     location,
     locationError,

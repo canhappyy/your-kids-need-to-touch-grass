@@ -66,4 +66,14 @@ describe("planner recommendation mapping", () => {
       ).locationLabel,
     ).toBe("Anywhere");
   });
+
+  it("preserves iconFile when provided on the recommendation", () => {
+    expect(
+      plannedActivityFromRecommendation(
+        { ...recommendation, iconFile: "nature-icon.svg" },
+        "2026-11-03",
+        "icon-test",
+      ).iconFile,
+    ).toBe("nature-icon.svg");
+  });
 });

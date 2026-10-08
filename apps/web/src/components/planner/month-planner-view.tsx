@@ -7,16 +7,39 @@ import { getImportantDatesForDate } from "@/data/victorian-important-dates";
 import { localDateKey } from "@/lib/planner-dates";
 import { cn } from "@/lib/utils";
 import type { PlannedActivity } from "@/types/planner";
-import { PlannerCalendarDayButton } from "./planner-calendar-day-button";
+import {
+  PlannerCalendarDayButton,
+  PLANNER_SELECTED_DAY_CLASSES,
+} from "./planner-calendar-day-button";
 
+/**
+ * Properties for the `MonthPlannerView` component.
+ */
 type MonthPlannerViewProps = {
+  /** Array of all planned activities scheduled by the user. */
   activities: PlannedActivity[];
+  /** The first day of the calendar month currently on display. */
   displayedMonth: Date;
+  /** The specific date currently selected by the parent. */
   selectedDate: Date;
+  /** Callback fired when navigating to a different month. */
   onMonthChange: (month: Date) => void;
+  /** Callback fired when selecting a specific day in the month calendar grid. */
   onSelectDate: (date: Date) => void;
 };
 
+/**
+ * Monthly calendar grid view for scheduling family outdoor play and missions.
+ *
+ * Wraps the accessible `Calendar` component and provides custom day cell indicators:
+ * - Orange badge dot for Victorian school terms and public holiday milestones.
+ * - Green badge pill indicating the count of scheduled activities on that day.
+ * - Full screen-reader accessibility with descriptive `aria-label`s announcing holidays and activity counts.
+ * - Responsive cell sizing scaling from compact mobile screens up to desktop widths.
+ *
+ * @param props - Month view properties including activities and calendar date change handlers.
+ * @returns The rendered monthly calendar grid.
+ */
 export function MonthPlannerView({
   activities,
   displayedMonth,
@@ -24,6 +47,9 @@ export function MonthPlannerView({
   onMonthChange,
   onSelectDate,
 }: MonthPlannerViewProps) {
+  /**
+   * Custom day cell renderer injecting activity counters and holiday indicators.
+   */
   function PlannerDayButton(
     props: ComponentProps<typeof PlannerCalendarDayButton>,
   ) {
@@ -32,6 +58,7 @@ export function MonthPlannerView({
     const plannedCount = activities.filter(
       (activity) => activity.plannedDate === dateKey,
     ).length;
+
     const details = [
       ...importantDates.map((date) => date.name),
       plannedCount > 0
@@ -52,10 +79,7 @@ export function MonthPlannerView({
       <PlannerCalendarDayButton
         {...props}
         aria-label={label}
-        className={cn(
-          props.className,
-          "data-[selected-single=true]:bg-[#F0B6A31F] data-[selected-single=true]:text-zinc-900 data-[selected-single=true]:font-bold data-[selected-single=true]:border data-[selected-single=true]:border-[#E4633C]/40 data-[selected-single=true]:hover:bg-[#F0B6A31F] data-[selected-single=true]:[&>span]:opacity-100",
-        )}
+        className={cn(props.className, PLANNER_SELECTED_DAY_CLASSES)}
       >
         <span>{props.day.date.getDate()}</span>
         {(importantDates.length > 0 || plannedCount > 0) && (

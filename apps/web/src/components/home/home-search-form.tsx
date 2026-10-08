@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { PlayPreferencesField } from "./play-preferences-field";
 import { AgeRangeField } from "./age-range-field";
+import { ChildInterestsField } from "./child-interests-field";
 import { LocationInputField } from "./location-input-field";
 import { LocationModeField } from "./location-mode-field";
 import { TimePickerField } from "./time-picker-field";
@@ -24,9 +25,11 @@ function HomeSearchForm({
   const {
     playStyle,
     canSupervise,
+    interests,
     setPlayStyle,
     setCanSupervise,
     gpsStatus,
+    handleInterestsChange,
     handleLocationChange,
     handleLocationModeChange,
     handleMinutesChange,
@@ -88,6 +91,11 @@ function HomeSearchForm({
         canSupervise={canSupervise}
         onPlayStyleChange={setPlayStyle}
         onSupervisionChange={setCanSupervise}
+      />
+
+      <ChildInterestsField
+        onChange={handleInterestsChange}
+        value={interests}
       />
 
       <div className="mt-auto pt-16 text-center">

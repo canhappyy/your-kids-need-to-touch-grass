@@ -1,10 +1,17 @@
 import { Progress, ProgressLabel } from "@/components/ui/progress";
 import type { VarietyTagCount } from "@/types/dashboard";
 
+/**
+ * Properties for the `FavouriteActivities` component.
+ */
 type FavouriteActivitiesProps = {
+  /** Array of variety tags ranked descending by frequency of completion. */
   tags: VarietyTagCount[];
 };
 
+/**
+ * Sequential color palette used to tint the progress bars for different play categories.
+ */
 const tagColours = [
   "[&_[data-slot=progress-indicator]]:bg-[#E4633C]",
   "[&_[data-slot=progress-indicator]]:bg-[#F5C24C]",
@@ -14,8 +21,18 @@ const tagColours = [
   "[&_[data-slot=progress-indicator]]:bg-[#22304A]",
 ] as const;
 
-/** Ranked local activity-variety counts. */
+/**
+ * Ranked list of the child's favourite activity variety tags (e.g. "Nature", "Ball Games", "Creative Play").
+ *
+ * Helps parents see what types of play their child naturally gravitates toward.
+ * Each category is rendered as a proportional bar relative to the most-frequent tag,
+ * with count metrics and high-contrast color coding.
+ *
+ * @param props - Component properties containing the ranked list of tag counts.
+ * @returns The rendered list of favourite activity categories.
+ */
 export function FavouriteActivities({ tags }: FavouriteActivitiesProps) {
+  // If the user hasn't logged any activities yet, display an empty state encouragement
   if (tags.length === 0) {
     return (
       <p className="text-sm text-zinc-600">
@@ -23,6 +40,7 @@ export function FavouriteActivities({ tags }: FavouriteActivitiesProps) {
       </p>
     );
   }
+
 
   const maximum = tags[0]?.count ?? 1;
 

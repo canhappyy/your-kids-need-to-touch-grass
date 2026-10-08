@@ -101,7 +101,7 @@ describe("compact parent dashboard", () => {
   it("renders branding, daily progress, week chart, and four metrics", () => {
     const markup = renderToStaticMarkup(createElement(DashboardSection));
 
-    expect(markup).toContain("playgo &amp; co");
+    expect(markup).toContain("PlayGo &amp; Co");
     expect(markup).toContain("Parent dashboard");
     expect(markup).toContain("Daily activity goal");
     expect(markup).toContain("45 min");

@@ -24,11 +24,23 @@ export const metadata: Metadata = {
 };
 
 /**
- * Root HTML layout component that configures global fonts, language, and core body structure.
+ * Root HTML layout component that configures global typography, viewport attributes, and bottom navigation.
+ *
+ * Configures:
+ * 1. Comfortaa font for playful, friendly headings and brand typography.
+ * 2. Geist Mono font for clean numeric statistics and tabular displays.
+ * 3. Mobile safe-area paddings and full-viewport flex column structure.
+ * 4. Persistent `BottomNav` bar enabling effortless thumb navigation across key screens.
  *
  * @param props - Layout props containing the child page elements.
+ * @returns The rendered root HTML shell.
  */
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+
   return (
     <html
       lang="en"
@@ -44,9 +56,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         className="min-h-full flex flex-col"
         suppressHydrationWarning
       >
+        {/* Child page content */}
         {children}
+
+        {/* Global bottom navigation bar */}
         <BottomNav />
       </body>
     </html>
   );
 }
+

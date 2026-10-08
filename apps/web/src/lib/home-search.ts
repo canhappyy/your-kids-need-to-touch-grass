@@ -74,6 +74,7 @@ export const minuteOptions = [5, 10, 15, 30, 45, 60, 75, 90, 105, 120].map(
 export const defaultHomeSearchValues: HomeSearchValues = {
   ...defaultPlayPreferences,
   hours: 0,
+  interests: "",
   location: "",
   locationMode: "nearby",
   minutes: 45,

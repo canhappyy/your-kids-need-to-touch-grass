@@ -41,7 +41,7 @@ export function MissionInstructionsDialog({
 
   return (
     <DialogContent className="max-h-[85svh] grid-rows-[auto_minmax(0,1fr)_auto] gap-5 rounded-2xl bg-[#FDF6EA] p-6 sm:max-w-lg">
-      <DialogHeader className="px-6">
+      <DialogHeader className="text-left pr-8">
         <div className="flex items-center gap-4">
           {iconFile ? (
             <Image

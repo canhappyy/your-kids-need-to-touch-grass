@@ -25,7 +25,7 @@ export function ActivityHeader({
   return (
     <div className="text-center">
       <Heading
-        className="mt-6 text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl"
+        className="text-2xl font-bold tracking-tight text-zinc-900 md:text-2xl"
         id={titleId}
       >
         {title}

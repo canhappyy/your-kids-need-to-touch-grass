@@ -11,10 +11,24 @@ import type { CompletedMission } from "@/types/completed-mission";
  */
 export const HISTORY_KEY = "playgo.completed-missions.v1";
 
+/**
+ * Minimal storage interface contract required for reading, writing, and clearing mission history.
+ */
 type HistoryStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 
+/**
+ * Window event name fired whenever an activity is completed, saved, or removed.
+ * Listened to by navigation bars, headers, and dashboard counters to refresh badges in real time.
+ */
 export const BACKLOG_CHANGE_EVENT = "playgo:backlog-change";
 
+/**
+ * Restores a previous raw history string to storage.
+ * Used as an atomic rollback mechanism if a subsequent step (such as reward calculation) fails.
+ *
+ * @param raw - Previous JSON string stored in localStorage, or null if key did not exist.
+ * @param store - The storage backend to restore into.
+ */
 function restoreHistory(raw: string | null, store: HistoryStorage): void {
   if (raw === null) {
     store.removeItem(HISTORY_KEY);
@@ -23,6 +37,10 @@ function restoreHistory(raw: string | null, store: HistoryStorage): void {
   }
 }
 
+/**
+ * Dispatches a DOM event notifying any open views that activity backlog/history has changed.
+ * Safely guards against server-side rendering (SSR) environments where window is undefined.
+ */
 export function dispatchBacklogChangeEvent(): void {
   if (
     typeof window !== "undefined" &&
@@ -31,11 +49,14 @@ export function dispatchBacklogChangeEvent(): void {
     try {
       window.dispatchEvent(new Event(BACKLOG_CHANGE_EVENT));
     } catch {
-      // ignore
+      // Discard errors if browser environment restricts event dispatching
     }
   }
 }
 
+/**
+ * Zod validation schema ensuring data integrity of completed mission records.
+ */
 const recordSchema = z.object({
   id: z.string().min(1),
   missionId: z.string().min(1),
@@ -71,11 +92,11 @@ export function readCompletedMissions(
 }
 
 /**
- * Checks whether a mission with the specified ID has been completed.
+ * Checks whether a mission with the specified ID has ever been marked as completed.
  *
- * @param missionId - Mission identifier.
- * @param store - Storage backend to read from.
- * @returns True if already recorded in completed missions.
+ * @param missionId - Mission identifier (e.g. "MIS-001").
+ * @param store - Storage backend to read from (defaults to `window.localStorage`).
+ * @returns True if already recorded in completed missions, false otherwise.
  */
 export function isMissionCompleted(
   missionId: string,
@@ -89,7 +110,13 @@ export function isMissionCompleted(
 /**
  * Validates and appends a newly completed mission to client storage.
  *
- * Avoids duplicate entries if a record with the same unique `id` already exists.
+ * Steps:
+ * 1. Validates the mission schema with Zod.
+ * 2. Checks for duplicates by ID to prevent repeated insertions.
+ * 3. Appends the record and saves to localStorage.
+ * 4. Reconciles streak counters and unlocks any newly earned animal species badges.
+ * 5. If reward reconciliation fails, rolls back the saved history to avoid corrupted state.
+ * 6. Dispatches a backlog change event so all components update immediately.
  *
  * @param record - The completed mission record to store.
  * @param store - The storage backend to write to (defaults to `window.localStorage`).
@@ -100,28 +127,39 @@ export function saveCompletedMission(
   store: HistoryStorage = window.localStorage,
   now = new Date(),
 ): void {
+  // Validate incoming record shape
   const valid = recordSchema.parse(record);
   const records = readCompletedMissions(store);
+
+  // Prevent duplicate insertion if already recorded
   if (records.some((item) => item.id === valid.id)) return;
+
   const previousHistory = store.getItem(HISTORY_KEY);
   readRewards(store);
   const updatedRecords = [...records, valid];
   store.setItem(HISTORY_KEY, JSON.stringify(updatedRecords));
+
   try {
+    // Reconcile gamification streak and check milestone unlocks
     reconcileRewards(updatedRecords, now, store);
   } catch (error) {
+    // Atomic rollback: restore previous history if rewards reconciliation fails
     try {
       restoreHistory(previousHistory, store);
     } catch {
-      // Preserve the original reward-storage error.
+      // Preserve the original reward-storage error
     }
     throw error;
   }
+
+  // Notify UI of updated history
   dispatchBacklogChangeEvent();
 }
 
 /**
- * Clears all completed mission history from client storage.
+ * Clears all completed mission history from client storage and resets streaks.
+ *
+ * If resetting rewards fails, rolls back the cleared history to maintain data integrity.
  *
  * @param store - The storage backend to clear (defaults to `window.localStorage`).
  */
@@ -131,16 +169,21 @@ export function clearCompletedMissions(
   const previousHistory = store.getItem(HISTORY_KEY);
   readRewards(store);
   store.removeItem(HISTORY_KEY);
+
   try {
+    // Reset active streak while preserving earned badges
     resetRewardStreak(store);
   } catch (error) {
+    // Rollback if streak reset fails
     try {
       restoreHistory(previousHistory, store);
     } catch {
-      // Preserve the original reward-storage error.
+      // Preserve original error
     }
     throw error;
   }
+
+  // Notify UI that history has been cleared
   dispatchBacklogChangeEvent();
 }
 

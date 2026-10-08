@@ -1,9 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+
+import { ScreenHeader } from "@/components/layout/screen-header";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,21 +19,46 @@ import {
   startOfLocalWeek,
 } from "@/lib/planner-dates";
 import { movePlannerPeriod, plannerMonth } from "@/lib/planner-navigation";
+import { cn } from "@/lib/utils";
 import type { PlannerView } from "@/types/planner";
 import { MonthPlannerView } from "./month-planner-view";
 import { PlannerDateDetails } from "./planner-date-details";
 import { WeekPlannerView } from "./week-planner-view";
 
+/**
+ * Top-level container component for the Activity Planner feature.
+ *
+ * Responsibilities:
+ * 1. Synchronizes planned activities via `usePlannedActivities` hook (loading, error, deleting).
+ * 2. Manages active display view ("month" vs. "week") using tab switcher.
+ * 3. Handles period navigation (Previous / Next month or week, plus "Jump to today" shortcut).
+ * 4. In Month View: renders side-by-side grid and details panel on desktop, stacking gracefully on mobile.
+ * 5. In Week View: renders a 7-day chronological agenda with inline "Add activity" actions.
+ *
+ * @returns The rendered activity planner section.
+ */
 export function PlannerSection() {
   const router = useRouter();
+  // Get active local reference date
   const today = useDashboardDate();
+
+  // Load planned activities and deletion handler from local storage
   const { activities, loading, error, remove } = usePlannedActivities(today);
+
+  // Active view mode: "month" or "week"
   const [view, setView] = useState<PlannerView>("month");
+
+  // Selected date (anchored at noon to avoid timezone daylight saving edge cases)
   const [selectedDate, setSelectedDate] = useState(
     () => new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12),
   );
-  const [displayedMonth, setDisplayedMonth] = useState(() => plannerMonth(today));
 
+  // First day of currently viewed month
+  const [displayedMonth, setDisplayedMonth] = useState(() =>
+    plannerMonth(today),
+  );
+
+  // Human-readable header label for active period (e.g., "October 2026" or "5 Oct – 11 Oct 2026")
   const periodLabel = useMemo(() => {
     if (view === "month") {
       return displayedMonth.toLocaleDateString("en-AU", {
@@ -53,23 +79,26 @@ export function PlannerSection() {
     })}`;
   }, [displayedMonth, selectedDate, view]);
 
+  // Navigate forward or backward in time (+1 or -1 month/week)
   const movePeriod = (amount: number) => {
-    const next = movePlannerPeriod(
-      view,
-      displayedMonth,
-      selectedDate,
-      amount,
-    );
+    const next = movePlannerPeriod(view, displayedMonth, selectedDate, amount);
     setDisplayedMonth(next.displayedMonth);
     setSelectedDate(next.selectedDate);
   };
 
+  // Reset focus back to today's date
   const jumpToToday = () => {
-    const next = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12);
+    const next = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+      12,
+    );
     setSelectedDate(next);
     setDisplayedMonth(plannerMonth(next));
   };
 
+  // Select a new date and align the displayed month
   const selectDate = (date: Date) => {
     setSelectedDate(date);
     setDisplayedMonth(plannerMonth(date));
@@ -77,24 +106,8 @@ export function PlannerSection() {
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5">
-      <header className="space-y-3 text-center sm:text-left">
-        <Image
-          src="/playgo&co.svg"
-          alt="PlayGo & Co"
-          width={180}
-          height={36}
-          priority
-          className="mx-auto h-10 w-auto sm:mx-0"
-        />
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 sm:text-3xl">
-            Activity planner
-          </h1>
-          <p className="mt-1 text-sm text-zinc-600">
-            Plan screen-free family time around Victorian holidays.
-          </p>
-        </div>
-      </header>
+      <ScreenHeader title="Activity planner" />
+
 
       {loading ? (
         <div aria-label="Loading activity planner" className="space-y-4">
@@ -109,7 +122,14 @@ export function PlannerSection() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.45fr)_minmax(19rem,0.75fr)]">
+        <div
+          className={cn(
+            "items-start gap-5",
+            view === "month"
+              ? "grid lg:grid-cols-[minmax(0,1.45fr)_minmax(19rem,0.75fr)]"
+              : "block w-full",
+          )}
+        >
           <Card className="border-[#93AB63]/60 bg-white/55 shadow-sm ring-0">
             <CardContent className="space-y-4">
               <Tabs
@@ -117,8 +137,12 @@ export function PlannerSection() {
                 onValueChange={(value) => setView(value as PlannerView)}
               >
                 <TabsList className="grid h-10 w-full grid-cols-2 rounded-full bg-[#EEF2E8]">
-                  <TabsTrigger className="rounded-full" value="month">Month</TabsTrigger>
-                  <TabsTrigger className="rounded-full" value="week">Week</TabsTrigger>
+                  <TabsTrigger className="rounded-full" value="month">
+                    Month
+                  </TabsTrigger>
+                  <TabsTrigger className="rounded-full" value="week">
+                    Week
+                  </TabsTrigger>
                 </TabsList>
               </Tabs>
 
@@ -168,20 +192,26 @@ export function PlannerSection() {
                   selectedDate={selectedDate}
                   today={today}
                   onSelectDate={selectDate}
+                  onAddActivity={(date) =>
+                    router.push(`/?planDate=${localDateKey(date)}`)
+                  }
+                  onRemoveActivity={remove}
                 />
               )}
             </CardContent>
           </Card>
 
-          <PlannerDateDetails
-            activities={activities}
-            selectedDate={selectedDate}
-            today={today}
-            onAdd={() =>
-              router.push(`/?planDate=${localDateKey(selectedDate)}`)
-            }
-            onRemove={remove}
-          />
+          {view === "month" && (
+            <PlannerDateDetails
+              activities={activities}
+              selectedDate={selectedDate}
+              today={today}
+              onAdd={() =>
+                router.push(`/?planDate=${localDateKey(selectedDate)}`)
+              }
+              onRemove={remove}
+            />
+          )}
         </div>
       )}
     </div>

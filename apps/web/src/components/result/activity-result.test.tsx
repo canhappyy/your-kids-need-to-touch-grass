@@ -69,14 +69,15 @@ describe("ActivityResult", () => {
     expect(markup).toContain("Cloudy");
     expect(markup).toContain("Bring a rain jacket.");
     expect(markup).toContain("Weather data by Open-Meteo");
-    expect(markup).toContain("Save this activity");
-    expect(markup).toContain("Save to planner (do it later)");
+    expect(markup).not.toContain("Save this activity");
+    expect(markup).not.toContain("Save to planner (do it later)");
+    expect(markup).toContain('aria-label="Save activity"');
     expect(markup).toContain("How to Play");
     expect(markup).toContain("Get Directions");
     expect(markup).toContain("Give me another");
   });
 
-  it("renders weather caution message when weather is severe", () => {
+  it("renders weather caution icon on the section label when weather is severe", () => {
     const severeRecommendation: Recommendation = {
       ...primary,
       weather: {
@@ -91,7 +92,8 @@ describe("ActivityResult", () => {
     };
     const markup = render(severeRecommendation);
 
-    expect(markup).toContain("Weather caution");
+    expect(markup).toContain('aria-label="Weather caution"');
+    expect(markup).not.toContain("<span>Weather caution</span>");
     expect(markup).toContain("Thunderstorms expected");
     expect(markup).toContain("Bring an umbrella or rain jacket.");
   });
@@ -105,9 +107,7 @@ describe("ActivityResult", () => {
       weatherNotice: "Extreme UV: recommending an indoor activity.",
     });
 
-    expect(markup).toContain(
-      "Extreme UV: recommending an indoor activity.",
-    );
+    expect(markup).toContain("Extreme UV: recommending an indoor activity.");
     expect(markup).toContain('role="status"');
   });
 
@@ -152,5 +152,12 @@ describe("ActivityResult", () => {
     expect(markup).not.toContain("Activity 2");
     expect(markup).not.toContain("Discover Another Activity");
     expect(markup).not.toContain("activity-slide-add");
+  });
+
+  it("renders activity detail section inside a card component", () => {
+    const markup = render();
+
+    expect(markup).toContain('data-slot="card"');
+    expect(markup).toContain('data-slot="card-content"');
   });
 });

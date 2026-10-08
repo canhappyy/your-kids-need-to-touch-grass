@@ -1,18 +1,14 @@
 "use client";
 
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { useActivityResult } from "@/hooks/use-activity-result";
 import type { ActivityResultProps } from "@/types/activity";
 
 import { ActivityActions } from "./activity-actions";
-import { ActivityDetails } from "./activity-details";
+import { ActivityCard } from "./activity-card";
 import { ActivityHeader } from "./activity-header";
-import { ActivityProgress } from "./activity-progress";
-import { MissionCompletion } from "./mission-completion";
-import { MissionInstructionsDialog } from "./mission-instructions-dialog";
 
 /**
- * Renders the single recommended activity result view, displaying activity details,
+ * Renders the single recommended activity result view, displaying flippable activity details,
  * weather conditions, daily active play progress, and action controls.
  */
 function ActivityResult({
@@ -47,52 +43,29 @@ function ActivityResult({
           {recommendation.weatherNotice}
         </div>
       )}
-      <Dialog key={recommendation.missionId}>
-        <div className="relative">
-          <DialogTrigger
-            aria-label={`How to Play: ${recommendation.title}`}
-            className="absolute inset-0 z-10 cursor-pointer rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63] focus-visible:ring-offset-4"
-          />
-          <ActivityHeader
-            title={recommendation.title}
-          />
 
-          <ActivityDetails
-            formattedCommuteDuration={formattedCommuteDuration}
-            formattedDuration={formattedDuration}
-            formattedTotalDuration={formattedTotalDuration}
-            isHomeBased={isHomeBased}
-            locationLabel={locationLabel}
-            weather={recommendation.weather}
-          />
-        </div>
+      <ActivityHeader title={recommendation.title} />
 
-        <ActivityProgress
-          dailyGoalPercentage={dailyGoalPercentage}
-          goalAriaText={goalAriaText}
-          progressValue={progressValue}
-        />
+      <ActivityCard
+        childAgeRange={childAgeRange}
+        dailyGoalPercentage={dailyGoalPercentage}
+        formattedCommuteDuration={formattedCommuteDuration}
+        formattedDuration={formattedDuration}
+        formattedTotalDuration={formattedTotalDuration}
+        goalAriaText={goalAriaText}
+        isHomeBased={isHomeBased}
+        locationLabel={locationLabel}
+        planDate={planDate}
+        progressValue={progressValue}
+        recommendation={recommendation}
+      />
 
-        <ActivityActions
-          completionControl={
-            <MissionCompletion
-              isRetrying={isRetrying}
-              planDate={planDate}
-              childAgeRange={childAgeRange}
-              recommendation={recommendation}
-            />
-          }
-          directionsUrl={directionsUrl}
-          isRetrying={isRetrying}
-          onTryAnother={onTryAnother}
-        />
-        <MissionInstructionsDialog
-          equipmentNeeded={recommendation.equipmentNeeded}
-          iconFile={recommendation.iconFile}
-          instructionText={recommendation.instructionText}
-          title={recommendation.title}
-        />
-      </Dialog>
+      <ActivityActions
+        directionsUrl={directionsUrl}
+        isRetrying={isRetrying}
+        onTryAnother={onTryAnother}
+        showHowToPlay={false}
+      />
     </section>
   );
 }

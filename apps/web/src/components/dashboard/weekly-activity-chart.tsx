@@ -1,19 +1,41 @@
 import { DAILY_GOAL_MINUTES } from "@/lib/dashboard-stats";
 import type { DashboardDay } from "@/types/dashboard";
 
+/**
+ * Properties for the `WeeklyActivityChart` component.
+ */
 type WeeklyActivityChartProps = {
+  /** 7-day array of daily activity records for the current Monday-to-Sunday calendar week. */
   days: DashboardDay[];
 };
 
+/** Top margin within SVG coordinate space */
 const CHART_TOP = 8;
+/** Maximum height of the vertical activity bars in SVG units */
 const CHART_HEIGHT = 62;
+/** Bottom baseline of the vertical activity bars */
 const CHART_BOTTOM = CHART_TOP + CHART_HEIGHT;
+/** Visual width of each day's bar */
 const BAR_WIDTH = 26;
+/** Horizontal spacing between adjacent day columns */
 const BAR_STEP = 48;
+/** Left margin offset for the first day bar */
 const CHART_LEFT = 9;
 
-/** Accessible Monday-to-Sunday chart with an uninterrupted goal line. */
+/**
+ * Accessible SVG bar chart visualizing active minutes across the current Monday-to-Sunday week.
+ *
+ * Key Design & Accessibility Features:
+ * 1. **Continuous Goal Reference:** Draws a dashed terracotta target line at the 60-minute mark.
+ * 2. **Goal-Met Color Feedback:** Bars that reach 60+ minutes turn olive green (`#93AB63`); others are slate blue (`#7B8FD6`).
+ * 3. **Screen Reader Optimization:** Includes comprehensive `<title>`, `<desc>`, and per-bar `aria-label`s
+ *    announcing minutes per weekday or flagging future days that have not yet occurred.
+ *
+ * @param props - Component configuration including the 7 days of activity data.
+ * @returns The rendered accessible SVG weekly activity chart.
+ */
 export function WeeklyActivityChart({ days }: WeeklyActivityChartProps) {
+
   const maximumMinutes = Math.max(
     DAILY_GOAL_MINUTES,
     ...days.map((day) => day.minutes),

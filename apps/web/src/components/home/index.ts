@@ -2,6 +2,7 @@ export * from "./age-range-field";
 export * from "./age-range-pill";
 export * from "./age-range-selector";
 export * from "./age-range-slider";
+export * from "./child-interests-field";
 export * from "./home-search-form";
 export * from "./home-search-section";
 export * from "./location-input-field";
