@@ -52,8 +52,8 @@ SELECT
 FROM staging_activity;
 
 -- Icon mappings are kept in the database seed so the CSV is not required at runtime.
-INSERT INTO activity (mission_id, icon_file)
-SELECT mapping.mission_id, mapping.icon_file
+UPDATE activity AS a
+SET icon_file = mapping.icon_file
 FROM (VALUES
     ('MIS-001', 'nature-scavenger-hunt.svg'),
     ('MIS-002', 'nature-scavenger-hunt.svg'),
@@ -326,8 +326,7 @@ FROM (VALUES
     ('MIS-273', 'window-watch-tally.svg'),
     ('MIS-274', 'draw-your-day-comic-strip.svg')
 ) AS mapping(mission_id, icon_file)
-ON CONFLICT (mission_id) DO UPDATE
-SET icon_file = EXCLUDED.icon_file;
+WHERE a.mission_id = mapping.mission_id;
 
 INSERT INTO activity_variety_tag (mission_id, tag_name)
 SELECT mission_id, unnest(string_to_array(variety_tags, '|'))
