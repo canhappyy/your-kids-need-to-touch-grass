@@ -105,27 +105,52 @@ function buildReasons(
 /**
  * Core recommendation engine method that matches activities based on age, time, location, and play preferences.
  *
- * For `"home"` mode:
- * Searches for Home-Based or Location-Agnostic zero-equipment activities matching the age, duration, play style, and supervision criteria.
+ * Algorithm Flow:
+ * 1. **Home Mode (`locationMode: "home"`):**
+ *    - Direct lookup for Home-Based or Location-Agnostic activities requiring zero equipment ("None").
+ *    - Matches the child's age range, available duration, play style, and supervision availability.
+ *    - Immediately returns with formatted match reasons if found, or `null`.
  *
- * For `"nearby"` mode:
- * Resolves location, attempts to find a location-based activity within 2km matching criteria, and falls back to
- * Home-Based or Location-Agnostic activities if no nearby activity is found.
+ * 2. **Nearby Mode (`locationMode: "nearby"`):**
+ *    - Resolves the requested location into geographic coordinates (latitude and longitude).
+ *    - Searches for location-based outdoor activities (such as parks or reserves within 2km)
+ *      matching child age, activity duration, play style, and supervision.
+ *    - Validates against `excludeMissionIds` to avoid repeating recent missions.
+ *    - **Graceful Fallback:** If no nearby outdoor activity qualifies, the system cascades to
+ *      finding a top home-based or location-agnostic activity so the parent is never left empty-handed.
+ *    - Attaches human-readable match reasons ("Ages 6-8", "Fits within 30 minutes", "Near Clayton").
  *
  * @param input - Search criteria including age range, duration, location mode, play style, and supervision availability.
- * @param dependencies - Optional custom dependencies for testing.
- * @returns A promise resolving to the final `Recommendation` with match reasons, or `null` if none found.
+ * @param dependencies - Optional custom dependencies for testing and dependency injection.
+ * @returns A promise resolving to the final `Recommendation` with match reasons, or `null` if no activity matches.
+ *
+ * @example
+ * ```ts
+ * const rec = await getRecommendation({
+ *   ageMin: 5,
+ *   ageMax: 8,
+ *   durationMinutes: 30,
+ *   locationMode: "nearby",
+ *   location: "3168",
+ *   canSupervise: true,
+ * });
+ * ```
  */
 export async function getRecommendation(
   input: RecommendationInput,
   dependencies?: RecommendationDependencies,
 ): Promise<Recommendation | null> {
+  // Use supplied dependencies (e.g. during unit tests) or lazily load real production implementations
   const deps = dependencies ?? (await loadDefaultDependencies());
+
+  // Determine permitted mission types for fallback: strictly home-based, or also location-agnostic
   const fallbackMissionTypes = input.homeBasedOnly
     ? (["Home-Based"] as const)
     : (["Home-Based", "Location-Agnostic"] as const);
 
+  // --- Branch 1: Parent selected "At Home" ---
   if (input.locationMode === "home") {
+    // Look up an indoor/at-home activity matching criteria with zero equipment needed
     const homeMission = await deps.repository.findFallback({
       ageMin: input.ageMin,
       ageMax: input.ageMax,
@@ -138,12 +163,17 @@ export async function getRecommendation(
       equipmentRequiredTag: "None",
     });
 
+    // If found, attach user-facing match reasons; otherwise return null
     return homeMission
       ? { ...homeMission, reasons: buildReasons(input) }
       : null;
   }
 
+  // --- Branch 2: Parent selected "Nearby / Outdoor" ---
+  // Resolve postcode or suburb name into GPS coordinates
   const location = await deps.resolveLocation(input.location);
+
+  // Search for nearby open space outdoor activities within distance threshold
   const candidate = await deps.repository.findLocationBased({
     latitude: input.latitude ?? location.latitude,
     longitude: input.longitude ?? location.longitude,
@@ -156,10 +186,12 @@ export async function getRecommendation(
     missionId: input.missionId,
   });
 
+  // Check if candidate matches any mission the parent explicitly wanted to exclude
   const repeatsExcludedMission = candidate
     ? input.excludeMissionIds?.includes(candidate.missionId)
     : false;
 
+  // If a valid nearby outdoor activity was found that isn't excluded, return it with location-aware reasons
   if (candidate && !repeatsExcludedMission) {
     return {
       ...candidate,
@@ -167,6 +199,8 @@ export async function getRecommendation(
     };
   }
 
+  // Fallback Cascade: No suitable nearby outdoor spot found (e.g., bad weather or distant location).
+  // Query for a suitable zero-equipment home-based activity instead so the parent still gets a great activity.
   const fallback = await deps.repository.findFallback({
     ageMin: input.ageMin,
     ageMax: input.ageMax,
@@ -179,6 +213,7 @@ export async function getRecommendation(
     equipmentRequiredTag: "None",
   });
 
+  // If even the fallback returned nothing, return whatever candidate existed (if any) or null
   if (!fallback) {
     return candidate
       ? {
@@ -188,8 +223,10 @@ export async function getRecommendation(
       : null;
   }
 
+  // Return the fallback activity with reasons explaining the age and time match
   return {
     ...fallback,
     reasons: buildReasons(input),
   };
 }
+
