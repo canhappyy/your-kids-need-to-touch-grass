@@ -54,6 +54,7 @@ describe("home-search lib utilities", () => {
         playStyle: "solo",
         canSupervise: false,
         hours: 0,
+        interests: "",
         location: "",
         locationMode: "nearby",
         minutes: 45,

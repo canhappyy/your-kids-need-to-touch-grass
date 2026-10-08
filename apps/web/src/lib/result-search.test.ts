@@ -100,6 +100,22 @@ describe("result-search lib utilities", () => {
 
       expect(query.get("planDate")).toBe("2026-11-03")
     })
+
+    it("preserves optional child interests", () => {
+      const query = buildSearchQuery({
+        ageMax: "10",
+        ageMin: "6",
+        hours: "1",
+        interests: "dinosaurs and space",
+        location: "",
+        playStyle: "group",
+        canSupervise: true,
+        locationMode: "home",
+        minutes: "0",
+      })
+
+      expect(query.get("interests")).toBe("dinosaurs and space")
+    })
   })
 
   describe("mapLocationErrorCode", () => {
@@ -118,6 +134,7 @@ describe("result-search lib utilities", () => {
           ageMax: "10",
           ageMin: "6",
           hours: "1",
+          interests: "dinosaurs",
           location: "3168",
           lat: "-37.915",
           lng: "145.123",
@@ -140,6 +157,7 @@ describe("result-search lib utilities", () => {
       expect(parsedUrl.searchParams.get("location")).toBe("3168")
       expect(parsedUrl.searchParams.get("lat")).toBe("-37.915")
       expect(parsedUrl.searchParams.get("lng")).toBe("145.123")
+      expect(parsedUrl.searchParams.get("interests")).toBe("dinosaurs")
       expect(parsedUrl.searchParams.get("missionId")).toBe("m3")
       expect(parsedUrl.searchParams.getAll("excludeMissionId")).toEqual([
         "m1",

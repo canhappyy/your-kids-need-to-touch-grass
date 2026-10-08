@@ -41,6 +41,8 @@ export type ResultSearchParams = PlayPreferences & {
   swapsUsed: number;
   /** Array of previously shown mission IDs to avoid immediate repeats. */
   shownMissionIds: string[];
+  /** Optional free-text input describing child's interests for AI matching. */
+  interests?: string;
 };
 
 /**

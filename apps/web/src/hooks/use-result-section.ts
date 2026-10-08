@@ -72,6 +72,7 @@ export function useResultSection() {
   const selectedMissionId = searchParams.get("missionId") || undefined;
   const swapsUsed = readSwapsUsed(searchParams.get("swapsUsed"));
   const planDate = readPlannableDateParam(searchParams.get("planDate"));
+  const interests = searchParams.get("interests") || undefined;
 
   const shownMissionIds = useMemo(() => {
     return [
@@ -89,6 +90,7 @@ export function useResultSection() {
       ageMax,
       ageMin,
       hours,
+      interests,
       location,
       lat,
       lng,
@@ -105,6 +107,7 @@ export function useResultSection() {
       ageMax,
       ageMin,
       hours,
+      interests,
       location,
       lat,
       lng,
@@ -131,6 +134,7 @@ export function useResultSection() {
       ageMax,
       ageMin,
       hours,
+      interests,
       location,
       lat,
       lng,
@@ -144,6 +148,7 @@ export function useResultSection() {
     ageMax,
     ageMin,
     hours,
+    interests,
     location,
     lat,
     lng,
@@ -171,6 +176,7 @@ export function useResultSection() {
           ageMax,
           ageMin,
           hours,
+          interests,
           location,
           lat,
           lng,
@@ -218,6 +224,7 @@ export function useResultSection() {
       ageMax,
       ageMin,
       hours,
+      interests,
       location,
       lat,
       lng,
