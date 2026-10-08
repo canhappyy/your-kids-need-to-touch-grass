@@ -1,12 +1,10 @@
 """
-    Run this manually when activities.csv changes (e.g., new activities, edited tags)
+    Run this manually when activities database changes (e.g., new activities, edited tags)
 """
 
 # Import required libraries
-import json, os
+import json
 import recommendation_functions as rf
-
-DEBUG = True
 
 def write_json_to_file(data, filename, current_filepath=rf.CURRENT_FILE_PATH):
     """ Write data to a JSON file. """
@@ -16,10 +14,9 @@ def write_json_to_file(data, filename, current_filepath=rf.CURRENT_FILE_PATH):
 def build_tag_index():
     """ Build an index of tags and their corresponding embeddings. """
     # Load activities database
-    # activities_filepath = os.path.join(database_folder_path, "activities_db.csv")
     activities_df = rf.load_activities_from_db()
 
-    if DEBUG:
+    if rf.DEBUG:
         print("Activities DataFrame loaded successfully.")
         print(activities_df.head())
 
@@ -32,14 +29,16 @@ def build_tag_index():
         print(f"Unique tags extracted: {len(tag_vocab)}")
         print(f"Sample tags: {tag_vocab[:10]}")
 
-    print("Mapping tags to activities...")
+    if rf.DEBUG:
+        print("Mapping tags to activities...")
 
     # Map each tag to the indexes of activities that have that tag
     for _, row in activities_df.iterrows():
         for tag in row["tag_list"]:
             tag_activity_indexes[tag].append(row["mission_id"])
 
-    print("Tags mapped to activities.")
+    if rf.DEBUG:
+        print("Tags mapped to activities.")
     if rf.DEBUG:
         print("Tag-Activity Indexes:", {tag: tag_activity_indexes[tag] for tag in list(tag_activity_indexes)[:10]})
 
@@ -54,7 +53,8 @@ def build_tag_index():
     write_json_to_file(tag_vocab, "tag_vocab.json")
     write_json_to_file(tag_activity_indexes, "tag_to_activity_map.json")
 
-    print("Tag index built and saved successfully.")
+    if rf.DEBUG:
+        print("Tag index built and saved successfully.")
 
 if __name__ == "__main__":
     build_tag_index()
