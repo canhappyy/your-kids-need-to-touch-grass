@@ -1,4 +1,5 @@
 export * from "./activity-actions";
+export * from "./activity-card";
 export * from "./activity-details";
 export * from "./activity-header";
 export * from "./activity-progress";
