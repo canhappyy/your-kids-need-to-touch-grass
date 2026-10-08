@@ -59,6 +59,8 @@ export type RecommendationCandidate = RecommendationTiming & {
   missionId: string;
   /** Activity title. */
   title: string;
+  /** Local SVG filename for the activity icon, or null when unavailable. */
+  iconFile: string | null;
   /** Description or summary of the activity. */
   description: string | null;
   /** Required equipment description. */
@@ -126,6 +128,8 @@ export type Recommendation = RecommendationTiming & {
   missionId: string;
   /** Activity title. */
   title: string;
+  /** Local SVG filename for the activity icon, or null when unavailable. */
+  iconFile?: string | null;
   /** Activity summary or description. */
   description: string | null;
   /** Required equipment description. */

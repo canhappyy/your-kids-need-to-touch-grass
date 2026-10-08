@@ -111,6 +111,7 @@ CREATE TABLE OPEN_SPACE (
 CREATE TABLE ACTIVITY (
     mission_id VARCHAR(50) PRIMARY KEY,
     activity_title VARCHAR(255) NOT NULL,
+    icon_file VARCHAR(255),
     description TEXT,
     equipment_needed TEXT,
     instruction_text TEXT,

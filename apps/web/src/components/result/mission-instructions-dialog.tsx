@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import {
   DialogClose,
   DialogContent,
@@ -17,6 +18,8 @@ export type MissionInstructionsDialogProps = Pick<
   Recommendation,
   "title" | "instructionText"
 > & {
+  /** Local SVG filename for the activity icon, when available. */
+  iconFile?: string | null;
   /** Required equipment description or pipe-separated items, or null. */
   equipmentNeeded?: string | null;
 };
@@ -30,6 +33,7 @@ export type MissionInstructionsDialogProps = Pick<
 export function MissionInstructionsDialog({
   title,
   instructionText,
+  iconFile,
   equipmentNeeded,
 }: MissionInstructionsDialogProps) {
   const steps = getMissionSteps(instructionText);
@@ -37,13 +41,26 @@ export function MissionInstructionsDialog({
 
   return (
     <DialogContent className="max-h-[85svh] grid-rows-[auto_minmax(0,1fr)_auto] gap-5 rounded-2xl bg-[#FDF6EA] p-6 sm:max-w-lg">
-      <DialogHeader className="px-6 text-center sm:text-center">
-        <DialogTitle className="text-2xl font-bold tracking-tight text-zinc-900">
-          How to Play
-        </DialogTitle>
-        <DialogDescription className="text-sm font-medium text-zinc-600">
-          {title}
-        </DialogDescription>
+      <DialogHeader className="px-6">
+        <div className="flex items-center gap-4">
+          {iconFile ? (
+            <Image
+              src={`/activity-icons/${iconFile}`}
+              alt=""
+              className="size-16 shrink-0 object-contain"
+              height={64}
+              width={64}
+            />
+          ) : null}
+          <div className="min-w-0 flex-1 text-left">
+            <DialogTitle className="text-2xl font-bold tracking-tight text-zinc-900">
+              How to Play
+            </DialogTitle>
+            <DialogDescription className="text-sm font-medium text-zinc-600">
+              {title}
+            </DialogDescription>
+          </div>
+        </div>
       </DialogHeader>
 
       <div className="overflow-y-auto overscroll-contain space-y-5 break-words">
