@@ -35,7 +35,12 @@ export const metadata: Metadata = {
  * @param props - Layout props containing the child page elements.
  * @returns The rendered root HTML shell.
  */
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+
   return (
     <html
       lang="en"
