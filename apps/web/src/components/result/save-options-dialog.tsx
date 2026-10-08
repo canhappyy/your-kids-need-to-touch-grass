@@ -9,19 +9,33 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+/**
+ * Properties for the `SaveOptionsDialog` modal component.
+ */
 export type SaveOptionsDialogProps = {
+  /** Whether the modal dialog is currently visible. */
   open: boolean;
+  /** Callback fired when dialog open state changes. */
   onOpenChange: (open: boolean) => void;
+  /** Callback fired when user selects "Save to Backlog". */
   onSaveToBacklog: () => void;
+  /** Callback fired when user selects "Save to Planner". */
   onOpenPlanner: () => void;
+  /** Whether this activity is already saved in the backlog list. */
   isBacklogSaved?: boolean;
+  /** Whether this activity is already scheduled on a date in the planner. */
   isPlannerSaved?: boolean;
+  /** Name of the activity being saved. */
   activityTitle: string;
 };
 
 /**
- * Small modal dialog prompting parents to choose between saving an activity
- * to their backlog or scheduling it in the planner.
+ * Quick-action modal dialog prompting parents to choose how they wish to save an activity:
+ * 1. **Save to Backlog:** Saves into the "To do / Doing" backlog without assigning a specific date.
+ * 2. **Save to Planner:** Opens the date picker calendar to schedule the activity on a chosen day.
+ *
+ * @param props - Dialog properties including callbacks and saved status flags.
+ * @returns The rendered selection modal dialog.
  */
 export function SaveOptionsDialog({
   open,
@@ -32,6 +46,7 @@ export function SaveOptionsDialog({
   isPlannerSaved = false,
   activityTitle,
 }: SaveOptionsDialogProps) {
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[calc(100%-2rem)] rounded-2xl bg-white p-5 sm:max-w-xs ring-0 border border-zinc-200/80 shadow-lg">

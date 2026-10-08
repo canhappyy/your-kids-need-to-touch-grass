@@ -19,19 +19,27 @@ import { PlannerSaveDialog } from "./planner-save-dialog";
  * Props for the `MissionCompletion` component.
  */
 export type MissionCompletionProps = {
-  /** The current activity recommendation object. */
+  /** The current activity recommendation object to be saved. */
   recommendation: Recommendation;
-  /** Whether a swap retry operation is currently underway. */
+  /** Whether a swap or refresh operation is actively in progress. */
   isRetrying: boolean;
-  /** Optional date selected before generating this recommendation. */
+  /** Optional date key pre-selected if user navigated from the planner view. */
   planDate?: string;
+  /** Target child age range filter [min, max] to record alongside the saved item. */
   childAgeRange?: [number, number];
 };
 
 /**
- * Interactive button component allowing parents to save an activity to their backlog.
+ * Interactive button and confirmation modal allowing parents to save an activity to their backlog.
  *
- * @param props - Component properties with recommendation details and retry state.
+ * Behavior:
+ * - Invokes `useSaveActivity` hook to persist the activity into local browser storage.
+ * - Disables the action if already saved or if a regeneration is underway.
+ * - Displays an accessible `AlertDialog` confirmation modal notifying the parent that the
+ *   mission was added to their backlog.
+ *
+ * @param props - Component configuration including recommendation data and callbacks.
+ * @returns The rendered save button and confirmation dialog.
  */
 export function MissionCompletion({
   recommendation,
@@ -39,17 +47,22 @@ export function MissionCompletion({
   planDate,
   childAgeRange,
 }: MissionCompletionProps) {
+  // Controls confirmation modal visibility
   const [alertOpen, setAlertOpen] = useState(false);
+
+  // Hook managing local device persistence and save state
   const { save, isSaved, error } = useSaveActivity(
     recommendation,
     isRetrying,
     childAgeRange,
   );
 
+  // Trigger save and open confirmation alert
   const handleSave = () => {
     save();
     setAlertOpen(true);
   };
+
 
   return (
     <div className="space-y-2">
