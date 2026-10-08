@@ -1,8 +1,9 @@
-import json, time
+import json, time, argparse, sys
 import numpy as np
 import pandas as pd
 import recommendation_functions as rf
 from sentence_transformers import SentenceTransformer, CrossEncoder
+from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Config
@@ -34,9 +35,9 @@ def load_tag_index(database: pd.DataFrame, model: SentenceTransformer):
     # Load tag vocabulary & embeddings from cache files
     tag_vocab = json.loads(vocab_filepath.read_text())
     tag_embeddings = np.load(embeddings_filepath)
-    tag_to_activity_map = json.loads(tag_map_filepath.read_text())
+    # tag_to_activity_map = json.loads(tag_map_filepath.read_text())
 
-    return tag_vocab, tag_embeddings, tag_to_activity_map
+    return tag_vocab, tag_embeddings
 
 
 # --------------------------------------------------------------------------
@@ -159,19 +160,45 @@ def rank_activities(free_text: str, activities_df: pd.DataFrame | None = None) -
             and cross-encoder scoring.
 
     """
+    # Raise an error if free text input is empty/all whitespace, load activities database if custom one not provided
+    if not free_text or not free_text.strip():
+        raise ValueError("Free text input cannot be empty or whitespace. Nothing to rank.")
     if activities_df is None:
         activities_df = rf.load_activities_from_db()
 
     # Load tag model & cross-encoder, then retrieve tag vocabulary and embeddings from cache
     tag_model = rf.load_model(rf.TAG_MODEL_FILENAME, rf.TAG_MODEL_DESIGNATION)
     cross_encoder = rf.load_model(rf.CROSS_ENCODER_FILENAME, rf.CROSS_ENCODER_DESIGNATION)
-    tag_vocab, tag_embeddings, tag_to_activity_map = load_tag_index(activities_df, tag_model)
+    tag_vocab, tag_embeddings = load_tag_index(activities_df, tag_model)
 
     return rank_relevance(free_text, activities_df, tag_model, cross_encoder, tag_vocab, tag_embeddings)
 
 if __name__ == "__main__":
     # Example user preferences
-    free_text_input = "I want to go hiking and explore nature."
+    # free_text_input = "I want to go hiking and explore nature."
+
+    # Parse command-line arguments for user's free text input
+    parser = argparse.ArgumentParser()
+    parser.add_argument("free_text_input", nargs="?", help="User's free text input describing their child's interests.")
+    parser.add_argument("--out", help= "Write JSON output to this filepath as well as printing to console.")
+    parser.add_argument("--debug", action="store_true", help="Enable debug mode for detailed output.")
+    parser.add_argument("--verbose", action="store_true", help="Print timing & top 10 ranked activities to console")
+    args = parser.parse_args()
+
+    # Show debug messages if --debug flag is set
+    rf.DEBUG = args.debug
+
+    # Get user's free text input from command-line argument or prompt for input if not provided
+    if args.free_text_input:
+        free_text_input = args.free_text_input.strip()
+    else:
+        if sys.stdin.isatty():
+            print("What is your child interested in? \n", end="", file=sys.stderr, flush=True)
+            free_text_input = sys.stdin.readline().strip()
+
+    # Raise an error if free text input is empty
+    if not free_text_input:
+        sys.exit("Free text input cannot be empty. Please provide a valid input.")
 
     # Time the ranking process
     start = time.perf_counter()
@@ -179,8 +206,17 @@ if __name__ == "__main__":
     end = time.perf_counter()
     elapsed_time = end - start
 
+    # Extract the mission IDs of the ranked activities and convert to JSON for output
+    mission_ids = ranked_activities[rf.ACTIVITY_ID_COLUMN].tolist()
+    json_output = json.dumps(mission_ids)
 
-    if rf.DEBUG:
+    # Print the top 10 ranked activities along with their scores and the time taken for ranking if --verbose flag is set
+    if args.verbose:
         # Print the top 10 ranked activities along with their scores and the time taken for ranking
         print(f"Ranked {len(ranked_activities)} activities in {elapsed_time:.2f} seconds.")
-        print(ranked_activities[["mission_id", "activity_title", "tag_score", "cross_encoder_score", "final_score"]].head(10))
+        print(ranked_activities[[rf.ACTIVITY_ID_COLUMN, rf.ACTIVITY_TITLE_COLUMN, "tag_score", "cross_encoder_score", "final_score"]].head(10), file=sys.stderr)
+
+    # Print the JSON output to the console if --out flag is not set, otherwise write to specified file and print to console
+    if args.out:
+        Path(args.out).write_text(json_output)
+    print(json_output)  
