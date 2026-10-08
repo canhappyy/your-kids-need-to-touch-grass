@@ -3,19 +3,36 @@ import { openSpaceQuerySchema } from "@/server/schemas/open-space.schema";
 import { getAllOpenSpaces } from "@/server/services/open-space.service";
 
 /**
- * Handles GET requests to retrieve open space venues, optionally filtered by category.
+ * Handles HTTP GET requests to retrieve public open spaces, optionally filtered by category.
  *
- * @param request - Next.js HTTP request containing optional `category` search parameter.
- * @returns JSON array of open space locations, 400 for invalid category, or 500 on server error.
+ * This endpoint allows users and UI components to search or list public recreational spaces
+ * across Victoria (parks, playgrounds, sports ovals, nature trails).
+ * An optional `category` query parameter can be provided to filter results.
+ *
+ * Responses:
+ * - `200 OK`: Returns an array of matching open space objects.
+ * - `400 Bad Request`: If the category query parameter is invalid.
+ * - `500 Internal Server Error`: If a server or database error occurs.
+ *
+ * @param request - The Next.js HTTP request containing optional `category` query param.
+ * @returns JSON response with the array of open spaces or error details.
+ *
+ * @example
+ * ```http
+ * GET /api/open-spaces?category=Playground
+ * ```
  */
 export async function GET(request: NextRequest) {
   try {
+    // Extract query parameters from request URL
     const { searchParams } = new URL(request.url);
 
+    // Validate the optional category parameter using the Zod schema
     const result = openSpaceQuerySchema.safeParse({
       category: searchParams.get("category") ?? undefined,
     });
 
+    // Return 400 Bad Request if validation fails
     if (!result.success) {
       return NextResponse.json(
         { error: "Invalid open space category" },
@@ -23,12 +40,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Query open spaces matching the category or all open spaces
     const openSpaces = await getAllOpenSpaces(result.data.category);
 
+    // Return 200 OK with open space list
     return NextResponse.json(openSpaces);
   } catch (error) {
+    // Log server errors
     console.error("Failed to fetch open spaces:", error);
 
+    // Return 500 Internal Server Error
     return NextResponse.json(
       {
         error: "Failed to fetch open spaces",
@@ -39,3 +60,4 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
