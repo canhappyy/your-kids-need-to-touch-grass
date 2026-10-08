@@ -7,7 +7,10 @@ import { getImportantDatesForDate } from "@/data/victorian-important-dates";
 import { localDateKey } from "@/lib/planner-dates";
 import { cn } from "@/lib/utils";
 import type { PlannedActivity } from "@/types/planner";
-import { PlannerCalendarDayButton } from "./planner-calendar-day-button";
+import {
+  PlannerCalendarDayButton,
+  PLANNER_SELECTED_DAY_CLASSES,
+} from "./planner-calendar-day-button";
 
 type MonthPlannerViewProps = {
   activities: PlannedActivity[];
@@ -52,10 +55,7 @@ export function MonthPlannerView({
       <PlannerCalendarDayButton
         {...props}
         aria-label={label}
-        className={cn(
-          props.className,
-          "data-[selected-single=true]:bg-[#F0B6A31F] data-[selected-single=true]:text-zinc-900 data-[selected-single=true]:font-bold data-[selected-single=true]:border data-[selected-single=true]:border-[#E4633C]/40 data-[selected-single=true]:hover:bg-[#F0B6A31F] data-[selected-single=true]:[&>span]:opacity-100",
-        )}
+        className={cn(props.className, PLANNER_SELECTED_DAY_CLASSES)}
       >
         <span>{props.day.date.getDate()}</span>
         {(importantDates.length > 0 || plannedCount > 0) && (
