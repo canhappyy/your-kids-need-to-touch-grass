@@ -47,7 +47,9 @@ export function formatSpeciesBadge(raw: RawSpeciesBadge): MilestoneBadge {
   const normalizedName = raw.vernacular_name.trim().toLowerCase();
   const id = KNOWN_BADGE_IDS[normalizedName] ?? slugifyName(raw.vernacular_name);
   const icon = ANIMAL_ICONS[normalizedName];
-  if (!icon) throw new Error(`No badge asset configured for ${raw.vernacular_name}`);
+  if (!icon) {
+    throw new Error(`No badge asset configured for ${raw.vernacular_name}`);
+  }
   const milestoneDays =
     raw.target_metric === "consecutive_days"
       ? parseInt(raw.target_value, 10) || 0

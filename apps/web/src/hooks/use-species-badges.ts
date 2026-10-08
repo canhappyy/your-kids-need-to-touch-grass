@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { fetchSpeciesBadges } from "@/lib/badges";
-import { MILESTONE_BADGES } from "@/lib/rewards";
 import type { MilestoneBadge } from "@/types/reward";
 
 /**
@@ -10,7 +9,7 @@ import type { MilestoneBadge } from "@/types/reward";
  * Falls back to static MILESTONE_BADGES during loading or network disconnection.
  */
 export function useSpeciesBadges(
-  initialBadges: readonly MilestoneBadge[] = MILESTONE_BADGES,
+  initialBadges: readonly MilestoneBadge[] = [],
 ) {
   const [badges, setBadges] = useState<MilestoneBadge[]>([...initialBadges]);
   const [loading, setLoading] = useState(true);

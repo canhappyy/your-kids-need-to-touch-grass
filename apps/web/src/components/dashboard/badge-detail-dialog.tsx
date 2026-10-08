@@ -1,3 +1,4 @@
+import Image from "next/image";
 import {
   DialogContent,
   DialogDescription,
@@ -47,4 +48,3 @@ export function BadgeDetailDialog({ badge }: BadgeDetailDialogProps) {
 }
 
 export type { BadgeDetailDialogProps };
-import Image from "next/image";

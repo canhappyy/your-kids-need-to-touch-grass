@@ -9,8 +9,7 @@ export type RawSpeciesBadge = {
 
 /**
  * Retrieves all species badges from the database.
- * Orders streak badges first by milestone requirement (ascending),
- * followed by any other badge categories.
+ * Orders badges alphabetically by species name for a stable gallery.
  *
  * @returns A promise resolving to an array of raw species badge records.
  */
