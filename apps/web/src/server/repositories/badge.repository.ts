@@ -1,9 +1,10 @@
 import pool from "@/lib/db";
 
 export type RawSpeciesBadge = {
-  animal_name: string;
-  badge_category: string;
-  requirement: string;
+  vernacular_name: string;
+  badge_type: string;
+  target_metric: string;
+  target_value: string;
 };
 
 /**
@@ -16,17 +17,12 @@ export type RawSpeciesBadge = {
 export async function findAllSpeciesBadges(): Promise<RawSpeciesBadge[]> {
   const result = await pool.query<RawSpeciesBadge>(`
     SELECT
-      animal_name,
-      badge_category,
-      requirement
+      vernacular_name,
+      badge_type,
+      target_metric,
+      target_value
     FROM species_badge
-    ORDER BY
-      badge_category,
-      CASE
-        WHEN requirement ~ '^[0-9]+$' THEN requirement::int
-        ELSE 9999
-      END ASC,
-      animal_name ASC;
+    ORDER BY vernacular_name;
   `);
 
   return result.rows;

@@ -5,16 +5,21 @@ import {
 import type { MilestoneBadge } from "@/types/reward";
 
 const ANIMAL_ICONS: Record<string, string> = {
-  "koala": "🐨",
-  "green turtle": "🐢",
-  "green sea turtle": "🐢",
-  "saltwater crocodile": "🐊",
-  "red kangaroo": "🦘",
-  "kangaroo": "🦘",
-  "sugar glider": "🐿️",
-  "tasmanian devil": "🦡",
-  "dingo": "🐕",
-  "australian hump-backed dolphin": "🐬",
+  "rainbow lorikeet": "rainbow_lorikeet.svg",
+  "sulphur-crested cockatoo": "cockatoo.svg",
+  "koala": "koala.svg",
+  "green turtle": "green_turtle.svg",
+  "short-beaked echidna": "echidna.svg",
+  "blue-winged kookaburra": "kookaburra.svg",
+  "saltwater crocodile": "saltwater_crocodile.svg",
+  "red kangaroo": "red_kangaroo.svg",
+  "dingo": "dingo.svg",
+  "southern emu-wren": "emu_wren.svg",
+  "tasmanian devil": "tasmanian_devil.svg",
+  "sugar glider": "sugar_glider.svg",
+  "platypus": "platypus.svg",
+  "australian hump-backed dolphin": "humpback_dolphin.svg",
+  "quokka": "quokka.svg",
 };
 
 /**
@@ -39,21 +44,25 @@ function slugifyName(name: string): string {
 }
 
 export function formatSpeciesBadge(raw: RawSpeciesBadge): MilestoneBadge {
-  const normalizedName = raw.animal_name.trim().toLowerCase();
-  const id = KNOWN_BADGE_IDS[normalizedName] ?? slugifyName(raw.animal_name);
-  const icon = ANIMAL_ICONS[normalizedName] ?? "🏅";
+  const normalizedName = raw.vernacular_name.trim().toLowerCase();
+  const id = KNOWN_BADGE_IDS[normalizedName] ?? slugifyName(raw.vernacular_name);
+  const icon = ANIMAL_ICONS[normalizedName];
+  if (!icon) throw new Error(`No badge asset configured for ${raw.vernacular_name}`);
   const milestoneDays =
-    raw.badge_category === "Streak" || /^\d+$/.test(raw.requirement.trim())
-      ? parseInt(raw.requirement, 10) || 0
+    raw.target_metric === "consecutive_days"
+      ? parseInt(raw.target_value, 10) || 0
       : 0;
 
   return {
     id,
     milestoneDays,
-    speciesName: raw.animal_name,
+    speciesName: raw.vernacular_name,
     icon,
-    category: raw.badge_category,
-    requirement: raw.requirement,
+    lockedIcon: icon.replace(".svg", "_locked.svg"),
+    category: raw.badge_type,
+    requirement: raw.target_value,
+    targetMetric: raw.target_metric,
+    targetValue: raw.target_value,
   };
 }
 

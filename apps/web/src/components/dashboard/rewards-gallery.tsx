@@ -1,4 +1,5 @@
 import { Lock } from "lucide-react";
+import Image from "next/image";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { MILESTONE_BADGES } from "@/lib/rewards";
 import type { MilestoneBadge } from "@/types/reward";
@@ -11,19 +12,26 @@ type RewardsGalleryProps = {
 };
 
 function BadgeFace({ badge, unlocked }: { badge: MilestoneBadge; unlocked: boolean }) {
-  const subtitle =
-    badge.category === "Variety Tag"
-      ? `${badge.requirement} play`
-      : `${badge.milestoneDays} day streak`;
+  const subtitle = getBadgeExplanation(badge);
 
   return (
     <>
-      <span
-        aria-hidden="true"
-        className={unlocked ? "text-5xl" : "grayscale text-5xl opacity-45"}
-      >
-        {badge.icon}
-      </span>
+      {badge.icon.endsWith(".svg") ? (
+        <Image
+          alt=""
+          className={unlocked ? "size-16 object-contain" : "size-16 object-contain grayscale opacity-45"}
+          height={64}
+          src={`/badges/${unlocked || !badge.lockedIcon ? badge.icon : badge.lockedIcon}`}
+          width={64}
+        />
+      ) : (
+        <span
+          aria-hidden="true"
+          className={unlocked ? "text-5xl" : "grayscale text-5xl opacity-45"}
+        >
+          {badge.icon}
+        </span>
+      )}
       <span className="mt-3 font-semibold text-zinc-800">
         {badge.speciesName}
       </span>
@@ -42,6 +50,25 @@ function BadgeFace({ badge, unlocked }: { badge: MilestoneBadge; unlocked: boole
       )}
     </>
   );
+}
+
+function getBadgeExplanation(badge: MilestoneBadge): string {
+  if (badge.targetMetric === "consecutive_days") {
+    return `Complete activities for ${badge.targetValue} consecutive days`;
+  }
+  if (badge.milestoneDays > 0) {
+    return `${badge.milestoneDays} day streak`;
+  }
+  if (badge.targetMetric === "duration_minutes") {
+    return `Complete ${badge.targetValue} minutes of activity`;
+  }
+  if (badge.targetMetric === "total_activities") {
+    return `Complete ${badge.targetValue} activity`;
+  }
+  if (badge.targetMetric === "daily_activities") {
+    return `Complete ${badge.targetValue} activities in one day`;
+  }
+  return `Complete a ${badge.targetValue} activity`;
 }
 
 /** All wildlife milestones, with earned badges opening a detail dialog. */
@@ -103,7 +130,7 @@ export function RewardsGallery({
         Wildlife rewards
       </h2>
       <p className="mt-1 text-sm text-zinc-600">
-        Celebrate active-day streaks with Australian species badges.
+        Earn Australian species badges by reaching activity goals.
       </p>
       <div className="mt-4">{gallery}</div>
     </section>

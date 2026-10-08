@@ -18,7 +18,9 @@ export type MilestoneBadge = {
   milestoneDays: number;
   speciesName: string;
   icon: string;
+  lockedIcon?: string;
   category?: string;
   requirement?: string;
+  targetMetric?: string;
+  targetValue?: string;
 };
-
