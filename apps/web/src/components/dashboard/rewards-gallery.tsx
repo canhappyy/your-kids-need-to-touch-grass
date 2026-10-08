@@ -28,10 +28,33 @@ function getBadgeIconSrc(icon: string): string {
 /**
  * Returns a human-friendly English description of how the badge is unlocked.
  */
-function getBadgeExplanation(badge: MilestoneBadge): string {
-  if (badge.description) return badge.description;
-  if (badge.milestoneDays > 0) return `${badge.milestoneDays} day streak`;
-  return badge.requirement ?? "Complete the activity goal";
+function getBadgeExplanation(
+  badge: MilestoneBadge,
+  unlocked = false,
+): string {
+  if (unlocked && badge.description) return badge.description;
+
+  if (badge.ruleType === "streak_days" || badge.milestoneDays > 0) {
+    return unlocked
+      ? `${badge.milestoneDays} day streak`
+      : `Play ${badge.milestoneDays} days in a row`;
+  }
+
+  const requirement = badge.requirement?.trim() ?? "";
+  if (unlocked) return badge.description ?? requirement;
+
+  switch (badge.ruleType) {
+    case "total_completed":
+      return requirement.toLowerCase() === "first activity"
+        ? "Complete your first activity"
+        : `Complete ${requirement.toLowerCase()}`;
+    case "completed_in_one_day":
+      return "Complete 2 activities in one day";
+    case "first_matching_activity":
+      return `Try ${requirement.toLowerCase()} activity`;
+    default:
+      return requirement || "Complete the activity goal";
+  }
 }
 
 /**
@@ -71,7 +94,7 @@ function BadgeFace({
   badge: MilestoneBadge;
   unlocked: boolean;
 }) {
-  const subtitle = getBadgeExplanation(badge);
+  const subtitle = getBadgeExplanation(badge, unlocked);
   const iconFile =
     unlocked || !badge.lockedIcon ? badge.icon : badge.lockedIcon;
   const isSvg = iconFile.endsWith(".svg");

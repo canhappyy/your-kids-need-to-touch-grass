@@ -92,7 +92,7 @@ describe("dashboard streak and wildlife rewards", () => {
     expect(markup).not.toContain("Green Sea Turtle");
     expect(markup).not.toContain("Hidden species");
     expect(markup).toContain("koala_locked.svg");
-    expect(markup).toContain("14 day streak");
+    expect(markup).toContain("Play 14 days in a row");
     expect(markup.match(/disabled/g)).toHaveLength(4);
     expect(markup).toContain("grid-cols-2");
     expect(markup).toContain("lg:grid-cols-4");
