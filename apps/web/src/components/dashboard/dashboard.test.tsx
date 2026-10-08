@@ -69,6 +69,14 @@ vi.mock("@/hooks/use-rewards", () => ({
   useRewards: () => rewardHookState.current,
 }));
 
+vi.mock("@/hooks/use-species-badges", () => ({
+  useSpeciesBadges: () => ({
+    badges: [],
+    loading: false,
+    error: null,
+  }),
+}));
+
 beforeEach(() => {
   hookState.current = {
     records: [...records],

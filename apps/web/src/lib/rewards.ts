@@ -110,6 +110,62 @@ function persistRewards(state: RewardState, store: RewardStorage): void {
   if (store.getItem(REWARDS_KEY) !== serialized) {
     store.setItem(REWARDS_KEY, serialized);
   }
+
+}
+
+function hasEarnedBadge(
+  badge: MilestoneBadge,
+  records: CompletedMission[],
+  longestRun: number,
+): boolean {
+  const value = badge.ruleValue?.trim() ?? "";
+  const numericValue = Number(value);
+  const compare = (actual: number): boolean => {
+    switch (badge.ruleOperator) {
+      case "gte":
+        return actual >= numericValue;
+      case "lte":
+        return actual <= numericValue;
+      case "equals":
+        return actual === numericValue;
+      default:
+        return false;
+    }
+  };
+
+  switch (badge.ruleType) {
+    case "streak_days":
+      return compare(longestRun);
+    case "total_completed":
+      return compare(records.length);
+    case "completed_in_one_day": {
+      const counts = new Map<string, number>();
+      for (const record of records) {
+        const date = localDateKey(new Date(record.completedAt));
+        counts.set(date, (counts.get(date) ?? 0) + 1);
+      }
+      return compare(Math.max(0, ...counts.values()));
+    }
+    case "first_matching_activity":
+      return records.some((record) => {
+        const actual =
+          badge.ruleField === "duration_minutes"
+            ? String(record.durationMinutes)
+            : badge.ruleField === "social_tag"
+              ? record.socialTag
+              : record.varietyTags?.join("|");
+        if (!actual) return false;
+        if (badge.ruleOperator === "contains") {
+          return actual.toLowerCase().includes(value.toLowerCase());
+        }
+        if (badge.ruleOperator === "equals") {
+          return actual.toLowerCase() === value.toLowerCase();
+        }
+        return compare(Number(actual));
+      });
+    default:
+      return false;
+  }
 }
 
 /** Rebuilds streak data from completion history while preserving earned badges. */
@@ -130,7 +186,10 @@ export function reconcileRewards(
   const unlocked = new Set<string>(existing?.unlockedBadgeIds ?? []);
 
   for (const badge of badges) {
-    if (badge.milestoneDays > 0 && longestRun >= badge.milestoneDays) {
+    if (
+      (badge.milestoneDays > 0 && longestRun >= badge.milestoneDays) ||
+      hasEarnedBadge(badge, records, longestRun)
+    ) {
       unlocked.add(badge.id);
     }
   }

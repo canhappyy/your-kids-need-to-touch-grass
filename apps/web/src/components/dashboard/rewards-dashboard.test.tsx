@@ -63,10 +63,11 @@ describe("dashboard streak and wildlife rewards", () => {
       createElement(RewardsGallery, { unlockedBadgeIds: [] }),
     );
 
-    expect(markup).toContain("Koala");
-    expect(markup).toContain("Kangaroo");
-    expect(markup).toContain("Saltwater Crocodile");
-    expect(markup).toContain("Green Sea Turtle");
+    expect(markup).not.toContain("Koala");
+    expect(markup).not.toContain("Kangaroo");
+    expect(markup).not.toContain("Saltwater Crocodile");
+    expect(markup).not.toContain("Green Sea Turtle");
+    expect(markup).not.toContain("Hidden species");
     expect(markup).toContain("🐨");
     expect(markup).toContain("14 day streak");
     expect(markup.match(/disabled/g)).toHaveLength(4);

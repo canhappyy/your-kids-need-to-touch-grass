@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { useSpeciesBadges } from "./use-species-badges";
 
 describe("useSpeciesBadges", () => {
-  it("initializes with default milestone badges", () => {
+  it("starts empty while database badges load", () => {
     let result!: ReturnType<typeof useSpeciesBadges>;
 
     function Probe() {
@@ -14,7 +14,7 @@ describe("useSpeciesBadges", () => {
 
     renderToStaticMarkup(createElement(Probe));
 
-    expect(result.badges).toHaveLength(4);
+    expect(result.badges).toHaveLength(0);
     expect(result.loading).toBe(true);
   });
 });

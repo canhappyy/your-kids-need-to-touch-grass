@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="Rainbow Lorikeet badge"><title>Rainbow Lorikeet badge</title><defs><clipPath id="c-rainbow_lorikeet"><circle cx="120" cy="120" r="110"/></clipPath></defs><circle class="keep" cx="120" cy="120" r="112" fill="#FDF6E9"/><g clip-path="url(#c-rainbow_lorikeet)">
+<path class="bg" fill="#F0B6A3" d="M22 124c-6-56 42-100 98-98 54 2 100 42 98 96-2 58-46 100-100 98-52-2-90-42-96-96z"/>
+<path class="bg" fill="none" stroke="#FDF6E9" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 12" d="M52 96C70 30 170 30 188 96"/>
+<circle class="bg" fill="#F5C24C" cx="58" cy="78" r="12"/><circle class="bg" fill="#22304A" cx="120" cy="36" r="12"/><circle class="bg" fill="#E4633C" cx="182" cy="78" r="12"/>
+<path fill="none" stroke="#22304A" stroke-width="10" stroke-linecap="round" d="M30 212c60-12 120-12 180 0"/>
+<path fill="#93AB63" d="M128 170l30 46-24 4-22-42z"/>
+<path fill="#93AB63" d="M100 128C76 124 54 110 44 92c-2 26 14 50 50 60z"/>
+<path fill="#93AB63" d="M142 128c24-4 46-18 56-36 2 26-14 50-50 60z"/>
+<ellipse fill="#93AB63" cx="120" cy="152" rx="30" ry="42"/>
+<ellipse fill="#E4633C" cx="120" cy="142" rx="22" ry="22"/>
+<path fill="#F5C24C" d="M100 152q20 12 40 0-4 18-20 20-16-2-20-20z"/>
+<path fill="#7B8FD6" d="M104 176q16 10 32 0-2 14-16 18-14-4-16-18z"/>
+<path fill="none" stroke="#22304A" stroke-width="5" stroke-linecap="round" d="M112 192v14M128 192v14"/>
+<circle fill="#7B8FD6" cx="120" cy="96" r="28"/>
+<path fill="none" stroke="#F5C24C" stroke-width="7" stroke-linecap="round" d="M98 114q22 12 44 0"/>
+<path fill="#E4633C" d="M110 98h20c0 14-4 22-10 26-6-4-10-12-10-26z"/>
+<circle fill="#FDF6E9" cx="104" cy="90" r="7"/><circle fill="#FDF6E9" cx="136" cy="90" r="7"/>
+<circle fill="#22304A" cx="105" cy="91" r="3.500"/><circle fill="#22304A" cx="135" cy="91" r="3.500"/>
+</g><circle cx="120" cy="120" r="112" fill="none" stroke="#22304A" stroke-width="5"/></svg>

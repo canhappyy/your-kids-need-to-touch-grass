@@ -42,6 +42,7 @@ function mapLocationCandidate(
     varietyTags: Array.isArray(row.variety_tags)
       ? row.variety_tags.map(String)
       : [],
+    socialTag: row.social_tag == null ? undefined : String(row.social_tag),
     venue: {
       openSpaceId: Number(row.open_space_id),
       name: String(row.open_space_name),
@@ -80,6 +81,7 @@ function mapFallbackCandidate(
     varietyTags: Array.isArray(row.variety_tags)
       ? row.variety_tags.map(String)
       : [],
+    socialTag: row.social_tag == null ? undefined : String(row.social_tag),
     venue: null,
   };
 }
@@ -179,6 +181,7 @@ export async function findLocationBasedRecommendation(
         a.age_8_9,
         a.age_10_12,
         a.supervision_level,
+        a.social_tag,
         COALESCE(
           (SELECT ARRAY_AGG(DISTINCT avt.tag_name ORDER BY avt.tag_name)
            FROM activity_variety_tag AS avt
@@ -294,6 +297,7 @@ export async function findFallbackRecommendation(
       age_8_9,
       age_10_12,
       supervision_level,
+      social_tag,
       COALESCE(
         (SELECT ARRAY_AGG(DISTINCT avt.tag_name ORDER BY avt.tag_name)
          FROM activity_variety_tag AS avt

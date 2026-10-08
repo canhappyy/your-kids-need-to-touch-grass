@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" class="lk" role="img" aria-label="Australian Hump-backed Dolphin badge (locked)"><title>Australian Hump-backed Dolphin badge (locked)</title><style>.lk .bg{display:none}.lk [fill]:not([fill=none]):not(.keep){fill:#D8CFBF}.lk [stroke]:not([stroke=none]):not(.keep){stroke:#D8CFBF}.lk [opacity]{opacity:1}</style><defs><clipPath id="c-humpback_dolphin-l"><circle cx="120" cy="120" r="110"/></clipPath></defs><circle class="keep" cx="120" cy="120" r="112" fill="#FDF6E9"/><g clip-path="url(#c-humpback_dolphin-l)">
+<circle class="bg" fill="#F5C24C" cx="120" cy="104" r="80"/>
+<path class="bg" fill="none" stroke="#E4633C" stroke-width="6" stroke-linecap="round" d="M28 54c10-10 22 8 34-2"/>
+<path fill="#7B8FD6" d="M62 160C50 150 34 142 20 146c8 8 14 16 20 22-8 8-12 20-10 32 14-4 28-16 38-34z"/>
+<path fill="#7B8FD6" d="M96 84c8-20 20-32 36-36-4 12-2 22 6 28z"/>
+<path fill="#7B8FD6" d="M146 108c0 18-8 32-20 40 14-2 30-12 38-32z"/>
+<path fill="#7B8FD6" d="M54 156C62 96 120 56 168 80c16 8 24 18 28 28l18 10c2 6-4 10-12 8l-16-2c-36-20-82-8-114 40z"/>
+<circle fill="#22304A" cx="176" cy="102" r="5"/><circle fill="#FDF6E9" cx="177.500" cy="100.500" r="1.500"/>
+<circle fill="#F0B6A3" cx="166" cy="112" r="5"/>
+<path fill="none" stroke="#22304A" stroke-width="3" stroke-linecap="round" d="M188 120q10 4 22 0"/>
+<path class="bg" fill="#22304A" d="M0 186c20-12 40 12 60 0s40 12 60 0 40 12 60 0 40 12 60 0v70H0z"/>
+<path class="bg" fill="none" stroke="#FDF6E9" stroke-width="5" stroke-linecap="round" d="M70 210c12-8 24 8 36 0M150 218c12-8 24 8 36 0"/>
+<circle class="bg" fill="#7B8FD6" cx="26" cy="118" r="6"/><circle class="bg" fill="#7B8FD6" cx="212" cy="160" r="5"/><circle class="bg" fill="#7B8FD6" cx="96" cy="176" r="4"/>
+</g><circle class="keep" cx="120" cy="120" r="112" fill="none" stroke="#D8CFBF" stroke-width="5" stroke-dasharray="3 13" stroke-linecap="round"/></svg>

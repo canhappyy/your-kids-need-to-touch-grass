@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="Saltwater Crocodile badge"><title>Saltwater Crocodile badge</title><defs><clipPath id="c-saltwater_crocodile"><circle cx="120" cy="120" r="110"/></clipPath></defs><circle class="keep" cx="120" cy="120" r="112" fill="#FDF6E9"/><g clip-path="url(#c-saltwater_crocodile)">
+<path class="bg" fill="#F0B6A3" d="M26 112c0-50 44-86 96-84 52 2 94 38 92 88-2 30-20 44-94 44s-94-12-94-48z"/>
+<circle class="bg" fill="#E4633C" cx="170" cy="58" r="18"/>
+<path fill="none" stroke="#93AB63" stroke-width="22" stroke-linecap="round" d="M160 142c36 2 58-22 44-58"/>
+<path fill="#F5C24C" d="M96 112l8-14 8 14zM114 108l8-14 8 14zM132 108l8-14 8 14zM150 112l8-14 8 14z"/>
+<path fill="none" stroke="#93AB63" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" d="M98 150l-8 22h-12M150 150l10 22h12"/>
+<ellipse fill="#93AB63" cx="122" cy="136" rx="56" ry="26"/>
+<ellipse fill="#FDF6E9" opacity=".35" cx="120" cy="150" rx="38" ry="9"/>
+<circle fill="#93AB63" cx="80" cy="108" r="13"/>
+<path fill="#93AB63" d="M92 112C70 104 40 108 22 112c-10 2-12 16-2 18l66 6z"/>
+<circle fill="#93AB63" cx="24" cy="112" r="7"/>
+<path fill="#93AB63" d="M30 138l58 2c8 6 6 16-4 18-22 0-42-4-56-10-6-4-4-10 2-10z"/>
+<path fill="#FDF6E9" d="M30 131l5 9 5-9zM44 132l5 9 5-9zM58 133l5 9 5-9zM72 134l5 9 5-9z"/>
+<circle fill="#FDF6E9" cx="80" cy="106" r="7.5"/><circle fill="#22304A" cx="78" cy="108" r="4"/><circle fill="#FDF6E9" cx="76.5" cy="106.5" r="1.3"/>
+<path fill="#93AB63" d="M67 104a13 13 0 0 1 26 0z"/>
+<circle fill="#F0B6A3" cx="66" cy="124" r="5"/>
+<circle fill="#22304A" cx="22" cy="110" r="2"/>
+<path class="bg" fill="#7B8FD6" d="M0 176c20-12 40 12 60 0s40 12 60 0 40 12 60 0 40 12 60 0v70H0z"/>
+<path class="bg" fill="none" stroke="#FDF6E9" stroke-width="5" stroke-linecap="round" d="M60 204c12-8 24 8 36 0M140 214c12-8 24 8 36 0"/>
+</g><circle cx="120" cy="120" r="112" fill="none" stroke="#22304A" stroke-width="5"/></svg>

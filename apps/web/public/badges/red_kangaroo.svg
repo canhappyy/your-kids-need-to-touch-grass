@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="Red Kangaroo badge"><title>Red Kangaroo badge</title><defs><clipPath id="c-red_kangaroo"><circle cx="120" cy="120" r="110"/></clipPath></defs><circle class="keep" cx="120" cy="120" r="112" fill="#FDF6E9"/><g clip-path="url(#c-red_kangaroo)">
+<circle class="bg" fill="#F5C24C" cx="128" cy="108" r="84"/>
+<path class="bg" fill="#93AB63" d="M0 204c40-14 80-14 120-6s80 6 120-6v60H0z"/>
+<path class="bg" fill="none" stroke="#7B8FD6" stroke-width="6" stroke-linecap="round" d="M176 30c10-10 22 8 34-2"/>
+<path fill="none" stroke="#E4633C" stroke-width="17" stroke-linecap="round" d="M146 168c20 26 44 32 72 22"/>
+<ellipse fill="#E4633C" cx="96" cy="34" rx="7" ry="21" transform="rotate(-12 96 34)"/>
+<ellipse fill="#E4633C" cx="112" cy="36" rx="7" ry="21" transform="rotate(16 112 36)"/>
+<ellipse fill="#F0B6A3" cx="113" cy="37" rx="3" ry="13" transform="rotate(16 113 37)"/>
+<ellipse fill="#E4633C" cx="128" cy="142" rx="38" ry="48" transform="rotate(-22 128 142)"/>
+<ellipse fill="#E4633C" cx="104" cy="98" rx="23" ry="38" transform="rotate(-14 104 98)"/>
+<ellipse fill="#FDF6E9" opacity=".35" cx="108" cy="140" rx="14" ry="30" transform="rotate(-22 108 140)"/>
+<ellipse fill="#E4633C" cx="86" cy="64" rx="26" ry="16" transform="rotate(18 86 64)"/>
+<circle fill="#22304A" cx="63" cy="58" r="5"/>
+<circle fill="#22304A" cx="90" cy="58" r="4"/>
+<path fill="none" stroke="#E4633C" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" d="M92 108l-20 12-2 14"/>
+<path fill="none" stroke="#E4633C" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" d="M132 172l-30 26"/>
+<path fill="none" stroke="#E4633C" stroke-width="13" stroke-linecap="round" d="M104 200H56"/>
+</g><circle cx="120" cy="120" r="112" fill="none" stroke="#22304A" stroke-width="5"/></svg>

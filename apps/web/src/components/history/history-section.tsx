@@ -2,17 +2,23 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
+import { Dialog } from "@/components/ui/dialog";
 import { TopNav } from "@/components/layout/top-nav";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useCompletedMissions } from "@/hooks/use-completed-missions";
 import { useSavedActivities } from "@/hooks/use-saved-activities";
+import { useSpeciesBadges } from "@/hooks/use-species-badges";
+import { readCompletedMissions } from "@/lib/completed-missions";
+import { readRewards, reconcileRewards } from "@/lib/rewards";
+import type { MilestoneBadge } from "@/types/reward";
 import { ClearHistoryDialog } from "./clear-history-dialog";
 import { HistoryErrorAlert } from "./history-error-alert";
 import { HistoryHeader } from "./history-header";
 import { HistoryList } from "./history-list";
 import { HistoryLoadingState } from "./history-loading-state";
 import { SavedActivityItem } from "./saved-activity-item";
+import { BadgeDetailDialog } from "@/components/dashboard/badge-detail-dialog";
 
 /**
  * Props for the {@link HistorySection} component.
@@ -51,8 +57,10 @@ export function HistorySection({
     remove: removeSaved,
     markComplete: markSavedComplete,
   } = useSavedActivities();
+  const { badges } = useSpeciesBadges();
 
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [newBadges, setNewBadges] = useState<MilestoneBadge[]>([]);
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   const handleClear = () => {
@@ -66,6 +74,23 @@ export function HistorySection({
   const onRetry = () => {
     refreshCompleted();
     refreshSaved();
+  };
+
+  const handleComplete = (id: string) => {
+    const previousIds = new Set(readRewards()?.unlockedBadgeIds ?? []);
+    if (!markSavedComplete(id) || badges.length === 0) return;
+
+    const state = reconcileRewards(
+      readCompletedMissions(),
+      new Date(),
+      window.localStorage,
+      badges,
+    );
+    const unlockedBadges = badges.filter(
+      (badge) =>
+        state.unlockedBadgeIds.includes(badge.id) && !previousIds.has(badge.id),
+    );
+    if (unlockedBadges.length > 0) setNewBadges(unlockedBadges);
   };
 
   return (
@@ -117,7 +142,7 @@ export function HistorySection({
                     <li key={activity.id}>
                       <SavedActivityItem
                         activity={activity}
-                        onComplete={markSavedComplete}
+                        onComplete={handleComplete}
                         onRemove={removeSaved}
                       />
                     </li>
@@ -168,6 +193,16 @@ export function HistorySection({
           </>
         )}
       </div>
+      <Dialog
+        open={newBadges.length > 0}
+        onOpenChange={(open) => {
+          if (!open) setNewBadges((current) => current.slice(1));
+        }}
+      >
+        {newBadges[0] ? (
+          <BadgeDetailDialog badge={newBadges[0]} />
+        ) : null}
+      </Dialog>
     </>
   );
 }

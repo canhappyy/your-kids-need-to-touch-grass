@@ -103,6 +103,39 @@ describe("activity streak rewards", () => {
     );
   });
 
+  it("unlocks database badges for activity metrics", () => {
+    const records = [
+      {
+        ...mission("one", new Date(2026, 9, 3, 8)),
+        durationMinutes: 30,
+        varietyTags: ["Creativity"],
+        socialTag: "Family",
+      },
+      {
+        ...mission("two", new Date(2026, 9, 3, 10)),
+        durationMinutes: 30,
+      },
+    ];
+    const badges = [
+      { id: "duration", milestoneDays: 0, speciesName: "A", icon: "", ruleType: "first_matching_activity", ruleField: "duration_minutes", ruleOperator: "gte", ruleValue: "30" },
+      { id: "total", milestoneDays: 0, speciesName: "B", icon: "", ruleType: "total_completed", ruleOperator: "gte", ruleValue: "2" },
+      { id: "daily", milestoneDays: 0, speciesName: "C", icon: "", ruleType: "completed_in_one_day", ruleOperator: "gte", ruleValue: "2" },
+      { id: "variety", milestoneDays: 0, speciesName: "D", icon: "", ruleType: "first_matching_activity", ruleField: "variety_tags", ruleOperator: "contains", ruleValue: "creativity" },
+      { id: "social", milestoneDays: 0, speciesName: "E", icon: "", ruleType: "first_matching_activity", ruleField: "social_tag", ruleOperator: "equals", ruleValue: "family" },
+    ];
+
+    const state = reconcileRewards(
+      records,
+      new Date(2026, 9, 3, 12),
+      storage(),
+      badges,
+    );
+
+    expect(state.unlockedBadgeIds).toEqual(
+      badges.map((badge) => badge.id),
+    );
+  });
+
   it("keeps unlocked badges after a later gap and history clear", () => {
     const store = storage();
     const records = Array.from({ length: 3 }, (_, index) =>

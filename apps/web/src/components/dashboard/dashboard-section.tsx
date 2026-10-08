@@ -10,7 +10,7 @@ import { useDashboardDisclosures } from "@/hooks/use-dashboard-disclosures";
 import { useDashboardDate } from "@/hooks/use-dashboard-date";
 import { useRewards } from "@/hooks/use-rewards";
 import { buildDashboardStats } from "@/lib/dashboard-stats";
-import { MILESTONE_BADGES } from "@/lib/rewards";
+import { useSpeciesBadges } from "@/hooks/use-species-badges";
 import { DailyGoalCard } from "./daily-goal-card";
 import { DashboardDisclosure } from "./dashboard-disclosure";
 import { DashboardMetrics } from "./dashboard-metrics";
@@ -43,11 +43,16 @@ export function DashboardSection() {
   const { records, loading, error, refresh } = useCompletedMissions();
   const currentDate = useDashboardDate();
   const {
+    badges,
+    loading: badgesLoading,
+    error: badgesError,
+  } = useSpeciesBadges();
+  const {
     rewards,
     loading: rewardsLoading,
     error: rewardsError,
     refresh: refreshRewards,
-  } = useRewards(records, currentDate);
+  } = useRewards(records, currentDate, badges);
   const stats = useMemo(
     () => buildDashboardStats(records, currentDate),
     [records, currentDate],
@@ -76,13 +81,13 @@ export function DashboardSection() {
         </h1>
       </header>
 
-      {loading || rewardsLoading ? (
+      {loading || rewardsLoading || badgesLoading ? (
         <DashboardLoadingState />
-      ) : error || rewardsError ? (
+      ) : error || rewardsError || badgesError ? (
         <Card className="border border-red-200 bg-white/55 shadow-sm ring-0">
           <CardContent className="py-4">
             <HistoryErrorAlert
-              message={error || rewardsError}
+              message={error || rewardsError || badgesError || "Rewards could not be loaded."}
               onRetry={handleRetry}
             />
           </CardContent>
@@ -110,7 +115,7 @@ export function DashboardSection() {
               title="Reward badges"
             >
               <RewardsGallery
-                badges={MILESTONE_BADGES}
+                badges={badges}
                 showHeading={false}
                 unlockedBadgeIds={rewards.unlockedBadgeIds}
               />

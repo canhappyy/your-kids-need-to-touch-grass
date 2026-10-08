@@ -18,7 +18,12 @@ export type MilestoneBadge = {
   milestoneDays: number;
   speciesName: string;
   icon: string;
+  lockedIcon?: string;
   category?: string;
   requirement?: string;
+  ruleType?: string;
+  ruleField?: string;
+  ruleOperator?: string;
+  ruleValue?: string;
+  description?: string;
 };
-
