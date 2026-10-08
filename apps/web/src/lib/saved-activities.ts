@@ -17,11 +17,18 @@ export const SAVED_ACTIVITIES_KEY = "playgo.saved-activities.v1";
 
 /**
  * Storage key used to track planned activities that were already transferred today.
+ * Prevents re-adding a planned mission to the daily to-do list if the parent purposefully dismissed it.
  */
 export const PLANNER_TRANSFERRED_KEY = "playgo.planner-transferred.v1";
 
+/**
+ * Minimal storage interface contract required for reading, writing, and clearing saved activities.
+ */
 type ActivityStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 
+/**
+ * Zod validation schema ensuring data integrity of saved activity records.
+ */
 const savedActivitySchema = z.object({
   id: z.string().min(1),
   missionId: z.string().min(1),
@@ -56,8 +63,8 @@ export function readSavedActivities(
 
 /**
  * Synchronizes saved activities for the active local day:
- * 1. Clears any uncompleted saved activities saved on prior dates (resets at midnight).
- * 2. If the current date has planned activities scheduled for today, adds them to saved activities
+ * 1. Midnight clearing: purges any uncompleted saved activities saved on prior dates so parents start fresh each morning.
+ * 2. If the current date has planned activities scheduled for today, promotes them into saved activities
  *    (unless already completed today, already present, or previously transferred today).
  *
  * @param now - Current clock date (defaults to `new Date()`).
@@ -82,6 +89,7 @@ export function syncSavedActivities(
   const plannedActivities = readPlannedActivities(store);
   const completedMissions = readCompletedMissions(store);
 
+  // Read set of previously promoted IDs to maintain idempotency
   let transferred: Record<string, string> = {};
   try {
     const raw = store.getItem(PLANNER_TRANSFERRED_KEY);
@@ -90,7 +98,7 @@ export function syncSavedActivities(
     transferred = {};
   }
 
-  // Prune transferred entries older than today
+  // Prune transferred entries older than today to save space
   const cleanedTransferred: Record<string, string> = {};
   for (const [id, date] of Object.entries(transferred)) {
     if (date >= todayKey) {
@@ -106,6 +114,7 @@ export function syncSavedActivities(
   );
 
   for (const planned of todayPlanned) {
+    // Skip if already completed today
     const isCompletedToday = completedMissions.some(
       (c) =>
         c.missionId === planned.missionId &&
@@ -113,11 +122,13 @@ export function syncSavedActivities(
     );
     if (isCompletedToday) continue;
 
+    // Skip if already in the to-do list
     const isAlreadySaved = currentDayActivities.some(
       (item) => item.id === planned.id || item.missionId === planned.missionId,
     );
     if (isAlreadySaved) continue;
 
+    // Skip if previously promoted and dismissed today
     if (cleanedTransferred[planned.id] === todayKey) continue;
 
     currentDayActivities.push({
@@ -134,8 +145,10 @@ export function syncSavedActivities(
     changed = true;
   }
 
+  // Persist updated transfer records
   store.setItem(PLANNER_TRANSFERRED_KEY, JSON.stringify(cleanedTransferred));
 
+  // If any activities were purged or added, persist changes and notify UI
   if (changed) {
     currentDayActivities.sort(
       (a, b) => Date.parse(b.savedAt) - Date.parse(a.savedAt),
@@ -239,7 +252,7 @@ export function clearSavedActivities(
  * Moves a saved activity to the completed activities section.
  *
  * Removes it from saved activities and appends a corresponding record
- * to completed mission history.
+ * to completed mission history with atomic rollback on failure.
  *
  * @param savedIdOrMissionId - Unique record ID or mission ID of the saved activity.
  * @param store - Storage backend to update.
@@ -277,6 +290,7 @@ export function moveSavedToCompleted(
   try {
     saveCompletedMission(completed, store);
   } catch (error) {
+    // Atomic rollback: restore saved activities if completing fails
     try {
       if (previousSaved === null) {
         store.removeItem(SAVED_ACTIVITIES_KEY);
@@ -284,7 +298,7 @@ export function moveSavedToCompleted(
         store.setItem(SAVED_ACTIVITIES_KEY, previousSaved);
       }
     } catch {
-      // Preserve the original completion-storage error.
+      // Preserve the original completion-storage error
     }
     throw error;
   }
