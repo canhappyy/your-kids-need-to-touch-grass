@@ -12,6 +12,8 @@ export type RawSpeciesBadge = {
   description: string;
   image_earned: string;
   image_locked: string;
+  unlock_priority?: number;
+  unlock_tier?: number;
 };
 
 /**
@@ -33,7 +35,9 @@ export async function findAllSpeciesBadges(): Promise<RawSpeciesBadge[]> {
       rule_value,
       description,
       image_earned,
-      image_locked
+      image_locked,
+      unlock_priority,
+      unlock_tier
     FROM species_badge
     ORDER BY vernacular_name;
   `);

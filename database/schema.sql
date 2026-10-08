@@ -158,6 +158,8 @@ CREATE TABLE SPECIES_BADGE (
     description     TEXT NOT NULL,
     image_earned    VARCHAR(255) NOT NULL,
     image_locked    VARCHAR(255) NOT NULL,
+    unlock_priority INT NOT NULL DEFAULT 100,
+    unlock_tier     INT NOT NULL DEFAULT 1,
     CONSTRAINT fk_badge_type FOREIGN KEY (badge_type) REFERENCES BADGE_TYPE(type_name) ON UPDATE CASCADE ON DELETE RESTRICT
 );
 -- One row per collectible species badge. badge_type defines how it is earned,

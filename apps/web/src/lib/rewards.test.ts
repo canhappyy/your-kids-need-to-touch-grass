@@ -35,6 +35,7 @@ describe("activity streak rewards", () => {
     expect(state).toEqual({
       currentStreak: 0,
       lastCompletedDate: null,
+      completionCount: 0,
       unlockedBadgeIds: [],
     });
     expect(readRewards(store)).toEqual(state);
@@ -87,7 +88,7 @@ describe("activity streak rewards", () => {
     ).toBe(0);
   });
 
-  it("backfills every crossed wildlife milestone from historical streaks", () => {
+  it("limits historical starter unlocks to two badges", () => {
     const records = Array.from({ length: 14 }, (_, index) =>
       mission(`day-${index}`, new Date(2026, 8, 20 + index, 12)),
     );
@@ -98,9 +99,7 @@ describe("activity streak rewards", () => {
     );
 
     expect(state.currentStreak).toBe(14);
-    expect(state.unlockedBadgeIds).toEqual(
-      MILESTONE_BADGES.map((badge) => badge.id),
-    );
+    expect(state.unlockedBadgeIds).toEqual(["green-sea-turtle", "kangaroo"]);
   });
 
   it("unlocks database badges for activity metrics", () => {
@@ -131,9 +130,71 @@ describe("activity streak rewards", () => {
       badges,
     );
 
-    expect(state.unlockedBadgeIds).toEqual(
-      badges.map((badge) => badge.id),
+    expect(state.unlockedBadgeIds).toEqual(["duration", "daily"]);
+  });
+
+  it("unlocks at most one later badge while keeping eligible badges pending", () => {
+    const store = storage();
+    const badges = [
+      {
+        id: "first",
+        milestoneDays: 0,
+        speciesName: "First",
+        icon: "",
+        ruleType: "total_completed",
+        ruleOperator: "gte",
+        ruleValue: "1",
+        unlockPriority: 10,
+      },
+      {
+        id: "second",
+        milestoneDays: 0,
+        speciesName: "Second",
+        icon: "",
+        ruleType: "total_completed",
+        ruleOperator: "gte",
+        ruleValue: "1",
+        unlockPriority: 20,
+      },
+      {
+        id: "third",
+        milestoneDays: 0,
+        speciesName: "Third",
+        icon: "",
+        ruleType: "total_completed",
+        ruleOperator: "gte",
+        ruleValue: "1",
+        unlockPriority: 30,
+      },
+      {
+        id: "fourth",
+        milestoneDays: 0,
+        speciesName: "Fourth",
+        icon: "",
+        ruleType: "total_completed",
+        ruleOperator: "gte",
+        ruleValue: "1",
+        unlockPriority: 40,
+      },
+    ];
+
+    reconcileRewards(
+      [mission("one", new Date(2026, 9, 3, 8))],
+      new Date(2026, 9, 3, 12),
+      store,
+      badges,
     );
+    const state = reconcileRewards(
+      [
+        mission("one", new Date(2026, 9, 3, 8)),
+        mission("two", new Date(2026, 9, 4, 8)),
+      ],
+      new Date(2026, 9, 4, 12),
+      store,
+      badges,
+    );
+
+    expect(state.unlockedBadgeIds).toEqual(["first", "second", "third"]);
   });
 
   it("keeps unlocked badges after a later gap and history clear", () => {
@@ -147,6 +208,7 @@ describe("activity streak rewards", () => {
     expect(afterGap).toEqual({
       currentStreak: 0,
       lastCompletedDate: null,
+      completionCount: 0,
       unlockedBadgeIds: ["koala"],
     });
     expect(resetRewardStreak(store)).toEqual(afterGap);

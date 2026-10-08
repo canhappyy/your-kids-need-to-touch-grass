@@ -11,6 +11,7 @@ export type RewardState = {
   currentStreak: number;
   lastCompletedDate: string | null;
   unlockedBadgeIds: string[];
+  completionCount: number;
 };
 
 export type MilestoneBadge = {
@@ -26,4 +27,6 @@ export type MilestoneBadge = {
   ruleOperator?: string;
   ruleValue?: string;
   description?: string;
+  unlockPriority?: number;
+  unlockTier?: number;
 };

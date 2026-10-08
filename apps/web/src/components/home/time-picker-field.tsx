@@ -15,7 +15,7 @@ export type TimePickerFieldProps = {
   hours?: number;
   /** Selected duration in minutes. */
   minutes: number;
-  /** Validation error message for duration (e.g. minimum 15 minutes). */
+  /** Validation error message for duration (e.g. minimum 5 minutes). */
   timeError: string;
   /** Optional callback for changing duration hours. */
   onHoursChange?: (value: number) => void;

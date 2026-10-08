@@ -13,6 +13,7 @@ import type { MilestoneBadge, RewardState } from "@/types/reward";
 const EMPTY_REWARDS: RewardState = {
   currentStreak: 0,
   lastCompletedDate: null,
+  completionCount: 0,
   unlockedBadgeIds: [],
 };
 

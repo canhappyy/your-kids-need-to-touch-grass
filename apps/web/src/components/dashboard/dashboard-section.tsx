@@ -112,7 +112,7 @@ export function DashboardSection() {
               isNew={hasNewBadges}
               onToggle={() => toggleSection("rewardBadges")}
               open={openSections.rewardBadges}
-              title="Reward badges"
+              title="Your Child's Achievements"
             >
               <RewardsGallery
                 badges={badges}
@@ -124,7 +124,7 @@ export function DashboardSection() {
               id="favourite-activities"
               onToggle={() => toggleSection("favouriteActivities")}
               open={openSections.favouriteActivities}
-              title="Favourite activities"
+              title="Your Child's Favourites"
             >
               <FavouriteActivities tags={stats.varietyTagCounts} />
             </DashboardDisclosure>

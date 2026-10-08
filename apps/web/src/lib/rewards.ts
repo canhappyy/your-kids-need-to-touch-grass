@@ -42,6 +42,7 @@ const rewardStateSchema = z.object({
   currentStreak: z.number().int().nonnegative(),
   lastCompletedDate: z.iso.date().nullable(),
   unlockedBadgeIds: z.array(badgeIdSchema),
+  completionCount: z.number().int().nonnegative().default(0),
 });
 
 export function localDateKey(date: Date): string {
@@ -184,20 +185,38 @@ export function reconcileRewards(
   const currentStreak =
     latestDate === today || latestDate === yesterday ? latestRun : 0;
   const unlocked = new Set<string>(existing?.unlockedBadgeIds ?? []);
+  const eligible = badges
+    .filter(
+      (badge) =>
+        !unlocked.has(badge.id) &&
+        ((badge.milestoneDays > 0 && longestRun >= badge.milestoneDays) ||
+          hasEarnedBadge(badge, records, longestRun)),
+    )
+    .sort(
+      (a, b) =>
+        (a.unlockPriority ?? 100) - (b.unlockPriority ?? 100) ||
+        a.id.localeCompare(b.id),
+    );
+  const newCompletions = Math.max(
+    0,
+    records.length - (existing?.completionCount ?? 0),
+  );
+  const unlockLimit =
+    newCompletions === 0
+      ? 0
+      : unlocked.size === 0
+        ? 2
+        : newCompletions;
 
-  for (const badge of badges) {
-    if (
-      (badge.milestoneDays > 0 && longestRun >= badge.milestoneDays) ||
-      hasEarnedBadge(badge, records, longestRun)
-    ) {
-      unlocked.add(badge.id);
-    }
+  for (const badge of eligible.slice(0, unlockLimit)) {
+    unlocked.add(badge.id);
   }
 
   const knownIds = new Set(badges.map((badge) => badge.id));
   const state: RewardState = {
     currentStreak,
     lastCompletedDate: latestDate,
+    completionCount: records.length,
     unlockedBadgeIds: [
       ...badges.map((badge) => badge.id).filter((id) => unlocked.has(id)),
       ...Array.from(unlocked).filter((id) => !knownIds.has(id)),
@@ -215,6 +234,7 @@ export function resetRewardStreak(
   const state: RewardState = {
     currentStreak: 0,
     lastCompletedDate: null,
+    completionCount: 0,
     unlockedBadgeIds: existing?.unlockedBadgeIds ?? [],
   };
   persistRewards(state, store);

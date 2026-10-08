@@ -34,7 +34,7 @@ import type {
  *    age bucket selection, hours, minutes, and play preferences) that automatically clear relevant error messages when modified.
  *
  * 4. Client-Side Validation & Submission (`handleSubmit`):
- *    - Validates that total duration is at least 15 minutes.
+ *    - Validates that total duration is at least 5 minutes.
  *    - Validates that a valid 4-digit postcode or suburb name is provided when in `"nearby"` mode.
  *    - If valid, invokes `onValidSubmit` with trimmed and normalized search criteria, including play preferences
  *      and device GPS coordinates (omitting location and coordinates when in `"home"` mode).

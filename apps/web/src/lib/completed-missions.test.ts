@@ -127,6 +127,7 @@ describe("local completion history", () => {
     expect(readRewards(store)).toEqual({
       currentStreak: 0,
       lastCompletedDate: null,
+      completionCount: 0,
       unlockedBadgeIds: ["koala"],
     });
   });

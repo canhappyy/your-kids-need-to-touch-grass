@@ -121,8 +121,8 @@ describe("compact parent dashboard", () => {
     expect(markup).not.toContain("Weekly Trends");
     expect(markup).not.toContain("26% of Australian children");
     for (const title of [
-      "Reward badges",
-      "Favourite activities",
+      "Your Child&#x27;s Achievements",
+      "Your Child&#x27;s Favourites",
       "National guidelines",
     ]) {
       expect(markup).toContain(title);

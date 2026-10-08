@@ -27,6 +27,10 @@ export function formatSpeciesBadge(raw: RawSpeciesBadge): MilestoneBadge {
     ruleOperator: raw.rule_operator,
     ruleValue: raw.rule_value,
     description: raw.description,
+    ...(raw.unlock_priority !== undefined
+      ? { unlockPriority: raw.unlock_priority }
+      : {}),
+    ...(raw.unlock_tier !== undefined ? { unlockTier: raw.unlock_tier } : {}),
   };
 }
 
