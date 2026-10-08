@@ -6,6 +6,15 @@ import { CalendarPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -76,6 +85,7 @@ export function PlannerSaveDialog({
 
   const [error, setError] = useState("");
   const [savedDate, setSavedDate] = useState("");
+  const [alertOpen, setAlertOpen] = useState(false);
   const { minDateKey, maxDateKey } = getPlanningWindow(referenceDate);
   const minDate = parseLocalDateKey(minDateKey) ?? referenceDate;
   const maxDate = parseLocalDateKey(maxDateKey) ?? referenceDate;
@@ -99,6 +109,7 @@ export function PlannerSaveDialog({
       onSaved?.(plannedDate);
       setError("");
       setOpen(false);
+      setAlertOpen(true);
     } catch (saveError) {
       setError(
         saveError instanceof Error &&
@@ -171,17 +182,32 @@ export function PlannerSaveDialog({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      {savedDate && (
-        <p role="status" className="text-center text-sm text-zinc-600">
-          Saved to your planner for{" "}
-          {parseLocalDateKey(savedDate)?.toLocaleDateString("en-AU", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          })}
-          .
-        </p>
-      )}
+      <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
+        <AlertDialogContent className="rounded-2xl border border-zinc-200/80 bg-white p-5 sm:max-w-xs shadow-lg">
+          <AlertDialogHeader className="text-left">
+            <AlertDialogTitle className="text-base font-bold text-zinc-900">
+              Saved to Planner
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm text-zinc-600">
+              Saved to your planner for{" "}
+              {parseLocalDateKey(savedDate)?.toLocaleDateString("en-AU", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
+              .
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction
+              className="h-10 w-full rounded-full bg-[#93AB63] font-semibold text-white hover:bg-[#819953]"
+              onClick={() => setAlertOpen(false)}
+            >
+              OK
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

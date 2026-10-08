@@ -40,7 +40,7 @@ const mockRecommendation: Recommendation = {
 };
 
 describe("ActivityCard", () => {
-  it("renders front face with activity details and flip hint", () => {
+  it("renders front face with activity details and flip badge", () => {
     const markup = renderToStaticMarkup(
       createElement(ActivityCard, {
         recommendation: mockRecommendation,
@@ -56,13 +56,13 @@ describe("ActivityCard", () => {
     expect(markup).toContain("35 mins");
     expect(markup).toContain("25 mins activity");
     expect(markup).toContain("Clear and sunny");
-    expect(markup).toContain("Tap card to see How to Play instructions");
+    expect(markup).toContain("How to Play");
 
     expect(markup).toContain("perspective-1000");
     expect(markup).toContain("transform-style-3d");
   });
 
-  it("renders back face with game instructions, equipment badges, and return hint", () => {
+  it("renders back face with game instructions, equipment badges, and details badge", () => {
     const markup = renderToStaticMarkup(
       createElement(ActivityCard, {
         recommendation: mockRecommendation,
@@ -82,7 +82,7 @@ describe("ActivityCard", () => {
     expect(markup).toContain("Grab your bag.");
     expect(markup).toContain("Search for 3 different leaves.");
     expect(markup).toContain("Celebrate your finds!");
-    expect(markup).toContain("Tap card to return to details");
+    expect(markup).toContain("Details");
   });
 
   it("handles activities with no equipment needed", () => {

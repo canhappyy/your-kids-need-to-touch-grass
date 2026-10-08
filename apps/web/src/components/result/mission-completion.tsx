@@ -1,6 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useSaveActivity } from "@/hooks/use-save-activity";
 import type { Recommendation } from "@/types/recommendation";
 import { PlannerSaveDialog } from "./planner-save-dialog";
@@ -29,25 +39,47 @@ export function MissionCompletion({
   planDate,
   childAgeRange,
 }: MissionCompletionProps) {
+  const [alertOpen, setAlertOpen] = useState(false);
   const { save, isSaved, error } = useSaveActivity(
     recommendation,
     isRetrying,
     childAgeRange,
   );
+
+  const handleSave = () => {
+    save();
+    setAlertOpen(true);
+  };
+
   return (
     <div className="space-y-2">
       <Button
         className="h-12 w-full rounded-full"
         disabled={isSaved || isRetrying}
-        onClick={save}
+        onClick={handleSave}
       >
         {isSaved ? "Saved" : "Save this activity"}
       </Button>
-      {isSaved && (
-        <p role="status" className="text-center text-sm text-zinc-600">
-          Saved to your backlog.
-        </p>
-      )}
+      <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
+        <AlertDialogContent className="rounded-2xl border border-zinc-200/80 bg-white p-5 sm:max-w-xs shadow-lg">
+          <AlertDialogHeader className="text-left">
+            <AlertDialogTitle className="text-base font-bold text-zinc-900">
+              Saved to Backlog
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm text-zinc-600">
+              Saved to your backlog.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction
+              className="h-10 w-full rounded-full bg-[#93AB63] font-semibold text-white hover:bg-[#819953]"
+              onClick={() => setAlertOpen(false)}
+            >
+              OK
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       {error && (
         <p role="alert" className="text-sm text-red-700">
           {error}

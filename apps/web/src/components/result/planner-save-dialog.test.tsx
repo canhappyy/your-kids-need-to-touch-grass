@@ -21,6 +21,23 @@ vi.mock("@/components/ui/dialog", () => ({
     createElement("div", null, children),
 }));
 
+vi.mock("@/components/ui/alert-dialog", () => ({
+  AlertDialog: ({ children, open }: { children: React.ReactNode; open?: boolean }) =>
+    createElement("div", { "data-slot": "alert-dialog", "data-open": open ? "true" : "false" }, children),
+  AlertDialogContent: ({ children, className }: { children: React.ReactNode; className?: string }) =>
+    createElement("div", { "data-slot": "alert-dialog-content", className }, children),
+  AlertDialogHeader: ({ children, className }: { children: React.ReactNode; className?: string }) =>
+    createElement("div", { "data-slot": "alert-dialog-header", className }, children),
+  AlertDialogTitle: ({ children, className }: { children: React.ReactNode; className?: string }) =>
+    createElement("h2", { "data-slot": "alert-dialog-title", className }, children),
+  AlertDialogDescription: ({ children, className }: { children: React.ReactNode; className?: string }) =>
+    createElement("p", { "data-slot": "alert-dialog-description", className }, children),
+  AlertDialogFooter: ({ children, className }: { children: React.ReactNode; className?: string }) =>
+    createElement("div", { "data-slot": "alert-dialog-footer", className }, children),
+  AlertDialogAction: ({ children, className, onClick }: { children: React.ReactNode; className?: string; onClick?: () => void }) =>
+    createElement("button", { "data-slot": "alert-dialog-action", className, onClick }, children),
+}));
+
 vi.mock("@/components/ui/calendar", () => ({
   Calendar: ({ selected, defaultMonth, disabled }: { selected: Date; defaultMonth: Date; disabled: { before: Date; after: Date } }) =>
     createElement("div", {
@@ -79,5 +96,19 @@ describe("planner save dialog", () => {
       />,
     );
     expect(markup).toContain('data-selected="2026-10-04"');
+  });
+
+  it("includes AlertDialog component for planner save confirmation", () => {
+    const markup = renderToStaticMarkup(
+      <PlannerSaveDialog
+        initialDateKey="2026-11-03"
+        now={new Date(2026, 9, 4, 12)}
+        recommendation={recommendation}
+      />,
+    );
+
+    expect(markup).toContain('data-slot="alert-dialog"');
+    expect(markup).toContain("Saved to Planner");
+    expect(markup).toContain("OK");
   });
 });
