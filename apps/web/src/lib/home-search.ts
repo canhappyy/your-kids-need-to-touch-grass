@@ -58,9 +58,9 @@ export const hourOptions = Array.from({ length: 13 }, (_, hour) => ({
 }));
 
 /**
- * Minute selection dropdown options for the duration time picker (15-minute increments up to 120 minutes).
+ * Minute selection dropdown options for the duration time picker.
  */
-export const minuteOptions = [15, 30, 45, 60, 75, 90, 105, 120].map(
+export const minuteOptions = [5, 10, 15, 30, 45, 60, 75, 90, 105, 120].map(
   (minute) => ({
     label: `${minute} min`,
     value: minute,
@@ -106,7 +106,7 @@ export function validateSearchForm(
   }
 
   const totalMinutes = (values.hours ?? 0) * 60 + values.minutes;
-  const timeError = totalMinutes < 15 ? "Choose at least 15 minutes." : "";
+  const timeError = totalMinutes < 5 ? "Choose at least 5 minutes." : "";
 
   const ageError =
     !values.selectedBuckets || values.selectedBuckets.length === 0

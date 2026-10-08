@@ -40,7 +40,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         geistMono.variable,
       )}
     >
-      <body className="min-h-full flex flex-col">
+      <body
+        className="min-h-full flex flex-col"
+        suppressHydrationWarning
+      >
         {children}
         <BottomNav />
       </body>
