@@ -5,23 +5,38 @@ import { MILESTONE_BADGES } from "@/lib/rewards";
 import type { MilestoneBadge } from "@/types/reward";
 import { BadgeDetailDialog } from "./badge-detail-dialog";
 
+/**
+ * Properties for the `RewardsGallery` component.
+ */
 type RewardsGalleryProps = {
+  /** Array of badge IDs that the child has successfully unlocked. */
   unlockedBadgeIds: string[];
+  /** Optional badge dataset override (defaults to the full system catalog of milestone badges). */
   badges?: readonly MilestoneBadge[];
+  /** Whether to render the main "Wildlife rewards" section title and subtitle. Defaults to true. */
   showHeading?: boolean;
 };
 
+/**
+ * Normalizes badge icon filenames into valid browser-accessible static paths under `/badges/`.
+ */
 function getBadgeIconSrc(icon: string): string {
   if (icon.startsWith("/")) return icon;
   return `/badges/${icon}`;
 }
 
+/**
+ * Returns a human-friendly English description of how the badge is unlocked.
+ */
 function getBadgeExplanation(badge: MilestoneBadge): string {
   if (badge.description) return badge.description;
   if (badge.milestoneDays > 0) return `${badge.milestoneDays} day streak`;
   return badge.requirement ?? "Complete the activity goal";
 }
 
+/**
+ * Normalizes legacy badge identifiers (e.g., underscores vs. hyphens, alias names like "green-sea-turtle").
+ */
 function normalizeBadgeId(id: string): string {
   const clean = id.toLowerCase().replace(/_/g, "-");
   if (clean === "green-sea-turtle" || clean === "green-turtle")
@@ -31,6 +46,9 @@ function normalizeBadgeId(id: string): string {
   return clean;
 }
 
+/**
+ * Checks whether a given badge is unlocked by direct ID lookup or normalized alias match.
+ */
 function isBadgeUnlocked(
   badge: MilestoneBadge,
   unlocked: Set<string>,
@@ -44,6 +62,7 @@ function isBadgeUnlocked(
   }
   return false;
 }
+
 
 function BadgeFace({
   badge,
@@ -101,23 +120,41 @@ function BadgeFace({
   );
 }
 
-/** All wildlife milestones, with earned badges opening a detail dialog. */
+/**
+ * Interactive rewards gallery displaying Victorian wildlife badges.
+ *
+ * Visual Structure:
+ * 1. **Collection Summary Banner:** Shows overall unlock progress (e.g., "5/12 Earned") with an animated progress bar.
+ * 2. **Earned Section:** Badges that the child has earned, styled with golden gradient frames and sparkles.
+ *    Clicking an earned badge opens `BadgeDetailDialog` with full artwork and celebratory backstory.
+ * 3. **Next Challenges Section:** Badges that remain locked, rendered with dashed borders, subtle lock icons,
+ *    and clear requirements so families know what mission or streak to aim for next.
+ *
+ * @param props - Component configuration including unlocked badge IDs and display options.
+ * @returns The rendered wildlife rewards gallery.
+ */
 export function RewardsGallery({
   unlockedBadgeIds,
   badges = MILESTONE_BADGES,
   showHeading = true,
 }: RewardsGalleryProps) {
+  // Convert unlocked IDs into a fast lookup Set
   const unlocked = new Set(unlockedBadgeIds);
+
+  // Partition badges into earned vs. next challenges
   const earnedBadges = badges.filter((badge) =>
     isBadgeUnlocked(badge, unlocked),
   );
   const lockedBadges = badges.filter(
     (badge) => !isBadgeUnlocked(badge, unlocked),
   );
+
+  // Compute total completion percentage (0 - 100%)
   const completionPercent =
     badges.length === 0
       ? 0
       : Math.round((earnedBadges.length / badges.length) * 100);
+
 
   const renderBadge = (badge: MilestoneBadge, isUnlocked: boolean) => {
     const cardClassName = isUnlocked

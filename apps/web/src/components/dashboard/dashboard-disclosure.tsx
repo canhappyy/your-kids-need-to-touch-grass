@@ -1,16 +1,35 @@
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+/**
+ * Properties for the `DashboardDisclosure` accordion panel component.
+ */
 type DashboardDisclosureProps = {
+  /** Unique HTML id prefix for binding `aria-controls` and `aria-labelledby`. */
   id: string;
+  /** Header title displayed on the disclosure trigger button. */
   title: string;
+  /** Whether the disclosure panel is currently expanded. */
   open: boolean;
+  /** Toggle event handler invoked when user clicks the header button. */
   onToggle: () => void;
+  /** Optional badge flag highlighting newly unlocked rewards or discoveries. */
   isNew?: boolean;
+  /** Child content rendered inside the expandable container. */
   children?: React.ReactNode;
 };
 
-/** Accessible in-flow disclosure used by dashboard detail sections. */
+/**
+ * Accessible in-flow collapsible disclosure panel used by dashboard deep-dive sections.
+ *
+ * Adheres strictly to WAI-ARIA Disclosure pattern:
+ * - Employs a native `<button>` with `aria-expanded` and `aria-controls`.
+ * - Links expandable content region via `<div role="region" aria-labelledby={id}>`.
+ * - Optional "NEW" pill notification badge alerting parents to newly unlocked rewards.
+ *
+ * @param props - Disclosure configuration including id, title, open status, and toggle callback.
+ * @returns The rendered accessible disclosure section.
+ */
 export function DashboardDisclosure({
   id,
   title,
@@ -19,7 +38,9 @@ export function DashboardDisclosure({
   isNew = false,
   children,
 }: DashboardDisclosureProps) {
+  // Generate corresponding panel ID for aria-controls linkage
   const panelId = id + "-panel";
+
 
   return (
     <section

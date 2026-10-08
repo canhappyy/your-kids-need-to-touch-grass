@@ -38,29 +38,53 @@ function DashboardLoadingState() {
   );
 }
 
-/** Compact parent summary backed only by device-local activity records. */
+/**
+ * Main parent dashboard section assembling all tracking, goals, guidelines, and rewards.
+ *
+ * Architectural Design:
+ * - **100% Local Device Privacy:** All calculations (active minutes, streaks, variety preferences)
+ *   are performed client-side using completion logs stored strictly on the parent's device.
+ * - **State Coordination:**
+ *   1. Fetches completion logs via `useCompletedMissions`.
+ *   2. Determines active calendar reference date via `useDashboardDate`.
+ *   3. Queries wildlife badge catalog from PostgreSQL via `useSpeciesBadges`.
+ *   4. Evaluates streaks and unlocks via `useRewards`.
+ *   5. Aggregates weekly chart days, percentiles, and stats via `buildDashboardStats`.
+ *   6. Tracks accordion disclosure expansion and "NEW" badge notification via `useDashboardDisclosures`.
+ * - **Graceful Loading & Error Recovery:** Presents skeleton placeholders while loading and an
+ *   accessible retry alert if data fails to initialize.
+ *
+ * @returns The rendered parent dashboard section.
+ */
 export function DashboardSection() {
+  // Load completed missions from local device storage
   const { records, loading, error, refresh } = useCompletedMissions();
+  // Get active local reference date
   const currentDate = useDashboardDate();
+  // Load official species badges catalogue
   const {
     badges,
     loading: badgesLoading,
     error: badgesError,
   } = useSpeciesBadges();
+  // Compute rewards, streak, and unlocked badge IDs
   const {
     rewards,
     loading: rewardsLoading,
     error: rewardsError,
     refresh: refreshRewards,
   } = useRewards(records, currentDate, badges);
+  // Aggregate statistics for daily goals, 7-day chart, and ABS guidelines
   const stats = useMemo(
     () => buildDashboardStats(records, currentDate),
     [records, currentDate],
   );
+  // Manage expandable accordions and new badge notifications
   const { openSections, hasNewBadges, toggleSection } = useDashboardDisclosures(
     rewards.unlockedBadgeIds,
   );
 
+  // Combined retry handler re-triggering storage and reward refreshes
   const handleRetry = () => {
     refresh();
     refreshRewards();
@@ -73,6 +97,7 @@ export function DashboardSection() {
       {loading || rewardsLoading || badgesLoading ? (
         <DashboardLoadingState />
       ) : error || rewardsError || badgesError ? (
+
         <Card className="border border-red-200 bg-white/55 shadow-sm ring-0">
           <CardContent className="py-4">
             <HistoryErrorAlert

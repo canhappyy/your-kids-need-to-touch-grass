@@ -3,12 +3,27 @@ import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { RewardState } from "@/types/reward";
 
+/**
+ * Properties for the `StreakCard` component.
+ */
 type StreakCardProps = {
+  /** Reward state object containing current active streak and total earned achievements. */
   rewards: RewardState;
 };
 
-/** Current consecutive activity streak with non-judgmental guidance. */
+/**
+ * Visual highlight card showcasing the child's consecutive days of activity.
+ *
+ * Designed with positive, supportive messaging rather than harsh streak-breaking pressure:
+ * - Shows an illuminated flame icon and bold streak day count when active.
+ * - Displays motivational encouragement ("Each active day builds a great play habit!").
+ * - If streak is 0, gives a friendly prompt to complete a mission today.
+ *
+ * @param props - Component properties containing reward and streak data.
+ * @returns The rendered streak status card.
+ */
 export function StreakCard({ rewards }: StreakCardProps) {
+  // Flag indicating if the streak is greater than 0
   const active = rewards.currentStreak > 0;
 
   return (
@@ -16,6 +31,7 @@ export function StreakCard({ rewards }: StreakCardProps) {
       className="mb-6 border border-[#93AB63]/60 bg-white/55 shadow-sm ring-0"
       data-streak-active={active}
     >
+
       <CardContent className="flex items-center gap-4 sm:gap-5">
         <span
           className={cn(

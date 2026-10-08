@@ -4,12 +4,29 @@ import {
 } from "@/data/australian-activity-reference";
 import type { DashboardStats } from "@/types/dashboard";
 
+/**
+ * Properties for the `NationalGuidelines` comparison component.
+ */
 type NationalGuidelinesProps = {
+  /** Aggregated dashboard statistics containing PlayGo average active minutes and age-specific national figures. */
   stats: DashboardStats;
 };
 
-/** Published national figures beside this device's PlayGo-only averages. */
+/**
+ * Comparative benchmark panel comparing child's PlayGo activity against published Australian health standards.
+ *
+ * Sources:
+ * - Australian Bureau of Statistics (ABS) National Nutrition and Physical Activity Survey.
+ * - Department of Health Australian Physical Activity Guidelines (60 minutes of moderate-to-vigorous activity daily).
+ *
+ * Clearly discloses that all app calculations originate strictly from local on-device logs,
+ * maintaining transparent data governance without server-side user tracking.
+ *
+ * @param props - Component properties containing statistics and benchmark comparisons.
+ * @returns The rendered guidelines comparison card.
+ */
 export function NationalGuidelines({ stats }: NationalGuidelinesProps) {
+
   const figures = [
     {
       label: "PlayGo active time",
