@@ -18,7 +18,7 @@ export const PLANNER_CHANGE_EVENT = "playgo:planner-change";
  * Friendly error message displayed when a user attempts to plan an activity beyond the allowed 1-year window.
  */
 export const PLANNING_WINDOW_MESSAGE =
-  "Activities can only be planned up to 365 days in advance.";
+  "Activities can only be planned up to 12 months in advance.";
 
 /**
  * Minimal storage interface contract required for reading, writing, and clearing planned activities.

@@ -54,17 +54,16 @@ beforeEach(() => {
 });
 
 describe("activity planner", () => {
-  it("renders branding, calendar views, holidays, and empty details", () => {
+  it("renders branding, calendar views, and the weekly view by default", () => {
     const markup = renderToStaticMarkup(createElement(PlannerSection));
 
     expect(markup).toContain("PlayGo &amp; Co");
     expect(markup).toContain("Activity planner");
     expect(markup).toContain("Month");
     expect(markup).toContain("Week");
-    expect(markup).toContain('aria-label="Monthly activity planner"');
-    expect(markup).toContain("Victorian school holidays");
-    expect(markup).toContain("Nothing planned yet");
+    expect(markup).toContain('aria-label="Weekly activity planner"');
     expect(markup).toContain("Add activity");
+    expect(markup.indexOf(">Week<")).toBeLessThan(markup.indexOf(">Month<"));
   });
 
   it("shows planned activity details and a remove control", () => {
@@ -75,7 +74,7 @@ describe("activity planner", () => {
     expect(markup).toContain("30 min");
     expect(markup).toContain("At home");
     expect(markup).toContain("Remove");
-    expect(markup).toContain("1 planned activity");
+    expect(markup).toContain('aria-label="Weekly activity planner"');
   });
 
   it("renders a Monday to Sunday weekly agenda with Add activity and Remove buttons", () => {
@@ -112,7 +111,7 @@ describe("activity planner", () => {
 
     expect(markup).toContain("disabled");
     expect(markup).toContain(
-      "Activities can only be planned up to 365 days in advance.",
+      "Activities can only be planned up to 12 months in advance.",
     );
   });
 

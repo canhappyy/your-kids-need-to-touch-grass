@@ -53,7 +53,7 @@ describe("planned activity storage", () => {
     expect(readPlannedActivities(store)).toHaveLength(1);
   });
 
-  it("accepts exactly 365 days and rejects dates outside the window", () => {
+  it("accepts exactly 12 months and rejects dates outside the window", () => {
     const store = storage();
     expect(
       savePlannedActivity(activity("boundary", "2027-10-04"), store, now),
