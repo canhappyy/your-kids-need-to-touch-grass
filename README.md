@@ -121,3 +121,31 @@ Move into the web application and start the development server:
 cd apps/web
 npm run dev
 ```
+
+## 5. Generate the Species Badge Dataset
+
+The badge pipeline writes the database-ready definitions used by the rewards UI to:
+
+```text
+pipeline/data/processed/species_badge_db.csv
+```
+
+Install the Python dependencies and provide an Atlas of Living Australia email:
+
+```powershell
+pip install galah pandas
+$env:GALAH_EMAIL="your-email@example.com"
+python pipeline/src/species_pipeline.py
+```
+
+The generated CSV includes the badge rule metadata, descriptions, earned and
+locked SVG filenames, and controlled progression fields:
+
+- `unlock_priority` determines which eligible badge is released next.
+- `unlock_tier` groups badges into progression stages.
+
+The script verifies all configured species against the ALA response, preserves
+the application’s deterministic row and column order, and writes the output
+relative to the repository instead of depending on the current working
+directory. If the schema or seed data has changed, rebuild the local database
+with `docker compose down -v` followed by `docker compose up -d`.
