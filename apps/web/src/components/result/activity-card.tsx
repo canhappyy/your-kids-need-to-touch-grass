@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Bookmark, RotateCw } from "lucide-react";
+import { Bookmark, FlipHorizontal } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -117,9 +117,9 @@ export function ActivityCard({
               <div>
                 <div className="mb-2 flex items-center justify-between">
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-[#93AB63]/40 bg-[#F4F7E9] px-2.5 py-0.5 text-xs font-semibold text-[#728A46] shadow-2xs">
-                    <RotateCw
+                    <FlipHorizontal
                       aria-hidden="true"
-                      className="size-3 transition-transform duration-300 group-hover:rotate-45"
+                      className="size-3 transition-transform duration-300 group-hover:scale-110"
                     />
                     <span>How to Play</span>
                   </span>
@@ -199,8 +199,8 @@ export function ActivityCard({
                     </p>
                   </div>
                 </div>
-                <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#93AB63]/40 bg-[#F4F7E9] px-2.5 py-0.5 text-xs font-semibold text-[#728A46] shadow-2xs">
-                  <RotateCw aria-hidden="true" className="size-3" />
+                <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[#93AB63]/40 bg-[#F4F7E9] px-2.5 py-0.5 text-xs font-semibold text-[#728A46] shadow-2xs">
+                  <FlipHorizontal aria-hidden="true" className="size-3" />
                   <span>Details</span>
                 </span>
               </div>

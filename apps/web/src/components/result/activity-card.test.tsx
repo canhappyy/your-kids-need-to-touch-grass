@@ -174,5 +174,20 @@ describe("ActivityCard", () => {
     expect(markup).toContain("42% of the 60-minute daily goal");
     expect(markup).toContain('data-slot="progress"');
   });
-});
 
+  it("renders flip icon on How to Play and Details badges instead of reload icon", () => {
+    const markup = renderToStaticMarkup(
+      createElement(ActivityCard, {
+        recommendation: mockRecommendation,
+        formattedDuration: "25 mins",
+        formattedTotalDuration: "35 mins",
+        formattedCommuteDuration: "10 mins",
+        locationLabel: "Gardners Creek Reserve",
+        isHomeBased: false,
+      }),
+    );
+
+    expect(markup).not.toContain("lucide-rotate-cw");
+    expect(markup).toContain("lucide-square-centerline-dashed-horizontal");
+  });
+});
