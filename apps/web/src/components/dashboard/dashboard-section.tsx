@@ -43,16 +43,16 @@ export function DashboardSection() {
   const { records, loading, error, refresh } = useCompletedMissions();
   const currentDate = useDashboardDate();
   const {
-    rewards,
-    loading: rewardsLoading,
-    error: rewardsError,
-    refresh: refreshRewards,
-  } = useRewards(records, currentDate);
-  const {
     badges,
     loading: badgesLoading,
     error: badgesError,
   } = useSpeciesBadges();
+  const {
+    rewards,
+    loading: rewardsLoading,
+    error: rewardsError,
+    refresh: refreshRewards,
+  } = useRewards(records, currentDate, badges);
   const stats = useMemo(
     () => buildDashboardStats(records, currentDate),
     [records, currentDate],

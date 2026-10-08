@@ -77,6 +77,8 @@ export type RecommendationCandidate = RecommendationTiming & {
   supervisionLevel: SupervisionLevel;
   /** Variety classifications used for local dashboard summaries. */
   varietyTags: string[];
+  /** Social play classification used for reward eligibility. */
+  socialTag?: string;
   /** Venue details if location-based, or null for home/agnostic activities. */
   venue: RecommendationVenue | null;
 };
@@ -146,6 +148,8 @@ export type Recommendation = RecommendationTiming & {
   supervisionLevel: SupervisionLevel;
   /** Variety classifications used for local dashboard summaries. */
   varietyTags: string[];
+  /** Social play classification used for reward eligibility. */
+  socialTag?: string;
   /** Explanatory match reasons why this activity was chosen. */
   reasons: MatchReason[];
   /** Associated open space venue if location-based, otherwise null. */

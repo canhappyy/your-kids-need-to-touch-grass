@@ -22,4 +22,6 @@ export type CompletedMission = {
   walkingDistanceKm?: number;
   /** Activity variety classifications captured for local summaries. */
   varietyTags?: string[];
+  /** Social play classification captured for reward eligibility. */
+  socialTag?: string;
 };

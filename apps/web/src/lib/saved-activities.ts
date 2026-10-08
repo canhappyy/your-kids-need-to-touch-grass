@@ -169,6 +169,8 @@ export function moveSavedToCompleted(
     childAgeRange: target.childAgeRange,
     walkingDistanceKm: target.walkingDistanceKm,
     varietyTags: target.varietyTags,
+    socialTag: target.socialTag,
+    socialTag: target.socialTag,
   };
 
   try {

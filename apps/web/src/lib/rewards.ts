@@ -110,6 +110,44 @@ function persistRewards(state: RewardState, store: RewardStorage): void {
   if (store.getItem(REWARDS_KEY) !== serialized) {
     store.setItem(REWARDS_KEY, serialized);
   }
+
+}
+
+function hasEarnedBadge(
+  badge: MilestoneBadge,
+  records: CompletedMission[],
+  longestRun: number,
+): boolean {
+    const target = badge.targetValue?.trim().toLowerCase();
+    switch (badge.targetMetric) {
+      case "consecutive_days":
+        return longestRun >= Number(badge.targetValue);
+      case "duration_minutes":
+        return (
+          records.reduce((total, record) => total + record.durationMinutes, 0) >=
+          Number(badge.targetValue)
+        );
+      case "total_activities":
+        return records.length >= Number(badge.targetValue);
+      case "daily_activities": {
+        const counts = new Map<string, number>();
+        for (const record of records) {
+          const date = localDateKey(new Date(record.completedAt));
+          counts.set(date, (counts.get(date) ?? 0) + 1);
+        }
+        return Math.max(0, ...counts.values()) >= Number(badge.targetValue);
+      }
+      case "variety_tag":
+        return records.some((record) =>
+          record.varietyTags?.some((tag) => tag.trim().toLowerCase() === target),
+        );
+      case "social_tag":
+        return records.some(
+          (record) => record.socialTag?.trim().toLowerCase() === target,
+        );
+      default:
+        return false;
+  }
 }
 
 /** Rebuilds streak data from completion history while preserving earned badges. */
@@ -130,7 +168,10 @@ export function reconcileRewards(
   const unlocked = new Set<string>(existing?.unlockedBadgeIds ?? []);
 
   for (const badge of badges) {
-    if (badge.milestoneDays > 0 && longestRun >= badge.milestoneDays) {
+    if (
+      (badge.milestoneDays > 0 && longestRun >= badge.milestoneDays) ||
+      hasEarnedBadge(badge, records, longestRun)
+    ) {
       unlocked.add(badge.id);
     }
   }

@@ -84,6 +84,7 @@ export function useSaveActivity(
             ) / 100
           : 0,
         varietyTags: recommendation.varietyTags,
+        socialTag: recommendation.socialTag,
       });
 
       setError("");
