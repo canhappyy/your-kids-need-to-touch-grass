@@ -142,15 +142,22 @@ CREATE TABLE ACTIVITY (
  CREATE TABLE BADGE_TYPE (
     type_name VARCHAR(50) PRIMARY KEY
 );
-INSERT INTO BADGE_TYPE (type_name) VALUES 
-('streak'), ('variety'), ('milestone'), ('frequency'), ('duration'), ('social'), ('discovery');
+INSERT INTO BADGE_TYPE (type_name) VALUES
+('Streak'), ('Variety Tag'), ('Milestone');
 -- The different logic mechanics used to earn a species badge.
 
 CREATE TABLE SPECIES_BADGE (
     vernacular_name VARCHAR(100) PRIMARY KEY,
     badge_type      VARCHAR(50) NOT NULL,
-    target_metric   VARCHAR(50) NOT NULL,
-    target_value    VARCHAR(50) NOT NULL,
+    requirement     VARCHAR(100) NOT NULL,
+    badge_id        VARCHAR(100) NOT NULL UNIQUE,
+    rule_type       VARCHAR(50) NOT NULL,
+    rule_field      VARCHAR(50),
+    rule_operator   VARCHAR(20) NOT NULL,
+    rule_value      VARCHAR(100) NOT NULL,
+    description     TEXT NOT NULL,
+    image_earned    VARCHAR(255) NOT NULL,
+    image_locked    VARCHAR(255) NOT NULL,
     CONSTRAINT fk_badge_type FOREIGN KEY (badge_type) REFERENCES BADGE_TYPE(type_name) ON UPDATE CASCADE ON DELETE RESTRICT
 );
 -- One row per collectible species badge. badge_type defines how it is earned,

@@ -3,8 +3,15 @@ import pool from "@/lib/db";
 export type RawSpeciesBadge = {
   vernacular_name: string;
   badge_type: string;
-  target_metric: string;
-  target_value: string;
+  requirement: string;
+  badge_id: string;
+  rule_type: string;
+  rule_field: string | null;
+  rule_operator: string;
+  rule_value: string;
+  description: string;
+  image_earned: string;
+  image_locked: string;
 };
 
 /**
@@ -18,8 +25,15 @@ export async function findAllSpeciesBadges(): Promise<RawSpeciesBadge[]> {
     SELECT
       vernacular_name,
       badge_type,
-      target_metric,
-      target_value
+      requirement,
+      badge_id,
+      rule_type,
+      rule_field,
+      rule_operator,
+      rule_value,
+      description,
+      image_earned,
+      image_locked
     FROM species_badge
     ORDER BY vernacular_name;
   `);

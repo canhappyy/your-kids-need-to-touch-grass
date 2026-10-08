@@ -117,11 +117,11 @@ describe("activity streak rewards", () => {
       },
     ];
     const badges = [
-      { id: "duration", milestoneDays: 0, speciesName: "A", icon: "", targetMetric: "duration_minutes", targetValue: "60" },
-      { id: "total", milestoneDays: 0, speciesName: "B", icon: "", targetMetric: "total_activities", targetValue: "2" },
-      { id: "daily", milestoneDays: 0, speciesName: "C", icon: "", targetMetric: "daily_activities", targetValue: "2" },
-      { id: "variety", milestoneDays: 0, speciesName: "D", icon: "", targetMetric: "variety_tag", targetValue: "creativity" },
-      { id: "social", milestoneDays: 0, speciesName: "E", icon: "", targetMetric: "social_tag", targetValue: "family" },
+      { id: "duration", milestoneDays: 0, speciesName: "A", icon: "", ruleType: "first_matching_activity", ruleField: "duration_minutes", ruleOperator: "gte", ruleValue: "30" },
+      { id: "total", milestoneDays: 0, speciesName: "B", icon: "", ruleType: "total_completed", ruleOperator: "gte", ruleValue: "2" },
+      { id: "daily", milestoneDays: 0, speciesName: "C", icon: "", ruleType: "completed_in_one_day", ruleOperator: "gte", ruleValue: "2" },
+      { id: "variety", milestoneDays: 0, speciesName: "D", icon: "", ruleType: "first_matching_activity", ruleField: "variety_tags", ruleOperator: "contains", ruleValue: "creativity" },
+      { id: "social", milestoneDays: 0, speciesName: "E", icon: "", ruleType: "first_matching_activity", ruleField: "social_tag", ruleOperator: "equals", ruleValue: "family" },
     ];
 
     const state = reconcileRewards(

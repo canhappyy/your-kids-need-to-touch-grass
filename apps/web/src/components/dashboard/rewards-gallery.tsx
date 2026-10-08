@@ -61,22 +61,9 @@ function BadgeFace({
 }
 
 function getBadgeExplanation(badge: MilestoneBadge): string {
-  if (badge.targetMetric === "consecutive_days") {
-    return `Complete activities for ${badge.targetValue} consecutive days`;
-  }
-  if (badge.milestoneDays > 0) {
-    return `${badge.milestoneDays} day streak`;
-  }
-  if (badge.targetMetric === "duration_minutes") {
-    return `Complete ${badge.targetValue} minutes of activity`;
-  }
-  if (badge.targetMetric === "total_activities") {
-    return `Complete ${badge.targetValue} activity`;
-  }
-  if (badge.targetMetric === "daily_activities") {
-    return `Complete ${badge.targetValue} activities in one day`;
-  }
-  return `Complete a ${badge.targetValue} activity`;
+  if (badge.description) return badge.description;
+  if (badge.milestoneDays > 0) return `${badge.milestoneDays} day streak`;
+  return badge.requirement ?? "Complete the activity goal";
 }
 
 function isBadgeUnlocked(badge: MilestoneBadge, unlocked: Set<string>): boolean {

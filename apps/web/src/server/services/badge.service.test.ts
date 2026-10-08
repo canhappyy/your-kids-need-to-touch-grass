@@ -14,22 +14,31 @@ describe("badge.service", () => {
     const raw = {
       vernacular_name: "Saltwater Crocodile",
       badge_type: "streak",
-      target_metric: "consecutive_days",
-      target_value: "7",
+      requirement: "7",
+      badge_id: "saltwater_crocodile",
+      rule_type: "streak_days",
+      rule_field: null,
+      rule_operator: "gte",
+      rule_value: "7",
+      description: "A whole week of play in a row!",
+      image_earned: "saltwater_crocodile.svg",
+      image_locked: "saltwater_crocodile_locked.svg",
     };
 
     const formatted = formatSpeciesBadge(raw);
 
     expect(formatted).toEqual({
-      id: "saltwater-crocodile",
+      id: "saltwater_crocodile",
       milestoneDays: 7,
       speciesName: "Saltwater Crocodile",
       icon: "saltwater_crocodile.svg",
       lockedIcon: "saltwater_crocodile_locked.svg",
       category: "streak",
       requirement: "7",
-      targetMetric: "consecutive_days",
-      targetValue: "7",
+      ruleType: "streak_days",
+      ruleOperator: "gte",
+      ruleValue: "7",
+      description: "A whole week of play in a row!",
     });
   });
 
@@ -37,29 +46,49 @@ describe("badge.service", () => {
     const raw = {
       vernacular_name: "Sugar Glider",
       badge_type: "variety",
-      target_metric: "variety_tag",
-      target_value: "Quiet",
+      requirement: "Quiet",
+      badge_id: "sugar_glider",
+      rule_type: "first_matching_activity",
+      rule_field: "variety_tags",
+      rule_operator: "contains",
+      rule_value: "Quiet",
+      description: "You tried your first quiet activity.",
+      image_earned: "sugar_glider.svg",
+      image_locked: "sugar_glider_locked.svg",
     };
 
     const formatted = formatSpeciesBadge(raw);
 
     expect(formatted).toEqual({
-      id: "sugar-glider",
+      id: "sugar_glider",
       milestoneDays: 0,
       speciesName: "Sugar Glider",
       icon: "sugar_glider.svg",
       lockedIcon: "sugar_glider_locked.svg",
       category: "variety",
       requirement: "Quiet",
-      targetMetric: "variety_tag",
-      targetValue: "Quiet",
+      ruleType: "first_matching_activity",
+      ruleField: "variety_tags",
+      ruleOperator: "contains",
+      ruleValue: "Quiet",
+      description: "You tried your first quiet activity.",
     });
   });
 
   it("calls repository and returns all formatted badges", async () => {
     findAllSpeciesBadges.mockResolvedValue([
-      { vernacular_name: "Koala", badge_type: "streak", target_metric: "consecutive_days", target_value: "3" },
-      { vernacular_name: "Green Turtle", badge_type: "streak", target_metric: "consecutive_days", target_value: "5" },
+      {
+        vernacular_name: "Koala", badge_type: "streak", requirement: "3",
+        badge_id: "koala", rule_type: "streak_days", rule_field: null,
+        rule_operator: "gte", rule_value: "3", description: "Three days!",
+        image_earned: "koala.svg", image_locked: "koala_locked.svg",
+      },
+      {
+        vernacular_name: "Green Turtle", badge_type: "streak", requirement: "5",
+        badge_id: "green_turtle", rule_type: "streak_days", rule_field: null,
+        rule_operator: "gte", rule_value: "5", description: "Five days!",
+        image_earned: "green_turtle.svg", image_locked: "green_turtle_locked.svg",
+      },
     ]);
 
     const badges = await getAllSpeciesBadges();

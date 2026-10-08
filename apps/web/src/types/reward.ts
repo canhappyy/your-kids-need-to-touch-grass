@@ -21,6 +21,9 @@ export type MilestoneBadge = {
   lockedIcon?: string;
   category?: string;
   requirement?: string;
-  targetMetric?: string;
-  targetValue?: string;
+  ruleType?: string;
+  ruleField?: string;
+  ruleOperator?: string;
+  ruleValue?: string;
+  description?: string;
 };

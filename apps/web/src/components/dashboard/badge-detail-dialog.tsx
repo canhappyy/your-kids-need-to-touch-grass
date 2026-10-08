@@ -15,11 +15,10 @@ type BadgeDetailDialogProps = {
 /** Details for one earned Australian wildlife badge. */
 export function BadgeDetailDialog({ badge }: BadgeDetailDialogProps) {
   const description =
-    badge.targetMetric === "consecutive_days"
-      ? `Earned by completing activities for ${badge.targetValue} consecutive days.`
-      : badge.milestoneDays > 0
-        ? `Earned for a ${badge.milestoneDays}-day activity streak.`
-      : `Earned by completing ${badge.targetValue} qualifying activity.`;
+    badge.description ??
+    (badge.milestoneDays > 0
+      ? `Earned for a ${badge.milestoneDays}-day activity streak.`
+      : badge.requirement ?? "Activity goal completed.");
 
   return (
     <DialogContent className="rounded-2xl border-[#D9C99E] bg-[#FDF6EA] p-6 text-center sm:max-w-sm">

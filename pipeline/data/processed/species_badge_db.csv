@@ -1,16 +1,16 @@
-vernacular_name,badge_type,target_metric,target_value
-Rainbow Lorikeet,discovery,variety_tag,Coordination
-Sulphur-crested Cockatoo,social,social_tag,Group/Family
-Koala,streak,consecutive_days,3
-Green Turtle,streak,consecutive_days,5
-Short-beaked Echidna,duration,duration_minutes,15
-Blue-winged Kookaburra,discovery,variety_tag,Creative
-Saltwater Crocodile,streak,consecutive_days,7
-Red Kangaroo,streak,consecutive_days,14
-Dingo,variety,variety_tag,Exploration
-Southern Emu-wren,discovery,variety_tag,Nature
-Tasmanian Devil,variety,variety_tag,Energised Activity
-Sugar Glider,variety,variety_tag,Quiet
-Platypus,milestone,total_activities,1
-Australian Hump-backed Dolphin,variety,variety_tag,Water Play
-Quokka,frequency,daily_activities,2
+Vernacular Name,Badge Category,Requirement,badge_id,rule_type,rule_field,rule_operator,rule_value,description,image_earned,image_locked
+Koala,Streak,3,koala,streak_days,,gte,3,You played 3 days in a row!,koala.svg,koala_locked.svg
+Green Turtle,Streak,5,green_turtle,streak_days,,gte,5,You played 5 days in a row!,green_turtle.svg,green_turtle_locked.svg
+Saltwater Crocodile,Streak,7,saltwater_crocodile,streak_days,,gte,7,A whole week of play in a row!,saltwater_crocodile.svg,saltwater_crocodile_locked.svg
+Red Kangaroo,Streak,14,red_kangaroo,streak_days,,gte,14,Two weeks of play in a row!,red_kangaroo.svg,red_kangaroo_locked.svg
+Sugar Glider,Variety Tag,Quiet,sugar_glider,first_matching_activity,variety_tags,contains,Quiet,You tried your first quiet activity.,sugar_glider.svg,sugar_glider_locked.svg
+Tasmanian Devil,Variety Tag,Energised Activity,tasmanian_devil,first_matching_activity,variety_tags,contains,Energised Activity,You tried your first energised activity.,tasmanian_devil.svg,tasmanian_devil_locked.svg
+Dingo,Variety Tag,Exploration,dingo,first_matching_activity,variety_tags,contains,Exploration,You went on your first exploration.,dingo.svg,dingo_locked.svg
+Australian Hump-backed Dolphin,Variety Tag,Water Play,humpback_dolphin,first_matching_activity,variety_tags,contains,Water Play,You tried your first water play activity.,humpback_dolphin.svg,humpback_dolphin_locked.svg
+Platypus,Milestone,First Activity,platypus,total_completed,,gte,1,You finished your very first activity!,platypus.svg,platypus_locked.svg
+Quokka,Milestone,Two In One Day,quokka,completed_in_one_day,,gte,2,You did two activities in one day!,quokka.svg,quokka_locked.svg
+Short-beaked Echidna,Milestone,15 Minutes Or Less,echidna,first_matching_activity,duration_minutes,lte,15,You finished a quick activity.,echidna.svg,echidna_locked.svg
+Sulphur-crested Cockatoo,Milestone,Group/Family,cockatoo,first_matching_activity,social_tag,equals,Group/Family,You played together with others.,cockatoo.svg,cockatoo_locked.svg
+Southern Emu-wren,Milestone,Nature,emu_wren,first_matching_activity,variety_tags,contains,Nature,You tried your first nature activity.,emu_wren.svg,emu_wren_locked.svg
+Blue-winged Kookaburra,Milestone,Creative,kookaburra,first_matching_activity,variety_tags,contains,Creative,You tried your first creative activity.,kookaburra.svg,kookaburra_locked.svg
+Rainbow Lorikeet,Milestone,Coordination,rainbow_lorikeet,first_matching_activity,variety_tags,contains,Coordination,You tried your first coordination activity.,rainbow_lorikeet.svg,rainbow_lorikeet_locked.svg
