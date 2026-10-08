@@ -7,7 +7,6 @@ import { ActivityActions } from "./activity-actions";
 import { ActivityCard } from "./activity-card";
 import { ActivityHeader } from "./activity-header";
 import { ActivityProgress } from "./activity-progress";
-import { MissionCompletion } from "./mission-completion";
 
 /**
  * Renders the single recommended activity result view, displaying flippable activity details,
@@ -49,11 +48,13 @@ function ActivityResult({
       <ActivityHeader title={recommendation.title} />
 
       <ActivityCard
+        childAgeRange={childAgeRange}
         formattedCommuteDuration={formattedCommuteDuration}
         formattedDuration={formattedDuration}
         formattedTotalDuration={formattedTotalDuration}
         isHomeBased={isHomeBased}
         locationLabel={locationLabel}
+        planDate={planDate}
         recommendation={recommendation}
       />
 
@@ -64,14 +65,6 @@ function ActivityResult({
       />
 
       <ActivityActions
-        completionControl={
-          <MissionCompletion
-            isRetrying={isRetrying}
-            planDate={planDate}
-            childAgeRange={childAgeRange}
-            recommendation={recommendation}
-          />
-        }
         directionsUrl={directionsUrl}
         isRetrying={isRetrying}
         onTryAnother={onTryAnother}

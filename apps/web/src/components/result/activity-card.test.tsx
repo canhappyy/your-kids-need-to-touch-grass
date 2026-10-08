@@ -121,4 +121,21 @@ describe("ActivityCard", () => {
       "absolute inset-0 h-full w-full backface-hidden rotate-y-180",
     );
   });
+
+  it("renders Instagram-style bookmark save icon at the top right corner", () => {
+    const markup = renderToStaticMarkup(
+      createElement(ActivityCard, {
+        recommendation: mockRecommendation,
+        formattedDuration: "25 mins",
+        formattedTotalDuration: "35 mins",
+        formattedCommuteDuration: "10 mins",
+        locationLabel: "Gardners Creek Reserve",
+        isHomeBased: false,
+      }),
+    );
+
+    expect(markup).toContain('aria-label="Save activity"');
+    expect(markup).toContain("lucide-bookmark");
+  });
 });
+

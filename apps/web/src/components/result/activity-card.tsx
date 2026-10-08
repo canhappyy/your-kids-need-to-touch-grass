@@ -2,15 +2,18 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { RotateCw } from "lucide-react";
+import { Bookmark, RotateCw } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { useSaveActivity } from "@/hooks/use-save-activity";
 import { getEquipmentList, getMissionSteps } from "@/lib/mission-instructions";
 import { cn } from "@/lib/utils";
 import type { Recommendation } from "@/types/recommendation";
 
 import { ActivityDetails } from "./activity-details";
+import { PlannerSaveDialog } from "./planner-save-dialog";
+import { SaveOptionsDialog } from "./save-options-dialog";
 
 export type ActivityCardProps = {
   recommendation: Recommendation;
@@ -19,11 +22,14 @@ export type ActivityCardProps = {
   formattedCommuteDuration: string | null;
   locationLabel: string;
   isHomeBased: boolean;
+  planDate?: string;
+  childAgeRange?: [number, number];
 };
 
 /**
  * Interactive card displaying activity details on the front and instructions on the back,
  * flipping smoothly with a 3D animation while preserving identical dimensions before and after.
+ * Includes an Instagram-style bookmark save icon at the top right to choose between saving to backlog or planner.
  */
 export function ActivityCard({
   recommendation,
@@ -32,11 +38,38 @@ export function ActivityCard({
   formattedCommuteDuration,
   locationLabel,
   isHomeBased,
+  planDate,
+  childAgeRange,
 }: ActivityCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
+  const [showSaveOptions, setShowSaveOptions] = useState(false);
+  const [showPlannerDialog, setShowPlannerDialog] = useState(false);
+  const [isPlannedSaved, setIsPlannedSaved] = useState(false);
+
+  const { save: saveToBacklog, isSaved: isBacklogSaved } = useSaveActivity(
+    recommendation,
+    false,
+    childAgeRange,
+  );
+
+  const isSaved = isBacklogSaved || isPlannedSaved;
 
   const steps = getMissionSteps(recommendation.instructionText);
   const equipmentItems = getEquipmentList(recommendation.equipmentNeeded);
+
+  const handleSaveToBacklog = () => {
+    saveToBacklog();
+    setShowSaveOptions(false);
+  };
+
+  const handleOpenPlanner = () => {
+    setShowSaveOptions(false);
+    setShowPlannerDialog(true);
+  };
+
+  const handlePlannerSaved = () => {
+    setIsPlannedSaved(true);
+  };
 
   return (
     <div className="group relative mt-6 w-full perspective-1000">
@@ -66,6 +99,45 @@ export function ActivityCard({
           <Card className="min-h-[380px] sm:min-h-[400px] flex flex-col justify-between border border-[#93AB63]/60 bg-white/70 shadow-sm ring-0 transition-all group-hover:border-[#93AB63] group-hover:shadow-md">
             <CardContent className="flex flex-1 flex-col justify-between p-5 sm:p-6">
               <div>
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-[#93AB63]/40 bg-[#F4F7E9] px-2.5 py-0.5 text-xs font-semibold text-[#728A46] shadow-2xs">
+                    <RotateCw
+                      aria-hidden="true"
+                      className="size-3 transition-transform duration-300 group-hover:rotate-45"
+                    />
+                    <span>How to Play</span>
+                  </span>
+
+                  {/* Instagram-style Save Bookmark Icon */}
+                  <button
+                    type="button"
+                    aria-label={isSaved ? "Saved activity" : "Save activity"}
+                    title={isSaved ? "Saved" : "Save activity"}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowSaveOptions(true);
+                    }}
+                    onKeyDown={(e) => {
+                      e.stopPropagation();
+                    }}
+                    className={cn(
+                      "flex size-9 items-center justify-center rounded-full transition-all duration-200",
+                      "hover:scale-110 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63]",
+                      isSaved
+                        ? "bg-[#93AB63]/15 text-[#728A46]"
+                        : "border border-zinc-200/60 bg-white/80 text-zinc-700 hover:bg-white hover:text-zinc-900 shadow-2xs",
+                    )}
+                  >
+                    <Bookmark
+                      aria-hidden="true"
+                      className={cn(
+                        "size-5 transition-colors",
+                        isSaved && "fill-[#93AB63] text-[#93AB63]",
+                      )}
+                    />
+                  </button>
+                </div>
+
                 <ActivityDetails
                   formattedCommuteDuration={formattedCommuteDuration}
                   formattedDuration={formattedDuration}
@@ -111,6 +183,10 @@ export function ActivityCard({
                     </p>
                   </div>
                 </div>
+                <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#93AB63]/40 bg-[#F4F7E9] px-2.5 py-0.5 text-xs font-semibold text-[#728A46] shadow-2xs">
+                  <RotateCw aria-hidden="true" className="size-3" />
+                  <span>Details</span>
+                </span>
               </div>
 
               <div
@@ -164,16 +240,34 @@ export function ActivityCard({
               </div>
 
               <div className="mt-2 flex items-center justify-center gap-1.5 rounded-lg border border-[#93AB63]/30 bg-[#93AB63]/10 px-3 py-1.5 text-xs font-semibold text-[#5b7234] transition-colors group-hover:bg-[#93AB63]/20">
-                <RotateCw
-                  aria-hidden="true"
-                  className="size-3.5 text-[#728A46]"
-                />
+                <RotateCw aria-hidden="true" className="size-3.5 text-[#728A46]" />
                 <span>Tap card to return to details</span>
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
+
+      {/* Save to Backlog or Planner popup */}
+      <SaveOptionsDialog
+        activityTitle={recommendation.title}
+        isBacklogSaved={isBacklogSaved}
+        isPlannerSaved={isPlannedSaved}
+        onOpenChange={setShowSaveOptions}
+        onOpenPlanner={handleOpenPlanner}
+        onSaveToBacklog={handleSaveToBacklog}
+        open={showSaveOptions}
+      />
+
+      {/* Planner Date Picker Modal */}
+      <PlannerSaveDialog
+        initialDateKey={planDate}
+        onOpenChange={setShowPlannerDialog}
+        onSaved={handlePlannerSaved}
+        open={showPlannerDialog}
+        recommendation={recommendation}
+        trigger={null}
+      />
     </div>
   );
 }

@@ -34,6 +34,10 @@ type PlannerSaveDialogProps = {
   recommendation: Recommendation;
   initialDateKey?: string;
   now?: Date;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  trigger?: React.ReactNode | null;
+  onSaved?: (dateKey: string) => void;
 };
 
 function newPlannerId(): string {
@@ -47,6 +51,10 @@ export function PlannerSaveDialog({
   recommendation,
   initialDateKey,
   now,
+  open: controlledOpen,
+  onOpenChange: setControlledOpen,
+  trigger,
+  onSaved,
 }: PlannerSaveDialogProps) {
   const currentDate = useDashboardDate();
   const referenceDate = now ?? currentDate;
@@ -55,7 +63,17 @@ export function PlannerSaveDialog({
   const [selectedDate, setSelectedDate] = useState(
     () => parseLocalDateKey(prefill ?? todayKey) ?? referenceDate,
   );
-  const [open, setOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : uncontrolledOpen;
+  const setOpen = (nextOpen: boolean) => {
+    if (isControlled) {
+      setControlledOpen?.(nextOpen);
+    } else {
+      setUncontrolledOpen(nextOpen);
+    }
+  };
+
   const [error, setError] = useState("");
   const [savedDate, setSavedDate] = useState("");
   const { minDateKey, maxDateKey } = getPlanningWindow(referenceDate);
@@ -78,6 +96,7 @@ export function PlannerSaveDialog({
       );
       savePlannedActivity(activity, window.localStorage, referenceDate);
       setSavedDate(plannedDate);
+      onSaved?.(plannedDate);
       setError("");
       setOpen(false);
     } catch (saveError) {
@@ -99,13 +118,21 @@ export function PlannerSaveDialog({
           if (nextOpen) setError("");
         }}
       >
-        <DialogTrigger
-          render={<Button type="button" size="lg" variant="outline" />}
-          className="h-12 w-full rounded-full border-[#93AB63] bg-white px-6 text-base font-bold text-[#728A46] hover:bg-[#EEF2E8] hover:text-[#728A46]"
-        >
-          <CalendarPlus />
-          Save to planner (do it later)
-        </DialogTrigger>
+        {trigger !== null && (
+          trigger !== undefined ? (
+            <DialogTrigger render={<button type="button" />}>
+              {trigger}
+            </DialogTrigger>
+          ) : (
+            <DialogTrigger
+              render={<Button type="button" size="lg" variant="outline" />}
+              className="h-12 w-full rounded-full border-[#93AB63] bg-white px-6 text-base font-bold text-[#728A46] hover:bg-[#EEF2E8] hover:text-[#728A46]"
+            >
+              <CalendarPlus />
+              Save to planner (do it later)
+            </DialogTrigger>
+          )
+        )}
         <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Choose a date</DialogTitle>
