@@ -115,8 +115,9 @@ describe("compact parent dashboard", () => {
     expect(markup).toContain("Activity time");
     expect(markup).toContain("Walking");
     expect(markup).toContain("Activities logged");
-    expect(markup).toContain("Nationwide ranking");
-    expect(markup.match(/avg per day/g)).toHaveLength(2);
+    expect(markup).toContain("Last week comparison");
+    expect(markup).toContain("current week avg/day");
+    expect(markup).toContain("last week avg/day");
     expect(markup).not.toContain("Daily View");
     expect(markup).not.toContain("Weekly Trends");
     expect(markup).not.toContain("26% of Australian children");

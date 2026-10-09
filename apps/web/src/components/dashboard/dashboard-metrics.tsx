@@ -1,4 +1,4 @@
-import { Activity, Footprints, ListChecks, Trophy } from "lucide-react";
+import { Activity, Footprints, Gauge, ListChecks } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import type { DashboardStats } from "@/types/dashboard";
 
@@ -15,24 +15,23 @@ const tileClass =
   "border border-[#93AB63]/60 bg-white/55 py-3 sm:py-3.5 shadow-sm ring-0";
 
 /**
- * Four all-time summary metric cards calculated strictly from local completion history.
+ * Four summary metric cards calculated strictly from local completion history.
  *
  * Displays a 2x2 grid of key engagement markers:
- * 1. **Activity Time:** Average daily active minutes across active days.
+ * 1. **Activity Time:** Current-week-to-date daily average active minutes.
  * 2. **Walking:** Estimated daily walking distance in kilometers based on park visits and missions.
  * 3. **Activities Logged:** Total count of completed missions stored on device.
- * 4. **Nationwide Ranking:** Percentile band comparing active minutes against published ABS child health benchmarks.
+ * 4. **Nationwide Ranking:** Percentile band comparing last week's daily average against published ABS benchmarks.
  *
  * @param props - Component properties containing aggregated stats.
  * @returns The rendered 2x2 metric cards grid.
  */
 export function DashboardMetrics({ stats }: DashboardMetricsProps) {
-
   const metrics = [
     {
       label: "Activity time",
-      value: stats.averageMinutesPerDay + " min",
-      detail: "avg per day",
+      value: stats.currentWeekAverageMinutes + " min",
+      detail: "current week avg/day",
       icon: Activity,
     },
     {
@@ -48,17 +47,20 @@ export function DashboardMetrics({ stats }: DashboardMetricsProps) {
       icon: ListChecks,
     },
     {
-      label: "Nationwide ranking",
+      label: "Last week comparison",
       value: stats.percentileBand ?? "—",
-      detail: "published reference",
-      icon: Trophy,
+      detail:
+        stats.previousWeekAverageMinutes === null
+          ? "last week avg/day"
+          : `last week: ${stats.previousWeekAverageMinutes} min/day`,
+      icon: Gauge,
     },
   ];
 
   return (
     <div
       className="grid grid-cols-2 gap-3 sm:gap-4"
-      aria-label="All-time activity metrics"
+      aria-label="Weekly activity metrics"
     >
       {metrics.map(({ label, value, detail, icon: Icon }) => (
         <Card className={tileClass} key={label}>

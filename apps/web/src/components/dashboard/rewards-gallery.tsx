@@ -1,4 +1,4 @@
-import { Lock, Sparkles, Target, Trophy } from "lucide-react";
+import { Check, Lock, Target, Trophy } from "lucide-react";
 import Image from "next/image";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { MILESTONE_BADGES } from "@/lib/rewards";
@@ -148,7 +148,7 @@ function BadgeFace({
  *
  * Visual Structure:
  * 1. **Collection Summary Banner:** Shows overall unlock progress (e.g., "5/12 Earned") with an animated progress bar.
- * 2. **Earned Section:** Badges that the child has earned, styled with golden gradient frames and sparkles.
+ * 2. **Earned Section:** Badges that the child has earned, styled with gradient frames and a check mark.
  *    Clicking an earned badge opens `BadgeDetailDialog` with full artwork and celebratory backstory.
  * 3. **Next Challenges Section:** Badges that remain locked, rendered with dashed borders, subtle lock icons,
  *    and clear requirements so families know what mission or streak to aim for next.
@@ -205,9 +205,9 @@ export function RewardsGallery({
           className={cardClassName}
           render={<button type="button" />}
         >
-          <Sparkles
+          <Check
             aria-hidden="true"
-            className="absolute right-2 top-2 size-3.5 text-[#E4633C] opacity-70"
+            className="absolute right-2 top-2 size-3.5 text-[#728A46]"
           />
           <BadgeFace badge={badge} unlocked />
         </DialogTrigger>

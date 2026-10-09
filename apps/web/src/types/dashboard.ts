@@ -34,6 +34,10 @@ export type DashboardStats = {
   todayMinutes: number;
   /** Total active play minutes logged across the entire 7-day window. */
   weeklyMinutes: number;
+  /** Average active play minutes per elapsed day in the current Monday-to-Sunday week. */
+  currentWeekAverageMinutes: number;
+  /** Average active play minutes per day in the preceding complete Monday-to-Sunday week. */
+  previousWeekAverageMinutes: number | null;
   /** Total number of days in the current 7-day window where the 60-minute daily activity goal was met. */
   daysMeetingGoal: number;
   /** Percentage of days in the window that met the daily 60-minute active play goal (0 to 100). */
@@ -54,6 +58,6 @@ export type DashboardStats = {
   referenceAgeLabel: string;
   /** Benchmark daily average active play minutes according to Australian national guidelines for the child's age group. */
   nationalAverageMinutes: number;
-  /** Comparative percentile band description relative to Australian national active play benchmarks. */
+  /** Comparative percentile band for the previous week's daily average relative to Australian national benchmarks. */
   percentileBand: string | null;
 };
