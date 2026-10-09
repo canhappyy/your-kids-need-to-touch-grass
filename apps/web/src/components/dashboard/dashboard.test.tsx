@@ -112,12 +112,14 @@ describe("compact parent dashboard", () => {
     for (const label of ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]) {
       expect(markup).toContain(label);
     }
-    expect(markup).toContain("Activity time");
+    expect(markup).toContain("Activity time this week");
     expect(markup).toContain("Walking");
     expect(markup).toContain("Activities logged");
-    expect(markup).toContain("Last week comparison");
-    expect(markup).toContain("current week avg/day");
-    expect(markup).toContain("last week avg/day");
+    expect(markup).toContain("Activity time last week");
+    expect(markup).toContain("135 min");
+    expect(markup).toContain("total");
+    expect(markup).toContain("avg/day");
+    expect(markup).not.toContain("No activity logged");
     expect(markup).not.toContain("Daily View");
     expect(markup).not.toContain("Weekly Trends");
     expect(markup).not.toContain("26% of Australian children");

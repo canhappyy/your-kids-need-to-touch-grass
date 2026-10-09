@@ -40,6 +40,7 @@ describe("dashboard activity statistics", () => {
       weeklyMinutes: 0,
       currentWeekAverageMinutes: 0,
       previousWeekAverageMinutes: null,
+      previousWeekMinutes: 0,
       activityCount: 0,
       averageMinutesPerDay: 0,
       averageWalkingKmPerDay: 0,
@@ -65,6 +66,7 @@ describe("dashboard activity statistics", () => {
     expect(stats.weeklyMinutes).toBe(105);
     expect(stats.currentWeekAverageMinutes).toBe(35);
     expect(stats.previousWeekAverageMinutes).toBe(13);
+    expect(stats.previousWeekMinutes).toBe(90);
   });
 
   it("calculates all-time averages from first through latest completion", () => {

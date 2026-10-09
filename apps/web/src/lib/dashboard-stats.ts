@@ -359,6 +359,7 @@ export function buildDashboardStats(
       ? Math.round(currentWeekMinutes / elapsedCurrentWeekDays)
       : 0,
     previousWeekAverageMinutes,
+    previousWeekMinutes,
     daysMeetingGoal,
     goalDayRate: Math.round((daysMeetingGoal / WEEK_DAY_COUNT) * 100),
     activityCount: completedRecords.length,

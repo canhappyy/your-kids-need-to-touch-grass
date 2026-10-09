@@ -38,6 +38,8 @@ export type DashboardStats = {
   currentWeekAverageMinutes: number;
   /** Average active play minutes per day in the preceding complete Monday-to-Sunday week. */
   previousWeekAverageMinutes: number | null;
+  /** Total active play minutes logged in the preceding complete Monday-to-Sunday week. */
+  previousWeekMinutes: number;
   /** Total number of days in the current 7-day window where the 60-minute daily activity goal was met. */
   daysMeetingGoal: number;
   /** Percentage of days in the window that met the daily 60-minute active play goal (0 to 100). */
