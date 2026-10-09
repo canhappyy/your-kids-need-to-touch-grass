@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Sparkles, Trophy } from "lucide-react";
+import { Trophy } from "lucide-react";
 import {
   DialogContent,
   DialogDescription,
@@ -20,7 +20,7 @@ type BadgeDetailDialogProps = {
  * Celebration modal dialog presenting full details and artwork for an earned wildlife badge.
  *
  * Displays:
- * 1. Celebration header with sparkles and trophy icons.
+ * 1. Celebration header with a trophy icon.
  * 2. High-resolution custom SVG artwork of the native Australian species (or emoji fallback).
  * 3. Species name (e.g. "Eastern Blue-Tongued Lizard", "Platypus").
  * 4. Milestone accomplishment story (e.g. streak length, missions completed).
@@ -42,7 +42,6 @@ export function BadgeDetailDialog({ badge }: BadgeDetailDialogProps) {
       <div className="mx-auto mb-2 inline-flex items-center gap-1.5 rounded-full bg-[#E4633C] px-3 py-1 text-xs font-bold uppercase tracking-wide text-white">
         <Trophy aria-hidden="true" className="size-3.5" />
         Badge earned
-        <Sparkles aria-hidden="true" className="size-3.5" />
       </div>
       {badge.icon.endsWith(".svg") ? (
         <Image

@@ -38,6 +38,9 @@ describe("dashboard activity statistics", () => {
       todayMinutes: 0,
       todayGoalPercentage: 0,
       weeklyMinutes: 0,
+      currentWeekAverageMinutes: 0,
+      previousWeekAverageMinutes: null,
+      previousWeekMinutes: 0,
       activityCount: 0,
       averageMinutesPerDay: 0,
       averageWalkingKmPerDay: 0,
@@ -61,6 +64,9 @@ describe("dashboard activity statistics", () => {
     expect(stats.todayMinutes).toBe(75);
     expect(stats.todayGoalPercentage).toBe(100);
     expect(stats.weeklyMinutes).toBe(105);
+    expect(stats.currentWeekAverageMinutes).toBe(35);
+    expect(stats.previousWeekAverageMinutes).toBe(13);
+    expect(stats.previousWeekMinutes).toBe(90);
   });
 
   it("calculates all-time averages from first through latest completion", () => {
@@ -81,6 +87,7 @@ describe("dashboard activity statistics", () => {
 
     expect(stats.activityCount).toBe(2);
     expect(stats.averageMinutesPerDay).toBe(40);
+    expect(stats.currentWeekAverageMinutes).toBe(0);
     expect(stats.averageWalkingKmPerDay).toBe(1.3);
     expect(stats.varietyTagCounts).toEqual([
       { name: "Exploration", count: 2 },
@@ -112,7 +119,8 @@ describe("dashboard activity statistics", () => {
 
     expect(stats.referenceAgeLabel).toBe("Ages 8–9");
     expect(stats.nationalAverageMinutes).toBe(100);
-    expect(stats.percentileBand).toMatch(/^\d+(st|nd|rd|th)–\d+(st|nd|rd|th) percentile$/);
+    expect(stats.previousWeekAverageMinutes).toBeNull();
+    expect(stats.percentileBand).toBeNull();
   });
 
   it("uses the overall reference for legacy records and ignores future records", () => {
@@ -127,6 +135,7 @@ describe("dashboard activity statistics", () => {
     expect(stats.activityCount).toBe(1);
     expect(stats.referenceAgeLabel).toBe("Ages 5–17");
     expect(stats.nationalAverageMinutes).toBe(85);
+    expect(stats.previousWeekAverageMinutes).toBeNull();
   });
 
   it("normalizes distribution bins into a neutral percentile range", () => {

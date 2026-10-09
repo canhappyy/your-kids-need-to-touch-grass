@@ -63,6 +63,24 @@ function currentWeekDates(now: Date): Date[] {
 }
 
 /**
+ * Generates the complete Monday-to-Sunday week immediately before the active week.
+ *
+ * @param now - Reference date determining the active week.
+ * @returns An array of 7 Date objects anchored at local midday.
+ */
+function previousWeekDates(now: Date): Date[] {
+  const dates = currentWeekDates(now);
+  const previousMonday = new Date(dates[0]);
+  previousMonday.setDate(previousMonday.getDate() - WEEK_DAY_COUNT);
+
+  return Array.from({ length: WEEK_DAY_COUNT }, (_, index) => {
+    const date = new Date(previousMonday);
+    date.setDate(previousMonday.getDate() + index);
+    return date;
+  });
+}
+
+/**
  * Computes the inclusive number of calendar days between two dates.
  *
  * @param first - Earliest date in the range.
@@ -236,7 +254,7 @@ function countVarietyTags(records: CompletedMission[]): VarietyTagCount[] {
  * 1. Filters and validates timestamps to include only valid records occurring on or before `now`.
  * 2. Compiles daily active minutes across Monday through Sunday of the active week.
  * 3. Evaluates daily goal attainment (60 minutes) for each day.
- * 4. Derives all-time observed activity days, average daily minutes, and average walking distances.
+ * 4. Derives current-week and previous-week daily averages, plus all-time activity counts and walking distances.
  * 5. Correlates child age bounds with Australian Bureau of Statistics (ABS) benchmark curves.
  * 6. Categorizes play diversity via variety tag frequency counts.
  *
@@ -259,6 +277,9 @@ export function buildDashboardStats(
     .sort((a, b) => a.completedAt.getTime() - b.completedAt.getTime());
 
   const weekDates = currentWeekDates(now);
+  const previousWeekDateKeys = new Set(
+    previousWeekDates(now).map((date) => localDateKey(date)),
+  );
   const todayKey = localDateKey(now);
   const minutesByDate = new Map<string, number>(
     weekDates.map((date) => [localDateKey(date), 0]),
@@ -299,6 +320,20 @@ export function buildDashboardStats(
     (sum, record) => sum + (record.walkingDistanceKm ?? 0),
     0,
   );
+  const currentWeekMinutes = days.reduce((sum, day) => sum + day.minutes, 0);
+  const elapsedCurrentWeekDays =
+    days.findIndex((day) => day.dateKey === todayKey) + 1;
+  const previousWeekMinutes = completedRecords
+    .filter((record) =>
+      previousWeekDateKeys.has(localDateKey(new Date(record.completedAt))),
+    )
+    .reduce((sum, record) => sum + record.durationMinutes, 0);
+  const hasPreviousWeekActivity = completedRecords.some((record) =>
+    previousWeekDateKeys.has(localDateKey(new Date(record.completedAt))),
+  );
+  const previousWeekAverageMinutes = hasPreviousWeekActivity
+    ? Math.round(previousWeekMinutes / WEEK_DAY_COUNT)
+    : null;
 
   // Find most recently selected child age range to benchmark against
   const referenceAgeRange =
@@ -320,6 +355,11 @@ export function buildDashboardStats(
       Math.round(((minutesByDate.get(todayKey) ?? 0) / DAILY_GOAL_MINUTES) * 100),
     ),
     weeklyMinutes: days.reduce((sum, day) => sum + day.minutes, 0),
+    currentWeekAverageMinutes: elapsedCurrentWeekDays
+      ? Math.round(currentWeekMinutes / elapsedCurrentWeekDays)
+      : 0,
+    previousWeekAverageMinutes,
+    previousWeekMinutes,
     daysMeetingGoal,
     goalDayRate: Math.round((daysMeetingGoal / WEEK_DAY_COUNT) * 100),
     activityCount: completedRecords.length,
@@ -332,8 +372,11 @@ export function buildDashboardStats(
     referenceAgeLabel: reference.label,
     nationalAverageMinutes: reference.averageMinutes,
     percentileBand:
-      completedRecords.length > 0
-        ? calculatePercentileBand(averageMinutesPerDay, reference.distribution)
+      hasPreviousWeekActivity && previousWeekAverageMinutes !== null
+        ? calculatePercentileBand(
+            previousWeekAverageMinutes,
+            reference.distribution,
+          )
         : null,
   };
 }
