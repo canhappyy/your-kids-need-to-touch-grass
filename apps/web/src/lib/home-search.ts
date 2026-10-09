@@ -69,7 +69,7 @@ export const minuteOptions = [5, 10, 15, 30, 45, 60, 75, 90, 105, 120].map(
 
 /**
  * Default search form state loaded when the user first lands on the home search page.
- * Sets 45 minutes, nearby mode, and solo play.
+ * Leaves the duration unselected, with nearby mode and solo play.
  */
 export const defaultHomeSearchValues: HomeSearchValues = {
   ...defaultPlayPreferences,
@@ -77,7 +77,7 @@ export const defaultHomeSearchValues: HomeSearchValues = {
   interests: "",
   location: "",
   locationMode: "nearby",
-  minutes: 45,
+  minutes: 0,
   selectedBuckets: [],
 };
 
@@ -107,7 +107,12 @@ export function validateSearchForm(
   }
 
   const totalMinutes = (values.hours ?? 0) * 60 + values.minutes;
-  const timeError = totalMinutes < 5 ? "Choose at least 5 minutes." : "";
+  const timeError =
+    totalMinutes === 0
+      ? "Select at least one duration."
+      : totalMinutes < 5
+        ? "Choose at least 5 minutes."
+        : "";
 
   const ageError =
     !values.selectedBuckets || values.selectedBuckets.length === 0
