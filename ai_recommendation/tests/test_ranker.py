@@ -1,3 +1,5 @@
+"""Unit tests for the candidate ranking core and model runtime loader."""
+
 import json
 import sys
 from types import SimpleNamespace
@@ -9,12 +11,16 @@ from ai_recommendation.ranker import rank_candidate_records
 
 
 class TagModel:
+    """Mock SentenceTransformer model returning fixed mock query embeddings."""
+
     def encode(self, _text, normalize_embeddings=True):
         assert normalize_embeddings is True
         return np.array([1.0, 0.0])
 
 
 class CrossEncoder:
+    """Mock CrossEncoder recording evaluated pairs and returning configurable scores."""
+
     def __init__(self, scores=None):
         self.pairs = []
         self.scores = scores
@@ -26,7 +32,8 @@ class CrossEncoder:
         return np.ones(len(pairs), dtype=float)
 
 
-def candidate(mission_id, description="description", tags=None):
+def candidate(mission_id: str, description: str | None = "description", tags: list[str] | None = None) -> dict:
+    """Helper fixture creating a candidate activity dict."""
     return {
         "missionId": mission_id,
         "title": f"Activity {mission_id}",
@@ -36,6 +43,7 @@ def candidate(mission_id, description="description", tags=None):
 
 
 def test_limits_cross_encoder_to_top_50_candidates():
+    """Verifies that only the top 50 candidates from Stage 1 are passed to the cross-encoder."""
     candidates = [candidate(f"MIS-{index:03d}") for index in range(51)]
     cross_encoder = CrossEncoder()
 
@@ -48,11 +56,14 @@ def test_limits_cross_encoder_to_top_50_candidates():
         np.array([[1.0, 0.0], [0.0, 1.0]]),
     )
 
+    # Cross-encoder should evaluate exactly 50 pairs
     assert len(cross_encoder.pairs) == 50
+    # All 51 candidates must be retained in the final output
     assert sorted(ranked) == sorted(item["missionId"] for item in candidates)
 
 
 def test_uses_empty_text_for_missing_descriptions():
+    """Verifies that activities with None description safely fall back to an empty string."""
     cross_encoder = CrossEncoder()
 
     rank_candidate_records(
@@ -68,6 +79,7 @@ def test_uses_empty_text_for_missing_descriptions():
 
 
 def test_breaks_equal_scores_by_mission_id():
+    """Verifies that ties in final scores are broken deterministically by mission ID."""
     ranked = rank_candidate_records(
         "nature",
         [candidate("MIS-002"), candidate("MIS-001")],
@@ -81,6 +93,7 @@ def test_breaks_equal_scores_by_mission_id():
 
 
 def test_runtime_models_load_once(monkeypatch, tmp_path):
+    """Verifies that load_runtime caches loaded models and indices as a singleton."""
     (tmp_path / "models" / "tag_model").mkdir(parents=True)
     (tmp_path / "models" / "cross_encoder").mkdir(parents=True)
     (tmp_path / "cache").mkdir()
@@ -106,3 +119,4 @@ def test_runtime_models_load_once(monkeypatch, tmp_path):
     assert first is second
     assert len(loads) == 2
     ranker.load_runtime.cache_clear()
+

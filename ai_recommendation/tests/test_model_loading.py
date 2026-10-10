@@ -1,9 +1,12 @@
+"""Unit tests for the model loader functions in recommendation_functions."""
+
 from pathlib import Path
 
 from ai_recommendation import recommendation_functions as functions
 
 
 def test_load_model_uses_existing_local_directory(monkeypatch, tmp_path):
+    """Verifies that load_model loads from the local models directory if cached files exist."""
     model_dir = tmp_path / "models" / functions.TAG_MODEL_FILENAME
     model_dir.mkdir(parents=True)
     (model_dir / "config.json").write_text("{}")
@@ -26,3 +29,4 @@ def test_load_model_uses_existing_local_directory(monkeypatch, tmp_path):
         "designation": functions.TAG_MODEL_DESIGNATION,
         "source": str(model_dir),
     }
+

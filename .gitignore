@@ -12,7 +12,7 @@ pipeline/docs/.Rhistory
 AGENTS.md
 ai_recommendation/models/*
 **/__pycache__/*
-ai_recommendation/ai.env
+**/*.env.*
 ai_recommendation/.sst/
 ai_recommendation/.venv/
 ai_recommendation/node_modules/
