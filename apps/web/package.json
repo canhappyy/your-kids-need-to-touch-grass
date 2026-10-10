@@ -11,7 +11,9 @@
     "test:integration": "vitest run --config vitest.integration.config.mts"
   },
   "dependencies": {
+    "@aws-sdk/client-lambda": "^3.1147.0",
     "@base-ui/react": "^1.7.0",
+    "@vercel/oidc-aws-credentials-provider": "^3.3.11",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cn": "^0.2.6",
