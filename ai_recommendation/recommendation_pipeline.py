@@ -13,6 +13,10 @@ TAG_WEIGHT = 0.4                        # Weight assigned to the tag similarity 
 CROSS_ENCODER_MAX_CANDIDATES = 50       # Maximum number of candidate activities to consider for cross-encoder scoring (can be adjusted based on performance and accuracy trade-offs)
 CROSS_ENCODER_WEIGHT = 0.6              # Weight assigned to the cross-encoder score in the final ranking
 
+# Global variables to hold models and embeddings
+_tag_model = _cross_encoder = _tag_vocab = _tag_embeddings = None
+
+
 # --------------------------------------------------------------------------
 # Loading & Reading Data
 # --------------------------------------------------------------------------
@@ -39,6 +43,26 @@ def load_tag_index(database: pd.DataFrame, model: SentenceTransformer):
 
     return tag_vocab, tag_embeddings
 
+def _load_once():
+    """ Load the tag model, cross-encoder, and tag vocabulary/embeddings from cache if they haven't been loaded yet. 
+        Ensure that these resources are only loaded once to optimise performance and avoid redundant loading.
+
+    Returns:
+        tuple: A tuple containing loaded tag model, cross-encoder, tag vocabulary, and tag embeddings.
+            - tag_model (SentenceTransformer): Loaded tag model for computing embeddings.
+            - cross_encoder (CrossEncoder): Loaded cross-encoder for scoring activity descriptions against user input.
+            - tag_vocab (list): List of unique tags extracted from the activities database.
+            - tag_embeddings (np.ndarray): Precomputed embeddings for the tags.
+    """
+    # Load tag model & cross-encoder, then retrieve tag vocabulary and embeddings from cache
+    global _tag_model, _cross_encoder, _tag_vocab, _tag_embeddings
+
+    if _tag_model is None:
+        _tag_model = rf.load_model(rf.TAG_MODEL_FILENAME, rf.TAG_MODEL_DESIGNATION)
+        _cross_encoder = rf.load_model(rf.CROSS_ENCODER_FILENAME, rf.CROSS_ENCODER_DESIGNATION)
+        _tag_vocab, _tag_embeddings = load_tag_index(None, _tag_model)
+
+    return _tag_model, _cross_encoder, _tag_vocab, _tag_embeddings
 
 # --------------------------------------------------------------------------
 # Processing Data
@@ -167,9 +191,7 @@ def rank_activities(free_text: str, activities_df: pd.DataFrame | None = None) -
         activities_df = rf.load_activities_from_db()
 
     # Load tag model & cross-encoder, then retrieve tag vocabulary and embeddings from cache
-    tag_model = rf.load_model(rf.TAG_MODEL_FILENAME, rf.TAG_MODEL_DESIGNATION)
-    cross_encoder = rf.load_model(rf.CROSS_ENCODER_FILENAME, rf.CROSS_ENCODER_DESIGNATION)
-    tag_vocab, tag_embeddings = load_tag_index(activities_df, tag_model)
+    tag_model, cross_encoder, tag_vocab, tag_embeddings = _load_once()
 
     return rank_relevance(free_text, activities_df, tag_model, cross_encoder, tag_vocab, tag_embeddings)
 

@@ -1,0 +1,7 @@
+sentence-transformers[onnx]; 
+sqlalchemy; 
+psycopg2-binary; 
+psycopg;
+pandas; 
+numpy; 
+python-dotenv
