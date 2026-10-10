@@ -5,12 +5,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import {
-  buildRecommendationApiUrl,
+  buildRecommendationApiRequest,
   buildSearchQuery as buildSearchQueryUtil,
   mapLocationErrorCode,
   parseRecommendationApiResponse,
   readSwapsUsed,
 } from "@/lib/result-search";
+import { readStoredInterests } from "@/lib/interests-storage";
 import type {
   Recommendation,
   RecommendationResponse,
@@ -72,7 +73,11 @@ export function useResultSection() {
   const selectedMissionId = searchParams.get("missionId") || undefined;
   const swapsUsed = readSwapsUsed(searchParams.get("swapsUsed"));
   const planDate = readPlannableDateParam(searchParams.get("planDate"));
-  const interests = searchParams.get("interests") || undefined;
+  const [interests] = useState(() =>
+    typeof window === "undefined"
+      ? undefined
+      : readStoredInterests(window.sessionStorage),
+  );
 
   const shownMissionIds = useMemo(() => {
     return [
@@ -171,7 +176,7 @@ export function useResultSection() {
 
   const requestRecommendation = useCallback(
     async (request: RecommendationRequest = {}) => {
-      const url = buildRecommendationApiUrl(
+      const requestBody = buildRecommendationApiRequest(
         {
           ageMax,
           ageMin,
@@ -188,18 +193,21 @@ export function useResultSection() {
         request,
       );
 
-      const response = await fetch(url, {
+      const response = await fetch("/api/recommendations", {
         cache: "no-store",
+        body: JSON.stringify(requestBody),
+        headers: { "Content-Type": "application/json" },
+        method: "POST",
         signal: request.signal,
       });
 
-      const body = (await response.json()) as
+      const responseBody = (await response.json()) as
         | RecommendationResponse
         | ApiErrorResponse;
 
       const parsedResult = parseRecommendationApiResponse(
         response.status,
-        body,
+        responseBody,
       );
 
       if (parsedResult.type === "location_error") {

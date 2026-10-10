@@ -3,6 +3,7 @@ import type { RecommendationResponse } from "@/types/recommendation";
 import type {
   ApiErrorResponse,
   FetchRecommendationResult,
+  RecommendationApiRequestBody,
   RecommendationRequest,
   ResultSearchParams,
 } from "@/types/result";
@@ -52,9 +53,6 @@ export function buildSearchQuery(
     query.set("lat", params.lat);
     query.set("lng", params.lng);
   }
-  if (params.interests) {
-    query.set("interests", params.interests);
-  }
   if (params.planDate) query.set("planDate", params.planDate);
 
   return query;
@@ -74,7 +72,7 @@ export function mapLocationErrorCode(
 /**
  * Builds the URL with query parameters for the /api/recommendations endpoint.
  */
-export function buildRecommendationApiUrl(
+export function buildRecommendationApiRequest(
   searchParams: Pick<
     ResultSearchParams,
     | "locationMode"
@@ -90,40 +88,36 @@ export function buildRecommendationApiUrl(
     | "interests"
   >,
   request: RecommendationRequest = {},
-): string {
+): RecommendationApiRequestBody {
   const durationMinutes =
     Number(searchParams.hours) * 60 + Number(searchParams.minutes);
 
-  const params = new URLSearchParams({
-    ...playPreferenceParams(searchParams),
+  return {
+    playStyle: searchParams.playStyle,
+    canSupervise: searchParams.canSupervise,
     locationMode: searchParams.locationMode,
     ...(searchParams.locationMode === "nearby"
       ? { location: searchParams.location }
       : {}),
-    ageMin: searchParams.ageMin,
-    ageMax: searchParams.ageMax,
-    durationMinutes: String(durationMinutes),
-  });
-
-  if (
-    searchParams.locationMode === "nearby" &&
+    ...(searchParams.locationMode === "nearby" &&
     searchParams.lat &&
     searchParams.lng
-  ) {
-    params.set("lat", searchParams.lat);
-    params.set("lng", searchParams.lng);
-  }
-
-  if (searchParams.interests) {
-    params.set("interests", searchParams.interests);
-  }
-
-  request.excludeMissionIds?.forEach((excludedMissionId) =>
-    params.append("excludeMissionId", excludedMissionId),
-  );
-  if (request.missionId) params.set("missionId", request.missionId);
-
-  return `/api/recommendations?${params.toString()}`;
+      ? {
+          latitude: Number(searchParams.lat),
+          longitude: Number(searchParams.lng),
+        }
+      : {}),
+    ageMin: Number(searchParams.ageMin),
+    ageMax: Number(searchParams.ageMax),
+    durationMinutes,
+    ...(searchParams.interests && !request.missionId
+      ? { interests: searchParams.interests }
+      : {}),
+    ...(request.excludeMissionIds?.length
+      ? { excludeMissionIds: request.excludeMissionIds }
+      : {}),
+    ...(request.missionId ? { missionId: request.missionId } : {}),
+  };
 }
 
 /**

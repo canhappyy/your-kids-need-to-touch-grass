@@ -13,6 +13,19 @@ export type RecommendationRequest = {
   signal?: AbortSignal;
 };
 
+export type RecommendationApiRequestBody = PlayPreferences & {
+  locationMode: "nearby" | "home";
+  location?: string;
+  latitude?: number;
+  longitude?: number;
+  ageMin: number;
+  ageMax: number;
+  durationMinutes: number;
+  excludeMissionIds?: string[];
+  missionId?: string;
+  interests?: string;
+};
+
 /**
  * Parsed search URL parameters for the Result page.
  */
