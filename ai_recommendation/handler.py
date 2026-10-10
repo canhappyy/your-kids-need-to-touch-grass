@@ -8,7 +8,11 @@ executes the hybrid semantic ranking algorithm, and emits structured JSON observ
 import json
 import time
 
-from ai_recommendation.ranker import CURRENT_DIR, load_runtime, rank_candidate_records
+try:
+    from ai_recommendation.ranker import CURRENT_DIR, load_runtime, rank_candidate_records
+except ModuleNotFoundError:
+    from ranker import CURRENT_DIR, load_runtime, rank_candidate_records
+
 
 # Track cold starts for performance metrics and observability
 _cold_start = True
