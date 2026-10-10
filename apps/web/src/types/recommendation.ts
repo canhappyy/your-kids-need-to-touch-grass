@@ -180,6 +180,8 @@ export type RecommendationInputBase = PlayPreferences & {
   missionId?: string;
   /** Restricts fallback selection to activities explicitly marked Home-Based. */
   homeBasedOnly?: boolean;
+  /** Optional free-text interests used only to rank already-valid candidates. */
+  interests?: string;
 };
 
 /**

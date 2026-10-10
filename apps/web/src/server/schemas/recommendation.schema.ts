@@ -137,3 +137,88 @@ export const recommendationQuerySchema = z
           ...(hasCoords ? { latitude: value.lat, longitude: value.lng } : {}),
         };
   });
+
+export const recommendationBodySchema = z
+  .object({
+    playStyle: z.enum(["solo", "group"]).default("solo"),
+    canSupervise: z.boolean().default(false),
+    locationMode: z.enum(["nearby", "home"]),
+    location: z.string().trim().optional(),
+    latitude: z.number().finite().optional(),
+    longitude: z.number().finite().optional(),
+    ageMin: z.number().int().min(5).max(12),
+    ageMax: z.number().int().min(5).max(12),
+    durationMinutes: z.number().int().min(5).max(775).multipleOf(5),
+    excludeMissionIds: z.array(missionId).max(10).default([]),
+    missionId: missionId.optional(),
+    interests: z.string().trim().max(150).optional(),
+  })
+  .superRefine((value, context) => {
+    if (
+      value.locationMode === "nearby" &&
+      (!value.location || value.location.length > 100)
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "Location is required for nearby recommendations.",
+        path: ["location"],
+      });
+    }
+
+    if (
+      (value.latitude !== undefined && value.longitude === undefined) ||
+      (value.latitude === undefined && value.longitude !== undefined)
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "Both latitude and longitude must be provided together.",
+        path: [value.latitude === undefined ? "latitude" : "longitude"],
+      });
+    }
+
+    if (value.ageMin > value.ageMax) {
+      context.addIssue({
+        code: "custom",
+        message: "Minimum age cannot exceed maximum age.",
+        path: ["ageMin"],
+      });
+    }
+
+    if (value.missionId && value.excludeMissionIds.length > 0) {
+      context.addIssue({
+        code: "custom",
+        message: "A mission replay cannot include exclusions.",
+        path: ["missionId"],
+      });
+    }
+  })
+  .transform((value) => {
+    const common = {
+      playStyle: value.playStyle,
+      canSupervise: value.canSupervise,
+      ageMin: value.ageMin,
+      ageMax: value.ageMax,
+      durationMinutes: value.durationMinutes,
+      ...(value.excludeMissionIds.length
+        ? { excludeMissionIds: [...new Set(value.excludeMissionIds)] }
+        : {}),
+      ...(value.missionId ? { missionId: value.missionId } : {}),
+      ...(value.interests ? { interests: value.interests } : {}),
+    };
+
+    const hasCoords =
+      value.locationMode === "nearby" &&
+      value.latitude !== undefined &&
+      value.longitude !== undefined;
+
+    return value.locationMode === "home"
+      ? { ...common, locationMode: "home" as const }
+      : {
+          ...common,
+          locationMode: "nearby" as const,
+          location: value.location!,
+          ...(hasCoords
+            ? { latitude: value.latitude, longitude: value.longitude }
+            : {}),
+        };
+  });
