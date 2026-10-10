@@ -1,4 +1,4 @@
-﻿# pipeline data - regenerate via pipeline scripts, don't commit
+# pipeline data - regenerate via pipeline scripts, don't commit
 pipeline/data/raw/*
 pipeline/src/australian_postcodes.csv
 pipeline/src/open_space.geojson
@@ -14,5 +14,10 @@ ai_recommendation/models/*
 **/__pycache__/*
 **/*.env.*
 ai_recommendation/.sst/
+ai_recommendation/sst-env.d.ts
+ai_recommendation/sst.pyi
 ai_recommendation/.venv/
 ai_recommendation/node_modules/
+ai_recommendation/dist/
+
+
