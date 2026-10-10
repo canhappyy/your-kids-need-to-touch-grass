@@ -1,9 +1,15 @@
 import json, time, argparse, sys
 import numpy as np
 import pandas as pd
-import recommendation_functions as rf
 from sentence_transformers import SentenceTransformer, CrossEncoder
 from pathlib import Path
+
+try:
+    from ai_recommendation import recommendation_functions as rf
+    from ai_recommendation.ranker import rank_candidate_records
+except ModuleNotFoundError:
+    import recommendation_functions as rf
+    from ranker import rank_candidate_records
 
 # --------------------------------------------------------------------------
 # Config
@@ -193,7 +199,31 @@ def rank_activities(free_text: str, activities_df: pd.DataFrame | None = None) -
     # Load tag model & cross-encoder, then retrieve tag vocabulary and embeddings from cache
     tag_model, cross_encoder, tag_vocab, tag_embeddings = _load_once()
 
-    return rank_relevance(free_text, activities_df, tag_model, cross_encoder, tag_vocab, tag_embeddings)
+    candidates = [
+        {
+            "missionId": str(row[rf.ACTIVITY_ID_COLUMN]),
+            "title": str(row[rf.ACTIVITY_TITLE_COLUMN]),
+            "description": None if pd.isna(row.get("description")) else str(row.get("description")),
+            "varietyTags": row.get("tag_list") if isinstance(row.get("tag_list"), list) else [],
+        }
+        for _, row in activities_df.iterrows()
+    ]
+    ranked_ids = rank_candidate_records(
+        free_text,
+        candidates,
+        tag_model,
+        cross_encoder,
+        tag_vocab,
+        tag_embeddings,
+    )
+    rank_by_id = {mission_id: index for index, mission_id in enumerate(ranked_ids)}
+    return (
+        activities_df.assign(
+            _rank=activities_df[rf.ACTIVITY_ID_COLUMN].astype(str).map(rank_by_id)
+        )
+        .sort_values("_rank", kind="stable")
+        .drop(columns="_rank")
+    )
 
 if __name__ == "__main__":
     # Example user preferences
@@ -236,9 +266,9 @@ if __name__ == "__main__":
     if args.verbose:
         # Print the top 10 ranked activities along with their scores and the time taken for ranking
         print(f"Ranked {len(ranked_activities)} activities in {elapsed_time:.2f} seconds.")
-        print(ranked_activities[[rf.ACTIVITY_ID_COLUMN, rf.ACTIVITY_TITLE_COLUMN, "tag_score", "cross_encoder_score", "final_score"]].head(10), file=sys.stderr)
+        print(ranked_activities[[rf.ACTIVITY_ID_COLUMN, rf.ACTIVITY_TITLE_COLUMN]].head(10), file=sys.stderr)
 
     # Print the JSON output to the console if --out flag is not set, otherwise write to specified file and print to console
     if args.out:
         Path(args.out).write_text(json_output)
-    print(json_output)  
+    print(json_output)

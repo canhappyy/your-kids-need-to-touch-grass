@@ -140,4 +140,3 @@ def _min_max_normalise(array: np.ndarray) -> np.ndarray:
 
     # Normalised value = (value - min) / (max - min)
     return (array - low) / (high - low)
-
