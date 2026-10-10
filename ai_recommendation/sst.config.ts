@@ -35,11 +35,12 @@ export default $config({
     const ranker = new sst.aws.Function("AiRanker", {
       architecture: "x86_64",
       handler: "handler.handler",
-      memory: "3 GB",
+      memory: "3008 MB",
       python: { container: true },
       runtime: "python3.12",
       timeout: "30 seconds",
     });
+
 
     // Configure Vercel OpenID Connect (OIDC) identity provider
     const oidcProvider = new aws.iam.OpenIdConnectProvider("VercelOidc", {
