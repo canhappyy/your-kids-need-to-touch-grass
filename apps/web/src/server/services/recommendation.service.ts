@@ -25,6 +25,13 @@ export type RecommendationRepository = {
   ): Promise<RecommendationCandidate[]>;
 };
 
+/**
+ * Function signature for semantic candidate re-ranking against user free-text interests.
+ *
+ * @param interests - User-provided free-text interests or prompt.
+ * @param candidates - List of candidate activities meeting hard filtering criteria.
+ * @returns A promise resolving to an array of ranked mission IDs ordered by semantic relevance.
+ */
 export type RankCandidates = (
   interests: string,
   candidates: RecommendationCandidate[],
@@ -75,7 +82,6 @@ async function loadDefaultDependencies(): Promise<RecommendationDependencies> {
 function formatDuration(durationMinutes: number): string {
   const hours = Math.floor(durationMinutes / 60);
   const minutes = durationMinutes % 60;
-
   if (hours === 0) {
     return `${minutes} minutes`;
   }
@@ -111,6 +117,13 @@ function buildReasons(
   return reasons;
 }
 
+/**
+ * Filters out previously seen or excluded candidate missions.
+ *
+ * @param candidates - List of candidate activities.
+ * @param excludedMissionIds - Optional list of mission IDs to exclude from consideration.
+ * @returns Array of candidate activities with excluded missions removed.
+ */
 function withoutExcluded(
   candidates: RecommendationCandidate[],
   excludedMissionIds: string[] | undefined,
@@ -120,6 +133,19 @@ function withoutExcluded(
   return candidates.filter((candidate) => !excluded.has(candidate.missionId));
 }
 
+/**
+ * Selects the optimal activity candidate from a filtered candidate list.
+ *
+ * If free-text child interests are provided and a semantic ranker is supplied,
+ * this function invokes the AI ranking pipeline to sort candidates by semantic relevance.
+ * In case of ranking failure, timeout, or missing ranker, it gracefully falls back to
+ * the primary candidate from repository ordering.
+ *
+ * @param candidates - Pre-filtered candidate activities matching hard constraints.
+ * @param input - Search input parameters containing optional `interests` and `missionId`.
+ * @param rankCandidates - Optional semantic ranking function.
+ * @returns The top ranked candidate, or `null` if the candidate pool is empty.
+ */
 async function selectCandidate(
   candidates: RecommendationCandidate[],
   input: RecommendationInput,
@@ -128,18 +154,22 @@ async function selectCandidate(
   if (!candidates.length) return null;
 
   const interests = input.interests?.trim();
+  // Bypass AI ranking if no interests specified, an exact missionId was targeted, or ranker is absent
   if (!interests || input.missionId || !rankCandidates) return candidates[0];
 
   try {
+    // Attempt semantic AI ranking
     const rankedMissionIds = await rankCandidates(interests, candidates);
     const candidatesById = new Map(
       candidates.map((candidate) => [candidate.missionId, candidate]),
     );
+    // Find the first matching candidate in rank order
     for (const missionId of rankedMissionIds) {
       const candidate = candidatesById.get(missionId);
       if (candidate) return candidate;
     }
   } catch (error) {
+    // Gracefully degrade to standard database ordering on ranker failure
     console.warn("AI ranking unavailable; using filtered fallback.", {
       errorClass: error instanceof Error ? error.name : "UnknownError",
     });
