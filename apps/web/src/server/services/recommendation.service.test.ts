@@ -28,6 +28,7 @@ const resolvedLocation = {
 const venueMission = {
   missionId: "MIS-001",
   title: "Basketball",
+  iconFile: null,
   description: null,
   equipmentNeeded: "Basketball",
   instructionText: "Find a hoop.",
@@ -37,6 +38,7 @@ const venueMission = {
   missionType: "Location-Based" as const,
   ageBands: ["5-7", "8-9"] as AgeBand[],
   supervisionLevel: "Independent-Play-Safe" as const,
+  varietyTags: ["coordination"],
   venue: {
     openSpaceId: 42,
     name: "Clayton Reserve",
@@ -60,13 +62,15 @@ const fallbackMission = {
 function dependencies(
   venue: typeof venueMission | null = venueMission,
   fallback: typeof fallbackMission | null = null,
+  rankCandidates = vi.fn().mockResolvedValue([]),
 ): RecommendationDependencies {
   return {
     resolveLocation: vi.fn().mockResolvedValue(resolvedLocation),
     repository: {
-      findLocationBased: vi.fn().mockResolvedValue(venue),
-      findFallback: vi.fn().mockResolvedValue(fallback),
+      findLocationBased: vi.fn().mockResolvedValue(venue ? [venue] : []),
+      findFallback: vi.fn().mockResolvedValue(fallback ? [fallback] : []),
     },
+    rankCandidates,
   };
 }
 
@@ -213,10 +217,7 @@ describe("getRecommendation", () => {
   it("uses provided device GPS coordinates as origin when available", async () => {
     const deps = dependencies();
     const gpsCoords = { latitude: -37.8136, longitude: 144.9631 };
-    const result = await getRecommendation(
-      { ...input, ...gpsCoords },
-      deps,
-    );
+    const result = await getRecommendation({ ...input, ...gpsCoords }, deps);
 
     expect(result).not.toBeNull();
     expect(deps.repository.findLocationBased).toHaveBeenCalledWith({
@@ -233,5 +234,55 @@ describe("getRecommendation", () => {
       kind: "location",
       label: "Near Clayton, Notting Hill 3168",
     });
+  });
+
+  it("uses AI ranking only after hard filters return candidates", async () => {
+    const preferredMission = {
+      ...venueMission,
+      missionId: "MIS-002",
+      title: "Dinosaur Trail",
+    };
+    const rankCandidates = vi.fn().mockResolvedValue(["MIS-002", "MIS-001"]);
+    const deps = dependencies(venueMission, null, rankCandidates);
+    vi.mocked(deps.repository.findLocationBased).mockResolvedValue([
+      venueMission,
+      preferredMission,
+    ]);
+
+    const result = await getRecommendation(
+      { ...input, interests: "dinosaurs" },
+      deps,
+    );
+
+    expect(result?.missionId).toBe("MIS-002");
+    expect(rankCandidates).toHaveBeenCalledWith("dinosaurs", [
+      venueMission,
+      preferredMission,
+    ]);
+  });
+
+  it("skips AI for blank interests and exact mission replay", async () => {
+    const rankCandidates = vi.fn().mockResolvedValue(["MIS-001"]);
+    const deps = dependencies(venueMission, null, rankCandidates);
+
+    await getRecommendation({ ...input, interests: "   " }, deps);
+    await getRecommendation(
+      { ...input, interests: "dinosaurs", missionId: "MIS-001" },
+      deps,
+    );
+
+    expect(rankCandidates).not.toHaveBeenCalled();
+  });
+
+  it("falls back to a valid candidate when AI ranking fails", async () => {
+    const rankCandidates = vi.fn().mockRejectedValue(new Error("timeout"));
+    const deps = dependencies(venueMission, null, rankCandidates);
+
+    const result = await getRecommendation(
+      { ...input, interests: "dinosaurs" },
+      deps,
+    );
+
+    expect(result?.missionId).toBe("MIS-001");
   });
 });
