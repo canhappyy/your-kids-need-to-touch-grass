@@ -75,23 +75,24 @@ def load_embeddings(filename: str) -> np.ndarray:
         print(f"Loading embeddings from {filepath}...")
     return np.load(filepath)
 
-def _create_model(model_designation: str):
+def _create_model(model_designation: str, source: str | None = None):
     """ Create a model based on the provided designation. """
+    src = source if source is not None else model_designation
+
     if model_designation == TAG_MODEL_DESIGNATION:
-        return SentenceTransformer(model_designation, backend = BACKEND, model_kwargs={"file_name": ONNX_MODEL_FILENAME})
+        return SentenceTransformer(src, backend = BACKEND, model_kwargs={"file_name": ONNX_MODEL_FILENAME})
     elif model_designation == CROSS_ENCODER_DESIGNATION:
-        return CrossEncoder(model_designation, backend = BACKEND, model_kwargs={"file_name": ONNX_MODEL_FILENAME})
+        return CrossEncoder(src, backend = BACKEND, model_kwargs={"file_name": ONNX_MODEL_FILENAME})
     else:
         raise ValueError(f"Unknown model designation: {model_designation}")
 
 def load_model(model_filename: str, model_designation: str):
     """ Load the tag model from the local directory if it exists, otherwise download it. """
     # Determine correct file path for loading model
-    model_folder = CURRENT_FILE_PATH / "models"
-    model_dir = model_folder / model_filename
+    model_dir = CURRENT_FILE_PATH / "models" / model_filename
 
     if model_dir.exists() and any(model_dir.iterdir()):
-        return _create_model(model_designation)
+        return _create_model(model_designation, str(model_dir))
     else:
         # Make a new model and save it locally for future use
         model = _create_model(model_designation)
