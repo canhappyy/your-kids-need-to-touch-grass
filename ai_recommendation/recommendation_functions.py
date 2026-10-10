@@ -1,3 +1,9 @@
+"""Shared utility functions and database helpers for AI recommendation services.
+
+Provides database connectivity via SQLAlchemy, model instantiation with ONNX backends,
+tag text parsing, batch vector embedding computation, and array normalization routines.
+"""
+
 from sentence_transformers import CrossEncoder, SentenceTransformer
 from pathlib import Path
 from dotenv import load_dotenv
@@ -42,14 +48,26 @@ ONNX_MODEL_FILENAME = "onnx/model.onnx"
 _engine: Engine | None = None
 
 def get_db_engine() -> Engine:
-    """ Get a SQLAlchemy engine for PostgreSQL database. If engine does not exist, create it. """
+    """Gets or creates a singleton SQLAlchemy Engine instance for PostgreSQL.
+
+    Returns:
+        Engine: SQLAlchemy Engine connected to `DATABASE_URL`.
+    """
     global _engine
     if _engine is None:
         _engine = create_engine(DATABASE_URL)
     return _engine
 
 def load_activities_from_db() -> pd.DataFrame:
-    """ Load activities & their associated tags from database into a pandas DataFrame. """
+    """Loads activities and aggregates their associated variety tags into a DataFrame.
+
+    Executes SQL queries against `activity` and `activity_variety_tag` tables,
+    cleans tag strings, groups tags by `mission_id` into Python lists, and performs
+    a left join to ensure every activity has a valid `tag_list` column.
+
+    Returns:
+        pd.DataFrame: DataFrame containing all activity records with a `tag_list` column.
+    """
     engine = get_db_engine()
 
     # Load activities & their tags from database
@@ -69,14 +87,32 @@ def load_activities_from_db() -> pd.DataFrame:
 # Model Functions
 # --------------------------------------------------------------------------
 def load_embeddings(filename: str) -> np.ndarray:
-    """ Load embeddings from a .npy file. """
+    """Loads a precomputed embedding matrix from a `.npy` file.
+
+    Args:
+        filename: Base name of the embeddings file (excluding `_embeddings.npy` suffix).
+
+    Returns:
+        np.ndarray: Loaded 2D numpy array of embeddings.
+    """
     filepath = os.path.join(CURRENT_FILE_PATH, f"{filename}_embeddings.npy")
     if DEBUG == True:
         print(f"Loading embeddings from {filepath}...")
     return np.load(filepath)
 
 def _create_model(model_designation: str, source: str | None = None):
-    """ Create a model based on the provided designation. """
+    """Instantiates a SentenceTransformer or CrossEncoder with ONNX runtime backend.
+
+    Args:
+        model_designation: Model name identifier (e.g. `all-MiniLM-L6-v2` or `cross-encoder/ms-marco-MiniLM-L6-v2`).
+        source: Optional directory path or Hugging Face repository ID. Defaults to `model_designation`.
+
+    Returns:
+        SentenceTransformer | CrossEncoder: The initialized model.
+
+    Raises:
+        ValueError: If `model_designation` is unrecognized.
+    """
     src = source if source is not None else model_designation
 
     if model_designation == TAG_MODEL_DESIGNATION:
@@ -87,7 +123,15 @@ def _create_model(model_designation: str, source: str | None = None):
         raise ValueError(f"Unknown model designation: {model_designation}")
 
 def load_model(model_filename: str, model_designation: str):
-    """ Load the tag model from the local directory if it exists, otherwise download it. """
+    """Loads a model from the local directory if cached, otherwise downloads and persists it.
+
+    Args:
+        model_filename: Directory name within `models/` where the model is stored.
+        model_designation: Hugging Face model identifier for download fallback.
+
+    Returns:
+        SentenceTransformer | CrossEncoder: Loaded model instance.
+    """
     # Determine correct file path for loading model
     model_dir = CURRENT_FILE_PATH / "models" / model_filename
 
@@ -100,13 +144,14 @@ def load_model(model_filename: str, model_designation: str):
         return model
 
 # Extract activity tags
-def parse_tags(raw: str):
-    """ 
-    Parse the raw string of tags into a list of individual tags. 
-    Tags are expected to be separated by the '|' character. 
+def parse_tags(raw: str) -> list[str]:
+    """Parses a pipe-delimited raw tag string into a list of normalized lowercase tags.
 
     Args:
-        raw (str): Raw string of tags.
+        raw (str): Raw pipe-delimited string of tags (e.g. "Nature | Creative").
+
+    Returns:
+        list[str]: Cleaned list of lowercase tag strings.
     """
     if not isinstance(raw, str) or not raw.strip():
         return []
@@ -115,7 +160,16 @@ def parse_tags(raw: str):
 
 # Encode tag vocabulary & activity descriptions into embeddings
 def embed(model: SentenceTransformer, text: list[str], filename: str) -> np.ndarray:
-    """ Encode the text into embeddings using the provided model and save them to a .npy file. """
+    """Encodes a list of text strings into normalized vector embeddings and saves them to disk.
+
+    Args:
+        model (SentenceTransformer): Sentence transformer model used for encoding.
+        text (list[str]): List of text strings to embed.
+        filename (str): Base name for saving the `.npy` file inside the `cache/` directory.
+
+    Returns:
+        np.ndarray: 2D numpy array of normalized embedding vectors.
+    """
     embed_filepath = CURRENT_FILE_PATH / "cache" / f"{filename}_embeddings.npy"
 
     if DEBUG == True:
@@ -132,7 +186,14 @@ def embed(model: SentenceTransformer, text: list[str], filename: str) -> np.ndar
     return embeddings
 
 def _min_max_normalise(array: np.ndarray) -> np.ndarray:
-    """ Normalise an array to the range [0, 1] using min-max scaling. """
+    """Normalizes an array to the range [0.0, 1.0] using Min-Max scaling.
+
+    Args:
+        array (np.ndarray): Input numpy numerical array.
+
+    Returns:
+        np.ndarray: Scaled array where minimum is 0.0 and maximum is 1.0 (or 0.5 for uniform arrays).
+    """
     low, high = array.min(), array.max()
     if high - low < 1e-9:
         # If all values are the same, return an array of 0.5 (midpoint of [0, 1])

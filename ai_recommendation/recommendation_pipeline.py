@@ -1,8 +1,19 @@
-import json, time, argparse, sys
+"""Offline candidate ranking pipeline and CLI execution script.
+
+This module provides offline batch processing and local command-line execution for ranking
+activities from the PostgreSQL database or a custom pandas DataFrame. It shares the same
+underlying two-stage ranking core as the serverless Lambda handler.
+"""
+
+import argparse
+import json
+import sys
+import time
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
-from sentence_transformers import SentenceTransformer, CrossEncoder
-from pathlib import Path
+from sentence_transformers import CrossEncoder, SentenceTransformer
 
 try:
     from ai_recommendation import recommendation_functions as rf
@@ -16,20 +27,32 @@ except ModuleNotFoundError:
 # --------------------------------------------------------------------------
 TOP_N_TAGS = 3                          # Number of top similar tags to consider for matching activities
 TAG_WEIGHT = 0.4                        # Weight assigned to the tag similarity score in the final ranking
-CROSS_ENCODER_MAX_CANDIDATES = 50       # Maximum number of candidate activities to consider for cross-encoder scoring (can be adjusted based on performance and accuracy trade-offs)
+CROSS_ENCODER_MAX_CANDIDATES = 50       # Maximum number of candidate activities passed to cross-encoder
 CROSS_ENCODER_WEIGHT = 0.6              # Weight assigned to the cross-encoder score in the final ranking
 
-# Global variables to hold models and embeddings
+# Global variables to hold models and embeddings for caching
 _tag_model = _cross_encoder = _tag_vocab = _tag_embeddings = None
 
 
 # --------------------------------------------------------------------------
 # Loading & Reading Data
 # --------------------------------------------------------------------------
-# Load the databases
-def load_tag_index(database: pd.DataFrame, model: SentenceTransformer):
-    """ Load a pre-computed index of tags (mapped to activities) and their corresponding embeddings."""
-    # Load tag vocabulary & embeddings from cache
+def load_tag_index(database: pd.DataFrame | None, model: SentenceTransformer) -> tuple[list[str], np.ndarray]:
+    """Loads a precomputed index of variety tags and their corresponding vector embeddings from cache.
+
+    Args:
+        database: Optional DataFrame (unused, reserved for dynamic index rebuilds).
+        model: SentenceTransformer model used for encoding.
+
+    Returns:
+        tuple[list[str], np.ndarray]: A 2-tuple of:
+            - `tag_vocab` (list[str]): List of distinct variety tags.
+            - `tag_embeddings` (np.ndarray): 2D array of precomputed normalized embeddings.
+
+    Raises:
+        FileNotFoundError: If any required cache files are missing from the `cache/` directory.
+    """
+    # Resolve filepaths for cached vocabulary and embeddings
     cache_filepath = rf.CURRENT_FILE_PATH / "cache"
     vocab_filepath = cache_filepath / "tag_vocab.json"
     embeddings_filepath = cache_filepath / "tag_embeddings.npy"
@@ -40,27 +63,29 @@ def load_tag_index(database: pd.DataFrame, model: SentenceTransformer):
     
     if missing:
         raise FileNotFoundError(
-            f"Missing required files: {', '.join(str(path) for path in missing)}. Please run build_tag_index.py to generate them.")
+            f"Missing required files: {', '.join(str(path) for path in missing)}. "
+            "Please run build_tag_index.py to generate them."
+        )
 
     # Load tag vocabulary & embeddings from cache files
     tag_vocab = json.loads(vocab_filepath.read_text())
     tag_embeddings = np.load(embeddings_filepath)
-    # tag_to_activity_map = json.loads(tag_map_filepath.read_text())
 
     return tag_vocab, tag_embeddings
 
-def _load_once():
-    """ Load the tag model, cross-encoder, and tag vocabulary/embeddings from cache if they haven't been loaded yet. 
-        Ensure that these resources are only loaded once to optimise performance and avoid redundant loading.
+
+def _load_once() -> tuple[SentenceTransformer, CrossEncoder, list[str], np.ndarray]:
+    """Loads the tag model, cross-encoder, and tag vocabulary/embeddings into memory as singletons.
+
+    Ensures models are only loaded once per process to optimize performance.
 
     Returns:
-        tuple: A tuple containing loaded tag model, cross-encoder, tag vocabulary, and tag embeddings.
-            - tag_model (SentenceTransformer): Loaded tag model for computing embeddings.
-            - cross_encoder (CrossEncoder): Loaded cross-encoder for scoring activity descriptions against user input.
-            - tag_vocab (list): List of unique tags extracted from the activities database.
-            - tag_embeddings (np.ndarray): Precomputed embeddings for the tags.
+        tuple: A 4-tuple containing:
+            - `tag_model` (SentenceTransformer): Loaded tag model for computing query embeddings.
+            - `cross_encoder` (CrossEncoder): Loaded cross-encoder for scoring descriptions against query.
+            - `tag_vocab` (list[str]): List of unique tags from the database.
+            - `tag_embeddings` (np.ndarray): Precomputed normalized embeddings for all tags.
     """
-    # Load tag model & cross-encoder, then retrieve tag vocabulary and embeddings from cache
     global _tag_model, _cross_encoder, _tag_vocab, _tag_embeddings
 
     if _tag_model is None:
@@ -70,25 +95,30 @@ def _load_once():
 
     return _tag_model, _cross_encoder, _tag_vocab, _tag_embeddings
 
+
 # --------------------------------------------------------------------------
 # Processing Data
 # --------------------------------------------------------------------------
-def compute_tag_similarities(free_text: str, activities_df: pd.DataFrame, tag_model: SentenceTransformer, 
-                             tag_vocab: list, tag_embeddings: np.ndarray, top_n_tags: int = TOP_N_TAGS) -> np.ndarray:
-    """ 
-    Compute the top N most similar tags to the user's free text input. 
-    
+def compute_tag_similarities(
+    free_text: str,
+    activities_df: pd.DataFrame,
+    tag_model: SentenceTransformer,
+    tag_vocab: list[str],
+    tag_embeddings: np.ndarray,
+    top_n_tags: int = TOP_N_TAGS,
+) -> np.ndarray:
+    """Computes tag similarity scores for each activity in a DataFrame against the user prompt.
+
     Args:
-        free_text (str): User's free text input describing their child's interests.
-        activities_df (pd.DataFrame): DataFrame containing activities and their associated tags.
-        tag_model (SentenceTransformer): Model used to compute embeddings for tags.
-        tag_vocab (list): List of unique tags extracted from the activities database.
-        tag_embeddings (np.ndarray): Precomputed embeddings for the tags.
-        top_n_tags (int): Number of top similar tags to consider for matching activities.
+        free_text: User's free-text input describing their child's interests.
+        activities_df: DataFrame containing activities and their associated `tag_list`.
+        tag_model: SentenceTransformer model used to compute query embeddings.
+        tag_vocab: List of unique tags matching rows of `tag_embeddings`.
+        tag_embeddings: Precomputed embedding matrix for the tags.
+        top_n_tags: Number of top similar tags to sum for each activity.
 
     Returns:
-        np.ndarray: Array of similarity scores for each activity based on the top N similar tags.
-
+        np.ndarray: Array of aggregated similarity scores corresponding to each DataFrame row.
     """
     if rf.DEBUG:
         print("Computing tag similarities...")
@@ -97,47 +127,54 @@ def compute_tag_similarities(free_text: str, activities_df: pd.DataFrame, tag_mo
     tag_to_index = {tag: i for i, tag in enumerate(tag_vocab)}
 
     # Compute embedding for the user's free text input
-    query_embedding = tag_model.encode(free_text, normalize_embeddings = True)
+    query_embedding = tag_model.encode(free_text, normalize_embeddings=True)
 
     # Compute cosine similarities between query embedding and tag embeddings
     similarities = tag_embeddings @ query_embedding
 
     def score_tags(tag_list: list[str]) -> float:
-        """Score a group of tags based on their cosine similarity to the user's input. """
+        """Scores a group of tags by summing top-N cosine similarities."""
         indices = [tag_to_index[tag] for tag in tag_list if tag in tag_to_index]
 
-        # If no tags are found in vocab, no similarity
+        # If no tags are found in vocab, return 0
         if not indices:
             return 0.0
 
-        # Get the top N most similar tags & sum their similarities to compute
+        # Sum the top N most similar tags
         top = np.sort(similarities[np.array(indices)])[-top_n_tags:]
         return float(top.sum())
+
     return activities_df["tag_list"].apply(score_tags).to_numpy()
 
-def rank_relevance(free_text: str, activities_df: pd.DataFrame, tag_model: SentenceTransformer, 
-                    cross_encoder: CrossEncoder, tag_vocab: list, tag_embeddings: np.ndarray, 
-                    tag_weight: float = 0.4, cross_encoder_weight: float = CROSS_ENCODER_WEIGHT, 
-                    top_n_tags: int = TOP_N_TAGS, cross_encoder_max_candidates: int = CROSS_ENCODER_MAX_CANDIDATES) -> pd.DataFrame:
-    """ 
-    Rank activities based on a combination of tag similarity and cross-encoder scoring. 
-    The tag similarity score is computed based on the cosine similarity between the user's input and the tags associated with each activity.
-    Cross-encoder refines ranking by scoring activity descriptions against the user's free text input, for a more nuanced understanding of relevance.
-    
+
+def rank_relevance(
+    free_text: str,
+    activities_df: pd.DataFrame,
+    tag_model: SentenceTransformer,
+    cross_encoder: CrossEncoder,
+    tag_vocab: list[str],
+    tag_embeddings: np.ndarray,
+    tag_weight: float = TAG_WEIGHT,
+    cross_encoder_weight: float = CROSS_ENCODER_WEIGHT,
+    top_n_tags: int = TOP_N_TAGS,
+    cross_encoder_max_candidates: int = CROSS_ENCODER_MAX_CANDIDATES,
+) -> pd.DataFrame:
+    """Ranks activities DataFrame based on a combination of tag similarity and cross-encoder scoring.
+
     Args:
-        free_text (str): User's free text input describing their child's interests.
-        activities_df (pd.DataFrame): DataFrame containing activities and their associated tags.
-        tag_model (SentenceTransformer): Model used to compute embeddings for tags.
-        cross_encoder (CrossEncoder): Cross-encoder model used to score activity descriptions against user input.
-        tag_vocab (list): List of unique tags extracted from the activities database.
-        tag_embeddings (np.ndarray): Precomputed embeddings for the tags.
-        tag_weight (float): Weight assigned to the tag similarity score in the final ranking.
-        cross_encoder_weight (float): Weight assigned to the cross-encoder score in the final ranking.
-        top_n_tags (int): Number of top similar tags to consider for matching activities.
-        cross_encoder_max_candidates (int): Maximum number of candidate activities to consider for cross-encoder scoring.
+        free_text: User's free-text prompt describing child interests.
+        activities_df: DataFrame containing activities with `description` and `tag_list` columns.
+        tag_model: SentenceTransformer model for tag encoding.
+        cross_encoder: Cross-encoder model for pairwise text scoring.
+        tag_vocab: List of unique tag strings.
+        tag_embeddings: Precomputed tag embedding matrix.
+        tag_weight: Relative weight for tag similarity scores (default 0.4).
+        cross_encoder_weight: Relative weight for cross-encoder scores (default 0.6).
+        top_n_tags: Number of top tags to aggregate per activity.
+        cross_encoder_max_candidates: Maximum candidates evaluated by the cross-encoder.
 
     Returns:
-        pd.DataFrame: DataFrame containing activities ranked by their combined score.
+        pd.DataFrame: DataFrame containing activities sorted descending by combined score.
     """
     if rf.DEBUG:
         print("Ranking activities...")
@@ -153,7 +190,7 @@ def rank_relevance(free_text: str, activities_df: pd.DataFrame, tag_model: Sente
     if len(df) <= cross_encoder_max_candidates:
         cross_encoder_pool, remainder = df, df.iloc[0:0]
     else:
-        # If pool is too large, pre-select top N activities based on tag similarity scores
+        # Pre-select top candidates based on tag similarity scores
         cross_encoder_pool = df.nlargest(cross_encoder_max_candidates, "tag_score")
         remainder = df.drop(cross_encoder_pool.index)
 
@@ -162,43 +199,44 @@ def rank_relevance(free_text: str, activities_df: pd.DataFrame, tag_model: Sente
         pairs = [[free_text, desc] for desc in cross_encoder_pool["description"].tolist()]
         cross_encoder_pool["cross_encoder_score"] = cross_encoder.predict(pairs)
 
-        # Normalise the tag similarity scores and cross-encoder scores to the range [0, 1]
+        # Normalise the tag similarity scores and cross-encoder scores to [0, 1]
         normalised_tag_scores = rf._min_max_normalise(cross_encoder_pool["tag_score"].to_numpy())
         normalised_cross_encoder_scores = rf._min_max_normalise(cross_encoder_pool["cross_encoder_score"].to_numpy())
 
-        # Combine normalised scores using given weights to compute final scores for ranking
+        # Combine normalised scores using given weights to compute final scores
         cross_encoder_pool["final_score"] = (tag_weight * normalised_tag_scores) + (cross_encoder_weight * normalised_cross_encoder_scores)
-        cross_encoder_pool = cross_encoder_pool.sort_values("final_score", ascending = False)
+        cross_encoder_pool = cross_encoder_pool.sort_values("final_score", ascending=False)
 
     if not remainder.empty:
-        # For activities not in cross-encoder pool, normalise tag similarity scores and assign them as final scores
-        remainder = remainder.sort_values("tag_score", ascending = False)
+        # For activities outside cross-encoder pool, sort by tag score
+        remainder = remainder.sort_values("tag_score", ascending=False)
 
     return pd.concat([cross_encoder_pool, remainder])
 
+
 def rank_activities(free_text: str, activities_df: pd.DataFrame | None = None) -> pd.DataFrame:
-    """
-    Rank activities based on the user's free text input describing their child's interests.
+    """Ranks activities using the shared hybrid ranking core and returns sorted DataFrame.
 
     Args:
-        free_text (str): User's free text input describing their child's interests.
-        activities_df (pd.DataFrame | None): Optional DataFrame containing activities and their associated tags. 
-            If not provided, the function will load the activities database.
-    
-    Returns:
-        pd.DataFrame: DataFrame containing activities ranked by their combined score based on tag similarity 
-            and cross-encoder scoring.
+        free_text: User's free-text input describing child interests.
+        activities_df: Optional DataFrame of activities. If omitted, loads from database.
 
+    Returns:
+        pd.DataFrame: DataFrame of activities sorted by relevance rank.
+
+    Raises:
+        ValueError: If `free_text` is empty or whitespace only.
     """
-    # Raise an error if free text input is empty/all whitespace, load activities database if custom one not provided
+    # Validate input query
     if not free_text or not free_text.strip():
         raise ValueError("Free text input cannot be empty or whitespace. Nothing to rank.")
     if activities_df is None:
         activities_df = rf.load_activities_from_db()
 
-    # Load tag model & cross-encoder, then retrieve tag vocabulary and embeddings from cache
+    # Load tag model, cross-encoder, and tag cache
     tag_model, cross_encoder, tag_vocab, tag_embeddings = _load_once()
 
+    # Format DataFrame rows into candidate dicts
     candidates = [
         {
             "missionId": str(row[rf.ACTIVITY_ID_COLUMN]),
@@ -208,6 +246,8 @@ def rank_activities(free_text: str, activities_df: pd.DataFrame | None = None) -
         }
         for _, row in activities_df.iterrows()
     ]
+
+    # Execute ranking via core ranker
     ranked_ids = rank_candidate_records(
         free_text,
         candidates,
@@ -225,22 +265,20 @@ def rank_activities(free_text: str, activities_df: pd.DataFrame | None = None) -
         .drop(columns="_rank")
     )
 
-if __name__ == "__main__":
-    # Example user preferences
-    # free_text_input = "I want to go hiking and explore nature."
 
-    # Parse command-line arguments for user's free text input
-    parser = argparse.ArgumentParser()
+if __name__ == "__main__":
+    # Parse command-line arguments for user's free text input and options
+    parser = argparse.ArgumentParser(description="Rank activities based on child interests free text.")
     parser.add_argument("free_text_input", nargs="?", help="User's free text input describing their child's interests.")
-    parser.add_argument("--out", help= "Write JSON output to this filepath as well as printing to console.")
+    parser.add_argument("--out", help="Write JSON output to this filepath as well as printing to console.")
     parser.add_argument("--debug", action="store_true", help="Enable debug mode for detailed output.")
-    parser.add_argument("--verbose", action="store_true", help="Print timing & top 10 ranked activities to console")
+    parser.add_argument("--verbose", action="store_true", help="Print timing & top 10 ranked activities to console.")
     args = parser.parse_args()
 
     # Show debug messages if --debug flag is set
     rf.DEBUG = args.debug
 
-    # Get user's free text input from command-line argument or prompt for input if not provided
+    # Get user's free text input from command-line argument or interactive stdin prompt
     if args.free_text_input:
         free_text_input = args.free_text_input.strip()
     else:
@@ -262,13 +300,13 @@ if __name__ == "__main__":
     mission_ids = ranked_activities[rf.ACTIVITY_ID_COLUMN].tolist()
     json_output = json.dumps(mission_ids)
 
-    # Print the top 10 ranked activities along with their scores and the time taken for ranking if --verbose flag is set
+    # Print verbose summary if requested
     if args.verbose:
-        # Print the top 10 ranked activities along with their scores and the time taken for ranking
         print(f"Ranked {len(ranked_activities)} activities in {elapsed_time:.2f} seconds.")
         print(ranked_activities[[rf.ACTIVITY_ID_COLUMN, rf.ACTIVITY_TITLE_COLUMN]].head(10), file=sys.stderr)
 
-    # Print the JSON output to the console if --out flag is not set, otherwise write to specified file and print to console
+    # Write output to file if requested
     if args.out:
         Path(args.out).write_text(json_output)
     print(json_output)
+
