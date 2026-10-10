@@ -1,0 +1,7 @@
+.sst
+.venv
+__pycache__
+*.pyc
+ai.env
+node_modules
+tests
