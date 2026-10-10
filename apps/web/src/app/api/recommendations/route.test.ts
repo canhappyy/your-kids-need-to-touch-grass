@@ -16,7 +16,7 @@ vi.mock("@/server/services/weather.service", () => ({
 
 import { getMissionWeather } from "@/server/services/weather.service";
 
-import { GET, runtime } from "./route";
+import { GET, POST, runtime } from "./route";
 
 const validQuery = {
   location: "Clayton 3168",
@@ -35,6 +35,81 @@ function request(overrides: Record<string, string | null> = {}) {
 
   return new Request(`http://localhost/api/recommendations?${params}`);
 }
+
+function postRequest(overrides: Record<string, unknown> = {}) {
+  return new Request("http://localhost/api/recommendations", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      locationMode: "nearby",
+      location: "Clayton 3168",
+      ageMin: 6,
+      ageMax: 10,
+      durationMinutes: 120,
+      playStyle: "solo",
+      canSupervise: false,
+      ...overrides,
+    }),
+  });
+}
+
+describe("POST /api/recommendations", () => {
+  beforeEach(() => {
+    getRecommendation.mockReset();
+    getRecommendation.mockResolvedValue(null);
+  });
+
+  it("passes trimmed interests to the recommendation service", async () => {
+    const response = await POST(
+      postRequest({ interests: "  dinosaurs and space  " }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Cache-Control")).toBe("no-store");
+    expect(getRecommendation).toHaveBeenCalledWith(
+      expect.objectContaining({ interests: "dinosaurs and space" }),
+    );
+  });
+
+  it("rejects interests longer than 150 characters", async () => {
+    const response = await POST(postRequest({ interests: "x".repeat(151) }));
+
+    expect(response.status).toBe(400);
+    expect(getRecommendation).not.toHaveBeenCalled();
+  });
+
+  it("passes interests into the extreme-UV home rerank", async () => {
+    getRecommendation
+      .mockResolvedValueOnce({
+        missionId: "MIS-OUTDOOR",
+        venue: { latitude: -37.92, longitude: 145.12 },
+        totalMinutes: 42,
+      })
+      .mockResolvedValueOnce({
+        missionId: "MIS-HOME",
+        venue: null,
+        totalMinutes: 30,
+      });
+    vi.mocked(getMissionWeather).mockResolvedValueOnce({
+      status: "available",
+      summary: "Clear skies.",
+      severity: "regular",
+      maxUvIndex: 10,
+      startsAt: "2026-09-13T10:00:00Z",
+      endsAt: "2026-09-13T10:42:00Z",
+    });
+
+    await POST(postRequest({ interests: "drawing" }));
+
+    expect(getRecommendation).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        interests: "drawing",
+        locationMode: "home",
+        homeBasedOnly: true,
+      }),
+    );
+  });
+});
 
 describe("GET /api/recommendations", () => {
   beforeEach(() => {

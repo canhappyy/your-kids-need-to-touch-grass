@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import {
-  buildRecommendationApiUrl,
+  buildRecommendationApiRequest,
   buildSearchQuery,
   mapLocationErrorCode,
   parseRecommendationApiResponse,
@@ -96,7 +96,7 @@ describe("result-search lib utilities", () => {
       expect(query.get("planDate")).toBe("2026-11-03")
     })
 
-    it("preserves optional child interests", () => {
+    it("omits child interests from navigation URLs", () => {
       const query = buildSearchQuery({
         ageMax: "10",
         ageMin: "6",
@@ -109,7 +109,7 @@ describe("result-search lib utilities", () => {
         minutes: "0",
       })
 
-      expect(query.get("interests")).toBe("dinosaurs and space")
+      expect(query.get("interests")).toBeNull()
     })
   })
 
@@ -122,9 +122,9 @@ describe("result-search lib utilities", () => {
     })
   })
 
-  describe("buildRecommendationApiUrl", () => {
-    it("computes durationMinutes and formats search query params", () => {
-      const url = buildRecommendationApiUrl(
+  describe("buildRecommendationApiRequest", () => {
+    it("computes duration and keeps interests in the POST body", () => {
+      const body = buildRecommendationApiRequest(
         {
           ageMax: "10",
           ageMin: "6",
@@ -140,24 +140,42 @@ describe("result-search lib utilities", () => {
         },
         {
           excludeMissionIds: ["m1", "m2"],
-          missionId: "m3",
         }
       )
 
-      expect(url).toContain("/api/recommendations?")
-      const parsedUrl = new URL(url, "http://localhost")
-      expect(parsedUrl.searchParams.get("playStyle")).toBe("group")
-      expect(parsedUrl.searchParams.get("canSupervise")).toBe("true")
-      expect(parsedUrl.searchParams.get("durationMinutes")).toBe("75")
-      expect(parsedUrl.searchParams.get("location")).toBe("3168")
-      expect(parsedUrl.searchParams.get("lat")).toBe("-37.915")
-      expect(parsedUrl.searchParams.get("lng")).toBe("145.123")
-      expect(parsedUrl.searchParams.get("interests")).toBe("dinosaurs")
-      expect(parsedUrl.searchParams.get("missionId")).toBe("m3")
-      expect(parsedUrl.searchParams.getAll("excludeMissionId")).toEqual([
-        "m1",
-        "m2",
-      ])
+      expect(body).toEqual({
+        playStyle: "group",
+        canSupervise: true,
+        locationMode: "nearby",
+        location: "3168",
+        latitude: -37.915,
+        longitude: 145.123,
+        ageMin: 6,
+        ageMax: 10,
+        durationMinutes: 75,
+        interests: "dinosaurs",
+        excludeMissionIds: ["m1", "m2"],
+      })
+    })
+
+    it("omits interests when replaying a shared mission", () => {
+      const body = buildRecommendationApiRequest(
+        {
+          ageMax: "10",
+          ageMin: "6",
+          hours: "1",
+          interests: "dinosaurs",
+          location: "",
+          playStyle: "solo",
+          canSupervise: false,
+          locationMode: "home",
+          minutes: "0",
+        },
+        { missionId: "m3" },
+      )
+
+      expect(body.missionId).toBe("m3")
+      expect(body.interests).toBeUndefined()
     })
   })
 

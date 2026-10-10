@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import pool from "@/lib/db";
-import { findLocationBasedRecommendation } from "./recommendation.repository";
+import { findLocationBasedRecommendations } from "./recommendation.repository";
 
 const missionId = "TEST-US21-RETURN-WALK";
 const openSpaceId = -21001;
@@ -54,7 +54,7 @@ describe("round-trip walking budget", () => {
         "UPDATE open_space SET latitude = $1 WHERE open_space_id = $2",
         [latitude, openSpaceId],
       );
-      const result = await findLocationBasedRecommendation({
+      const result = await findLocationBasedRecommendations({
         latitude: 0,
         longitude: 0,
         ageMin: 6,
@@ -66,10 +66,10 @@ describe("round-trip walking budget", () => {
       });
 
       if (!fits) {
-        expect(result).toBeNull();
+        expect(result).toEqual([]);
         return;
       }
-      expect(result).toMatchObject({
+      expect(result[0]).toMatchObject({
         missionId,
         durationMinutes: 20,
         commuteMinutes: commute,

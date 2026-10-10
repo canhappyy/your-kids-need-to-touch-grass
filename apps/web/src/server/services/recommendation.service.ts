@@ -18,12 +18,24 @@ export type RecommendationRepository = {
   /** Finds a location-based recommendation candidate matching spatial, age, duration, and play preference criteria. */
   findLocationBased(
     input: RecommendationQuery,
-  ): Promise<RecommendationCandidate | null>;
+  ): Promise<RecommendationCandidate[]>;
   /** Finds a fallback home-based or location-agnostic recommendation candidate matching age, duration, and play preference criteria. */
   findFallback(
     input: FallbackRecommendationQuery,
-  ): Promise<RecommendationCandidate | null>;
+  ): Promise<RecommendationCandidate[]>;
 };
+
+/**
+ * Function signature for semantic candidate re-ranking against user free-text interests.
+ *
+ * @param interests - User-provided free-text interests or prompt.
+ * @param candidates - List of candidate activities meeting hard filtering criteria.
+ * @returns A promise resolving to an array of ranked mission IDs ordered by semantic relevance.
+ */
+export type RankCandidates = (
+  interests: string,
+  candidates: RecommendationCandidate[],
+) => Promise<string[]>;
 
 /**
  * Injected dependencies for recommendation service execution and testing.
@@ -33,6 +45,8 @@ export type RecommendationDependencies = {
   resolveLocation(input: string): Promise<ResolvedLocation>;
   /** Recommendation repository implementation. */
   repository: RecommendationRepository;
+  /** Optional semantic ranker. Failures fall back to repository order. */
+  rankCandidates?: RankCandidates;
 };
 
 /**
@@ -41,18 +55,21 @@ export type RecommendationDependencies = {
  * @returns A promise resolving to `RecommendationDependencies`.
  */
 async function loadDefaultDependencies(): Promise<RecommendationDependencies> {
-  const [locationService, recommendationRepository] = await Promise.all([
-    import("@/server/services/location.service"),
-    import("@/server/repositories/recommendation.repository"),
-  ]);
+  const [locationService, recommendationRepository, aiRankingService] =
+    await Promise.all([
+      import("@/server/services/location.service"),
+      import("@/server/repositories/recommendation.repository"),
+      import("@/server/services/ai-ranking.service"),
+    ]);
 
   return {
     resolveLocation: locationService.resolveRecommendationLocation,
     repository: {
       findLocationBased:
-        recommendationRepository.findLocationBasedRecommendation,
-      findFallback: recommendationRepository.findFallbackRecommendation,
+        recommendationRepository.findLocationBasedRecommendations,
+      findFallback: recommendationRepository.findFallbackRecommendations,
     },
+    rankCandidates: aiRankingService.rankRecommendationCandidates,
   };
 }
 
@@ -65,7 +82,6 @@ async function loadDefaultDependencies(): Promise<RecommendationDependencies> {
 function formatDuration(durationMinutes: number): string {
   const hours = Math.floor(durationMinutes / 60);
   const minutes = durationMinutes % 60;
-
   if (hours === 0) {
     return `${minutes} minutes`;
   }
@@ -101,6 +117,66 @@ function buildReasons(
   return reasons;
 }
 
+/**
+ * Filters out previously seen or excluded candidate missions.
+ *
+ * @param candidates - List of candidate activities.
+ * @param excludedMissionIds - Optional list of mission IDs to exclude from consideration.
+ * @returns Array of candidate activities with excluded missions removed.
+ */
+function withoutExcluded(
+  candidates: RecommendationCandidate[],
+  excludedMissionIds: string[] | undefined,
+): RecommendationCandidate[] {
+  if (!excludedMissionIds?.length) return candidates;
+  const excluded = new Set(excludedMissionIds);
+  return candidates.filter((candidate) => !excluded.has(candidate.missionId));
+}
+
+/**
+ * Selects the optimal activity candidate from a filtered candidate list.
+ *
+ * If free-text child interests are provided and a semantic ranker is supplied,
+ * this function invokes the AI ranking pipeline to sort candidates by semantic relevance.
+ * In case of ranking failure, timeout, or missing ranker, it gracefully falls back to
+ * the primary candidate from repository ordering.
+ *
+ * @param candidates - Pre-filtered candidate activities matching hard constraints.
+ * @param input - Search input parameters containing optional `interests` and `missionId`.
+ * @param rankCandidates - Optional semantic ranking function.
+ * @returns The top ranked candidate, or `null` if the candidate pool is empty.
+ */
+async function selectCandidate(
+  candidates: RecommendationCandidate[],
+  input: RecommendationInput,
+  rankCandidates: RankCandidates | undefined,
+): Promise<RecommendationCandidate | null> {
+  if (!candidates.length) return null;
+
+  const interests = input.interests?.trim();
+  // Bypass AI ranking if no interests specified, an exact missionId was targeted, or ranker is absent
+  if (!interests || input.missionId || !rankCandidates) return candidates[0];
+
+  try {
+    // Attempt semantic AI ranking
+    const rankedMissionIds = await rankCandidates(interests, candidates);
+    const candidatesById = new Map(
+      candidates.map((candidate) => [candidate.missionId, candidate]),
+    );
+    // Find the first matching candidate in rank order
+    for (const missionId of rankedMissionIds) {
+      const candidate = candidatesById.get(missionId);
+      if (candidate) return candidate;
+    }
+  } catch (error) {
+    // Gracefully degrade to standard database ordering on ranker failure
+    console.warn("AI ranking unavailable; using filtered fallback.", {
+      errorClass: error instanceof Error ? error.name : "UnknownError",
+    });
+  }
+
+  return candidates[0];
+}
 
 /**
  * Core recommendation engine method that matches activities based on age, time, location, and play preferences.
@@ -151,7 +227,7 @@ export async function getRecommendation(
   // --- Branch 1: Parent selected "At Home" ---
   if (input.locationMode === "home") {
     // Look up an indoor/at-home activity matching criteria with zero equipment needed
-    const homeMission = await deps.repository.findFallback({
+    const homeMissions = await deps.repository.findFallback({
       ageMin: input.ageMin,
       ageMax: input.ageMax,
       durationMinutes: input.durationMinutes,
@@ -164,6 +240,16 @@ export async function getRecommendation(
     });
 
     // If found, attach user-facing match reasons; otherwise return null
+    const preferredHomeMissions = withoutExcluded(
+      homeMissions,
+      input.excludeMissionIds,
+    );
+    const homeMission = await selectCandidate(
+      preferredHomeMissions.length ? preferredHomeMissions : homeMissions,
+      input,
+      deps.rankCandidates,
+    );
+
     return homeMission
       ? { ...homeMission, reasons: buildReasons(input) }
       : null;
@@ -174,7 +260,7 @@ export async function getRecommendation(
   const location = await deps.resolveLocation(input.location);
 
   // Search for nearby open space outdoor activities within distance threshold
-  const candidate = await deps.repository.findLocationBased({
+  const candidates = await deps.repository.findLocationBased({
     latitude: input.latitude ?? location.latitude,
     longitude: input.longitude ?? location.longitude,
     ageMin: input.ageMin,
@@ -187,21 +273,27 @@ export async function getRecommendation(
   });
 
   // Check if candidate matches any mission the parent explicitly wanted to exclude
-  const repeatsExcludedMission = candidate
-    ? input.excludeMissionIds?.includes(candidate.missionId)
-    : false;
+  const preferredCandidates = withoutExcluded(
+    candidates,
+    input.excludeMissionIds,
+  );
 
   // If a valid nearby outdoor activity was found that isn't excluded, return it with location-aware reasons
-  if (candidate && !repeatsExcludedMission) {
+  if (preferredCandidates.length) {
+    const candidate = await selectCandidate(
+      preferredCandidates,
+      input,
+      deps.rankCandidates,
+    );
     return {
-      ...candidate,
+      ...candidate!,
       reasons: buildReasons(input, location),
     };
   }
 
   // Fallback Cascade: No suitable nearby outdoor spot found (e.g., bad weather or distant location).
   // Query for a suitable zero-equipment home-based activity instead so the parent still gets a great activity.
-  const fallback = await deps.repository.findFallback({
+  const fallbacks = await deps.repository.findFallback({
     ageMin: input.ageMin,
     ageMax: input.ageMax,
     durationMinutes: input.durationMinutes,
@@ -213,20 +305,37 @@ export async function getRecommendation(
     equipmentRequiredTag: "None",
   });
 
-  // If even the fallback returned nothing, return whatever candidate existed (if any) or null
-  if (!fallback) {
-    return candidate
-      ? {
-          ...candidate,
-          reasons: buildReasons(input, location),
-        }
-      : null;
-  }
+  const preferredFallbacks = withoutExcluded(
+    fallbacks,
+    input.excludeMissionIds,
+  );
+  const fallback = await selectCandidate(
+    preferredFallbacks.length ? preferredFallbacks : [],
+    input,
+    deps.rankCandidates,
+  );
 
   // Return the fallback activity with reasons explaining the age and time match
-  return {
-    ...fallback,
-    reasons: buildReasons(input),
-  };
-}
+  if (fallback) return { ...fallback, reasons: buildReasons(input) };
 
+  const repeatedCandidate = await selectCandidate(
+    candidates,
+    input,
+    deps.rankCandidates,
+  );
+  if (repeatedCandidate) {
+    return {
+      ...repeatedCandidate,
+      reasons: buildReasons(input, location),
+    };
+  }
+
+  const repeatedFallback = await selectCandidate(
+    fallbacks,
+    input,
+    deps.rankCandidates,
+  );
+  return repeatedFallback
+    ? { ...repeatedFallback, reasons: buildReasons(input) }
+    : null;
+}

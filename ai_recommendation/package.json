@@ -1,0 +1,15 @@
+{
+  "name": "playgo-ai-infrastructure",
+  "private": true,
+  "scripts": {
+    "check": "sst install && tsc --noEmit",
+    "deploy": "sst deploy",
+    "dev": "sst dev",
+    "remove": "sst remove"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.0",
+    "sst": "^3.17.21",
+    "typescript": "^5.9.3"
+  }
+}
