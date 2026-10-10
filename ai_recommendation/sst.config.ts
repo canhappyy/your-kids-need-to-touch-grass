@@ -1,5 +1,15 @@
 /// <reference path="./.sst/platform/config.d.ts" />
 
+/**
+ * @file sst.config.ts
+ * SST v3 configuration for deploying the AI recommendation ranking microservice to AWS.
+ *
+ * Deploys:
+ * 1. A containerized Python 3.12 AWS Lambda function (`AiRanker`) with 3 GB RAM and baked ONNX models.
+ * 2. An IAM OIDC Identity Provider and IAM AssumeRole configuration enabling Vercel preview/production
+ *    deployments to invoke the Lambda function securely without persistent AWS credentials.
+ */
+
 export default $config({
   app() {
     return {
@@ -21,6 +31,7 @@ export default $config({
       .filter(Boolean);
     const issuerHost = `oidc.vercel.com/${teamSlug}`;
 
+    // Deploy containerized Python 3.12 AWS Lambda ranking function
     const ranker = new sst.aws.Function("AiRanker", {
       architecture: "x86_64",
       handler: "handler.handler",
@@ -30,11 +41,13 @@ export default $config({
       timeout: "30 seconds",
     });
 
+    // Configure Vercel OpenID Connect (OIDC) identity provider
     const oidcProvider = new aws.iam.OpenIdConnectProvider("VercelOidc", {
       clientIdLists: [`https://vercel.com/${teamSlug}`],
       url: `https://${issuerHost}`,
     });
 
+    // Create IAM Role that Vercel workloads assume via WebIdentity federation
     const invokeRole = new aws.iam.Role("VercelAiInvokeRole", {
       assumeRolePolicy: $jsonStringify({
         Version: "2012-10-17",
@@ -57,6 +70,7 @@ export default $config({
       }),
     });
 
+    // Attach least-privilege IAM policy allowing only lambda:InvokeFunction on the ranker
     new aws.iam.RolePolicy("VercelAiInvokePolicy", {
       role: invokeRole.id,
       policy: $jsonStringify({
@@ -78,3 +92,4 @@ export default $config({
     };
   },
 });
+
