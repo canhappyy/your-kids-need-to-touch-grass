@@ -48,7 +48,7 @@ export function LandingHero() {
           href="/search"
           className={cn(
             buttonVariants({ size: "lg" }),
-            "h-12 flex-1 rounded-xl bg-[#728A46] text-base font-semibold text-white shadow-sm hover:bg-[#5E7339] active:scale-[0.98] transition-all gap-2",
+            "h-12 flex-1 rounded-full bg-[#728A46] text-base font-semibold text-white shadow-sm hover:bg-[#5E7339] active:scale-[0.98] transition-all gap-2",
           )}
         >
           <Compass className="size-5" />
@@ -58,7 +58,7 @@ export function LandingHero() {
           href="/planner"
           className={cn(
             buttonVariants({ variant: "outline", size: "lg" }),
-            "h-12 flex-1 rounded-xl border-[#728A46]/30 bg-white/80 text-base font-semibold text-zinc-800 shadow-2xs hover:bg-white hover:text-zinc-900 active:scale-[0.98] transition-all gap-2",
+            "h-12 flex-1 rounded-full border-[#728A46]/30 bg-white/80 text-base font-semibold text-zinc-800 shadow-2xs hover:bg-white hover:text-zinc-900 active:scale-[0.98] transition-all gap-2",
           )}
         >
           <CalendarDays className="size-5 text-[#728A46]" />

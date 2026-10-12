@@ -107,7 +107,7 @@ export function BadgeShowcase() {
           href="/dashboard"
           className={cn(
             buttonVariants({ variant: "ghost", size: "sm" }),
-            "text-xs sm:text-sm font-semibold text-[#728A46] hover:bg-[#93AB63]/10 flex items-center gap-1.5",
+            "rounded-full text-xs sm:text-sm font-semibold text-[#728A46] hover:bg-[#93AB63]/10 flex items-center gap-1.5 px-4",
           )}
         >
           <span>View badge collection in Parent Dashboard</span>
