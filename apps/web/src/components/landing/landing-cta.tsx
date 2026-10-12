@@ -9,18 +9,8 @@ import { cn } from "@/lib/utils";
 export function LandingCta() {
   return (
     <section className="py-8 sm:py-12" aria-labelledby="cta-heading">
-      <div className="relative overflow-hidden rounded-3xl border border-[#93AB63]/50 bg-gradient-to-br from-[#728A46] to-[#556933] p-8 sm:p-12 text-center text-white shadow-md">
-        {/* Decorative background glow */}
-        <div
-          className="pointer-events-none absolute -top-24 -left-24 size-72 rounded-full bg-white/10 blur-3xl"
-          aria-hidden="true"
-        />
-        <div
-          className="pointer-events-none absolute -bottom-24 -right-24 size-72 rounded-full bg-black/10 blur-3xl"
-          aria-hidden="true"
-        />
-
-        <div className="relative mx-auto max-w-xl">
+      <div className="rounded-3xl border border-[#728A46] bg-[#728A46] p-8 sm:p-12 text-center text-white shadow-md">
+        <div className="mx-auto max-w-xl">
           <h2
             id="cta-heading"
             className="text-2xl font-extrabold tracking-tight sm:text-3xl md:text-4xl leading-tight"

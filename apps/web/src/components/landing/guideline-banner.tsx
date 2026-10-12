@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 export function GuidelineBanner() {
   return (
     <section className="py-6 sm:py-8" aria-labelledby="guidelines-heading">
-      <Card className="overflow-hidden border border-[#93AB63]/40 bg-gradient-to-br from-white/90 via-white/80 to-[#93AB63]/10 shadow-xs">
+      <Card className="overflow-hidden border border-[#93AB63]/40 bg-white/80 shadow-xs">
         <CardContent className="p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center gap-6">
           <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-[#93AB63]/20 text-[#5B7330]">
             <HeartHandshake className="size-7" aria-hidden="true" />

@@ -33,7 +33,7 @@ export function LandingHero() {
 
       {/* Main Headline */}
       <h1 className="mt-6 text-3xl font-extrabold tracking-tight text-zinc-900 sm:text-4xl md:text-5xl max-w-2xl leading-[1.18]">
-        Turn <span className="text-[#5B7330] underline decoration-[#93AB63]/40 decoration-wavy underline-offset-4">screen time</span> into <span className="text-[#728A46]">green time</span>.
+        Turn <span className="text-[#5B7330]">screen time</span> into <span className="text-[#728A46]">green time</span>.
       </h1>
 
       {/* Value proposition subheadline */}
