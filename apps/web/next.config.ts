@@ -1,9 +1,9 @@
 import type { NextConfig } from "next";
 
 /**
- * Next.js application configuration.
- * Enforces global HTTP security headers following OWASP recommendations.
- */
+* Next.js application configuration.
+* Enforces global HTTP security headers following OWASP recommendations.
+*/
 const nextConfig: NextConfig = {
   async headers() {
     return [
@@ -11,6 +11,11 @@ const nextConfig: NextConfig = {
         // Apply security headers across all application routes
         source: "/(.*)",
         headers: [
+          // Remove Server header to prevent infrastructure disclosure
+          {
+            key: "Server",
+            value: "",
+          },
           // Enforces HTTPS for 2 years, including subdomains (HSTS)
           {
             key: "Strict-Transport-Security",
