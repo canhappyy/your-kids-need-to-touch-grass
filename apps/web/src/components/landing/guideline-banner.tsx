@@ -22,11 +22,14 @@ export function GuidelineBanner() {
               id="guidelines-heading"
               className="mt-2 text-lg font-bold text-zinc-900 sm:text-xl"
             >
-              Aiming for 60 minutes of daily active play—guilt-free.
+              Aiming for 60 minutes of active play per day
             </h3>
             <p className="mt-2 text-xs text-zinc-600 sm:text-sm leading-relaxed">
-              National health guidelines recommend that children aged 5–17 accumulate at least 60 minutes of moderate to vigorous physical play every day.
-              PlayGo & Co breaks this down into bite-sized 15, 30, or 45-minute playful missions, helping families build lasting, joyful active habits together.
+              National health guidelines recommend that children aged 5-12
+              accumulate at least 60 minutes of energised physical activity
+              every day. PlayGo & Co breaks this down into fun digestible
+              missions, which keep kids engaged and build active habits for the
+              whole family.
             </p>
           </div>
         </CardContent>

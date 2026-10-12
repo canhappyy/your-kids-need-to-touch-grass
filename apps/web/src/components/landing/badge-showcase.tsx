@@ -1,52 +1,51 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Sparkles, ArrowRight } from "lucide-react";
+import { Sparkles, ArrowRight, Lock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const showcaseBadges = [
+type ShowcaseBadge = {
+  name: string;
+  role: string;
+  icon: string;
+  bg: string;
+  desc: string;
+  isLocked: boolean;
+};
+
+const showcaseBadges: ShowcaseBadge[] = [
   {
     name: "Platypus",
     role: "The Curious Explorer",
     icon: "/badges/platypus.svg",
-    bg: "bg-teal-50/70 border-teal-200/60",
+    bg: "border-teal-200/70 bg-teal-50/70",
     desc: "Awarded for exploring new trails and outdoor water spots.",
+    isLocked: false,
   },
   {
     name: "Sugar Glider",
     role: "The High Flyer",
     icon: "/badges/sugar_glider.svg",
-    bg: "bg-sky-50/70 border-sky-200/60",
+    bg: "border-sky-200/70 bg-sky-50/70",
     desc: "Earned by completing high-energy jumping and climbing games.",
+    isLocked: false,
   },
   {
     name: "Koala",
     role: "The Nature Guardian",
-    icon: "/badges/koala.svg",
-    bg: "bg-amber-50/70 border-amber-200/60",
-    desc: "Unlocked through mindful nature walks and tree spotting.",
+    icon: "/badges/koala_locked.svg",
+    bg: "border-dashed border-zinc-300 bg-zinc-50/70 opacity-80",
+    desc: "Unlock by going on mindful nature walks and tree spotting.",
+    isLocked: true,
   },
   {
     name: "Quokka",
     role: "The Joyful Spirit",
-    icon: "/badges/quokka.svg",
-    bg: "bg-rose-50/70 border-rose-200/60",
-    desc: "Celebrates teamwork, laughter, and family cooperative play.",
-  },
-  {
-    name: "Kookaburra",
-    role: "The Trail Laugher",
-    icon: "/badges/kookaburra.svg",
-    bg: "bg-emerald-50/70 border-emerald-200/60",
-    desc: "Awarded for morning energetic bursts and outdoor sports.",
-  },
-  {
-    name: "Echidna",
-    role: "The Steady Pacer",
-    icon: "/badges/echidna.svg",
-    bg: "bg-orange-50/70 border-orange-200/60",
-    desc: "Honors perseverance, step milestones, and endurance trails.",
+    icon: "/badges/quokka_locked.svg",
+    bg: "border-dashed border-zinc-300 bg-zinc-50/70 opacity-80",
+    desc: "Unlock through cooperative family games and active fun.",
+    isLocked: true,
   },
 ];
 
@@ -72,11 +71,15 @@ export function BadgeShowcase() {
         </p>
       </div>
 
-      <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4 max-w-4xl mx-auto">
         {showcaseBadges.map((badge) => (
           <Card
             key={badge.name}
-            className={`border ${badge.bg} text-center shadow-2xs transition-all hover:scale-[1.03] hover:shadow-xs`}
+            className={cn(
+              "border text-center shadow-2xs transition-all",
+              badge.bg,
+              badge.isLocked ? "" : "hover:scale-[1.02] hover:shadow-xs",
+            )}
           >
             <CardContent className="flex flex-col items-center p-4">
               <div className="relative size-16 sm:size-20 drop-shadow-xs">
@@ -85,18 +88,41 @@ export function BadgeShowcase() {
                   alt={badge.name}
                   width={80}
                   height={80}
-                  className="size-full object-contain"
+                  className={cn(
+                    "size-full object-contain",
+                    badge.isLocked ? "grayscale opacity-45" : "",
+                  )}
                 />
               </div>
-              <h3 className="mt-2 text-sm font-bold text-zinc-900">
+              <h3
+                className={cn(
+                  "mt-2 text-sm font-bold",
+                  badge.isLocked ? "text-zinc-600" : "text-zinc-900",
+                )}
+              >
                 {badge.name}
               </h3>
-              <p className="text-[11px] font-medium text-[#728A46]">
+              <p
+                className={cn(
+                  "text-[11px] font-medium",
+                  badge.isLocked ? "text-zinc-400" : "text-[#728A46]",
+                )}
+              >
                 {badge.role}
               </p>
               <p className="mt-1.5 hidden text-[11px] text-zinc-500 sm:block leading-tight line-clamp-2">
                 {badge.desc}
               </p>
+              {badge.isLocked ? (
+                <span className="mt-2.5 inline-flex items-center gap-1 text-[11px] font-medium text-zinc-400">
+                  <Lock aria-hidden="true" className="size-3" />
+                  <span>Locked</span>
+                </span>
+              ) : (
+                <span className="mt-2.5 inline-flex items-center gap-1 text-[11px] font-semibold text-[#728A46]">
+                  <span>Unlocked</span>
+                </span>
+              )}
             </CardContent>
           </Card>
         ))}

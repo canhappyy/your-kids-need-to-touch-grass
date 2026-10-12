@@ -34,14 +34,15 @@ describe("LandingSection", () => {
     expect(markup).toContain("Tell us what they love");
     expect(markup).toContain("Get an instant, weather-ready mission");
 
-    // Core value features
-    expect(markup).toContain("Why Parents Love PlayGo &amp; Co");
-    expect(markup).toContain("Weather-Smart Recommendations");
-
-    // Badges showcase
+    // Badges showcase (4 badges with locked state for Koala and Quokka)
     expect(markup).toContain("Collect Victorian Wildlife Badges");
     expect(markup).toContain("Platypus");
+    expect(markup).toContain("Sugar Glider");
     expect(markup).toContain("Koala");
+    expect(markup).toContain("Quokka");
+    expect(markup).not.toContain("Kookaburra");
+    expect(markup).not.toContain("Echidna");
+    expect(markup).toContain("Locked");
 
     // Health movement guidelines
     expect(markup).toContain("Australian 24-Hour Movement Guidelines");
