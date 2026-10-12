@@ -54,12 +54,4 @@ export type DashboardStats = {
   averageWalkingKmPerDay: number;
   /** Frequency counts of activities completed across different play variety categories. */
   varietyTagCounts: VarietyTagCount[];
-  /** Child age bracket [minAge, maxAge] used for national benchmark comparison, or null if unspecified. */
-  referenceAgeRange: [number, number] | null;
-  /** Human-readable age bracket label (e.g. "5–7 years", "8–9 years", "10–12 years"). */
-  referenceAgeLabel: string;
-  /** Benchmark daily average active play minutes according to Australian national guidelines for the child's age group. */
-  nationalAverageMinutes: number;
-  /** Comparative percentile band for the previous week's daily average relative to Australian national benchmarks. */
-  percentileBand: string | null;
 };

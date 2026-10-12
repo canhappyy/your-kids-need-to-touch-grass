@@ -65,13 +65,12 @@ describe("DataGovernanceSection", () => {
     expect(markup).toContain("vic.gov.au/school-term-dates");
   });
 
-  it("attributes the bundled national activity reference and guideline", () => {
+  it("attributes the bundled movement guideline", () => {
     const markup = renderToStaticMarkup(<DataGovernanceSection />);
 
-    expect(markup).toContain("National Nutrition and Physical Activity Survey 2023");
     expect(markup).toContain("Australian 24-Hour Movement Guidelines");
-    expect(markup).toContain("abs.gov.au/statistics/health/food-and-nutrition");
     expect(markup).toContain("health.gov.au/topics/physical-activity");
+    expect(markup).not.toContain("National Nutrition and Physical Activity Survey 2023");
   });
 
   it("renders the open data disclaimer notice", () => {

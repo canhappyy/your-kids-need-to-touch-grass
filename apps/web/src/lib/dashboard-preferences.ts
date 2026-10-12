@@ -14,12 +14,10 @@ export const DASHBOARD_SEEN_BADGES_KEY = "playgo.dashboard-seen-badges.v1";
  * Valid identifiers for expandable disclosure cards on the parent insights dashboard:
  * - `"rewardBadges"`: Wildlife achievement badges gallery card.
  * - `"favouriteActivities"`: Most frequent play styles and variety breakdown card.
- * - `"nationalGuidelines"`: Australian physical activity guideline comparison card.
  */
 export type DashboardSectionId =
   | "rewardBadges"
-  | "favouriteActivities"
-  | "nationalGuidelines";
+  | "favouriteActivities";
 
 /**
  * Map tracking whether each dashboard disclosure section is currently expanded (`true`) or collapsed (`false`).
@@ -37,7 +35,6 @@ type PreferenceStore = Pick<Storage, "getItem" | "setItem">;
 export const COLLAPSED_DASHBOARD_SECTIONS: DashboardSectionState = {
   rewardBadges: false,
   favouriteActivities: false,
-  nationalGuidelines: false,
 };
 
 /**
@@ -51,8 +48,7 @@ function isSectionState(value: unknown): value is DashboardSectionState {
   const record = value as Record<string, unknown>;
   return (
     typeof record.rewardBadges === "boolean" &&
-    typeof record.favouriteActivities === "boolean" &&
-    typeof record.nationalGuidelines === "boolean"
+    typeof record.favouriteActivities === "boolean"
   );
 }
 

@@ -25,7 +25,7 @@ import {
  * Organized into four accessible educational cards:
  * 1. **About Our Data:** Details how activities were curated to promote unstructured, screen-free outdoor play.
  * 2. **Where Our Data Comes From:** Open dataset citations (Victorian Government open space records,
- *    BOM/Open-Meteo weather APIs, ABS physical activity surveys) with CC BY 4.0 licenses.
+ *    BOM/Open-Meteo weather APIs) with CC BY 4.0 licenses.
  * 3. **Our Activity Library:** Explains activity taxonomy, age ranges, and safety checks.
  * 4. **Your Privacy:** Unambiguous disclosure that PlayGo does not track users, operate accounts, or send personal logs to any external server.
  *

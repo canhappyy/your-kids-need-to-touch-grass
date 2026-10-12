@@ -1,10 +1,8 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-import { buildDashboardStats } from "@/lib/dashboard-stats";
 import { DashboardDisclosure } from "./dashboard-disclosure";
 import { FavouriteActivities } from "./favourite-activities";
-import { NationalGuidelines } from "./national-guidelines";
 
 describe("dashboard detail sections", () => {
   it("announces disclosure state and shows the NEW marker", () => {
@@ -66,17 +64,4 @@ describe("dashboard detail sections", () => {
     );
   });
 
-  it("labels PlayGo figures and both published guideline sources", () => {
-    const stats = buildDashboardStats([], new Date(2026, 9, 7, 12));
-    const markup = renderToStaticMarkup(
-      createElement(NationalGuidelines, { stats }),
-    );
-
-    expect(markup).toContain("PlayGo active time");
-    expect(markup).toContain("PlayGo walking estimate");
-    expect(markup).toContain("National average (Ages 5–17)");
-    expect(markup).toContain("60 min/day");
-    expect(markup).toContain("ABS 2023 National Nutrition");
-    expect(markup).toContain("Australian physical activity guideline");
-  });
 });
