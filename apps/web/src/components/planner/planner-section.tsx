@@ -9,6 +9,7 @@ import { ScreenHeader } from "@/components/layout/screen-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { LorikeetLoader } from "@/components/ui/lorikeet-loader";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDashboardDate } from "@/hooks/use-dashboard-date";
 import { usePlannedActivities } from "@/hooks/use-planned-activities";
@@ -111,9 +112,14 @@ export function PlannerSection() {
 
       {loading ? (
         <div aria-label="Loading activity planner" className="space-y-4">
-          <Skeleton className="h-10 w-full rounded-xl" />
-          <Skeleton className="h-96 w-full rounded-2xl" />
-          <Skeleton className="h-48 w-full rounded-2xl" />
+          <div className="flex justify-center">
+            <LorikeetLoader />
+          </div>
+          <div className="space-y-4">
+            <Skeleton className="h-10 w-full rounded-xl" />
+            <Skeleton className="h-96 w-full rounded-2xl" />
+            <Skeleton className="h-48 w-full rounded-2xl" />
+          </div>
         </div>
       ) : error ? (
         <Card className="border-red-200 bg-red-50 ring-0">

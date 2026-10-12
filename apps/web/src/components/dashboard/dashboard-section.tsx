@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { ScreenHeader } from "@/components/layout/screen-header";
 import { HistoryErrorAlert } from "@/components/history/history-error-alert";
 import { Card, CardContent } from "@/components/ui/card";
+import { LorikeetLoader } from "@/components/ui/lorikeet-loader";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCompletedMissions } from "@/hooks/use-completed-missions";
 import { useDashboardDisclosures } from "@/hooks/use-dashboard-disclosures";
@@ -22,9 +23,11 @@ function DashboardLoadingState() {
   return (
     <div
       aria-label="Loading dashboard activity"
-      className="grid gap-3 sm:gap-4"
+      className="flex flex-col items-center gap-3"
       role="status"
     >
+      <LorikeetLoader />
+      <div className="grid w-full gap-3 sm:gap-4">
       <Skeleton className="h-32 rounded-xl" />
       <Skeleton className="h-32 rounded-xl" />
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
@@ -32,6 +35,7 @@ function DashboardLoadingState() {
         <Skeleton className="h-20 rounded-xl" />
         <Skeleton className="h-20 rounded-xl" />
         <Skeleton className="h-20 rounded-xl" />
+      </div>
       </div>
     </div>
   );

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="20 0 200 230" role="img" aria-label="Loading">
+<title>Loading</title>
+<!-- Juggling balls: 3-ball loop, 1.2s cycle, staggered by 0.4s -->
+<g>
+  <circle r="8" fill="#5A5A5A"><animateMotion dur="1.2s" repeatCount="indefinite" begin="0s" path="M50 92Q120 -40 190 92Q120 20 50 92Z"/></circle>
+  <circle r="8" fill="#7A7A7A"><animateMotion dur="1.2s" repeatCount="indefinite" begin="-0.4s" path="M50 92Q120 -40 190 92Q120 20 50 92Z"/></circle>
+  <circle r="8" fill="#9A9A9A"><animateMotion dur="1.2s" repeatCount="indefinite" begin="-0.8s" path="M50 92Q120 -40 190 92Q120 20 50 92Z"/></circle>
+</g>
+<!-- Bird -->
+<g>
+  <animateTransform attributeName="transform" type="translate" values="0 0;0 3;0 0" dur="0.4s" repeatCount="indefinite"/>
+  <path fill="#8C8C8C" d="M128 170l30 46-24 4-22-42z"/>
+  <path fill="#8C8C8C" d="M100 128C76 124 54 110 44 92c-2 26 14 50 50 60z">
+    <animateTransform attributeName="transform" type="rotate" values="0 100 128;12 100 128;0 100 128" dur="0.4s" repeatCount="indefinite"/>
+  </path>
+  <path fill="#8C8C8C" d="M142 128c24-4 46-18 56-36 2 26-14 50-50 60z">
+    <animateTransform attributeName="transform" type="rotate" values="0 142 128;-12 142 128;0 142 128" dur="0.4s" begin="-0.2s" repeatCount="indefinite"/>
+  </path>
+  <ellipse fill="#8C8C8C" cx="120" cy="152" rx="30" ry="42"/>
+  <ellipse fill="#6E6E6E" cx="120" cy="142" rx="22" ry="22"/>
+  <path fill="#B5B5B5" d="M100 152q20 12 40 0-4 18-20 20-16-2-20-20z"/>
+  <path fill="#A0A0A0" d="M104 176q16 10 32 0-2 14-16 18-14-4-16-18z"/>
+  <path fill="none" stroke="#3A3A3A" stroke-width="5" stroke-linecap="round" d="M112 192v14M128 192v14"/>
+  <circle fill="#A0A0A0" cx="120" cy="96" r="28"/>
+  <path fill="none" stroke="#B5B5B5" stroke-width="7" stroke-linecap="round" d="M98 114q22 12 44 0"/>
+  <path fill="#6E6E6E" d="M110 98h20c0 14-4 22-10 26-6-4-10-12-10-26z"/>
+  <circle fill="#E6E6E6" cx="104" cy="90" r="7"/><circle fill="#E6E6E6" cx="136" cy="90" r="7"/>
+  <circle fill="#3A3A3A" cx="105" cy="91" r="3.5"/><circle fill="#3A3A3A" cx="135" cy="91" r="3.5"/>
+</g>
+</svg>
