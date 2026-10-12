@@ -108,7 +108,6 @@ export function PlannerSection() {
     <div className="mx-auto w-full max-w-5xl space-y-5">
       <ScreenHeader title="Activity planner" />
 
-
       {loading ? (
         <div aria-label="Loading activity planner" className="space-y-4">
           <Skeleton className="h-10 w-full rounded-xl" />
@@ -193,7 +192,7 @@ export function PlannerSection() {
                   today={today}
                   onSelectDate={selectDate}
                   onAddActivity={(date) =>
-                    router.push(`/?planDate=${localDateKey(date)}`)
+                    router.push(`/search?planDate=${localDateKey(date)}`)
                   }
                   onRemoveActivity={remove}
                 />
@@ -207,7 +206,7 @@ export function PlannerSection() {
               selectedDate={selectedDate}
               today={today}
               onAdd={() =>
-                router.push(`/?planDate=${localDateKey(selectedDate)}`)
+                router.push(`/search?planDate=${localDateKey(selectedDate)}`)
               }
               onRemove={remove}
             />

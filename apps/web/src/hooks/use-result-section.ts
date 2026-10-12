@@ -169,7 +169,7 @@ export function useResultSection() {
       const params = buildSearchQuery();
       const safeCode = mapLocationErrorCode(code);
       params.set("locationError", safeCode);
-      router.replace(`/?${params.toString()}`);
+      router.replace(`/search?${params.toString()}`);
     },
     [buildSearchQuery, router],
   );
@@ -246,7 +246,7 @@ export function useResultSection() {
 
   useEffect(() => {
     if (locationMode === "nearby" && !location) {
-      router.replace("/");
+      router.replace("/search");
       return;
     }
 
@@ -378,11 +378,11 @@ export function useResultSection() {
   ]);
 
   const handleBackToSearch = useCallback(() => {
-    router.push("/");
+    router.push("/search");
   }, [router]);
 
   const handleAdjustFilters = useCallback(() => {
-    router.push(`/?${buildSearchQuery()}`);
+    router.push(`/search?${buildSearchQuery()}`);
   }, [buildSearchQuery, router]);
 
   return {
