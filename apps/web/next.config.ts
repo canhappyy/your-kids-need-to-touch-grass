@@ -5,6 +5,13 @@ import type { NextConfig } from "next";
 * Enforces global HTTP security headers following OWASP recommendations.
 */
 const nextConfig: NextConfig = {
+  // Enforce maximum request body size (1MB default, prevents large payload DoS attacks)
+  api: {
+    bodyParser: {
+      sizeLimit: "1mb",
+    },
+  },
+
   async headers() {
     return [
       {
