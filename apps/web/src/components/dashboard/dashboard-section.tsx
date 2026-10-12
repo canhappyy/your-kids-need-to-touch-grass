@@ -138,7 +138,7 @@ export function DashboardSection() {
               id="favourite-activities"
               onToggle={() => toggleSection("favouriteActivities")}
               open={openSections.favouriteActivities}
-              title="Your Child's Favourites"
+              title="Your Child's Favourite Activities"
             >
               <FavouriteActivities tags={stats.varietyTagCounts} />
             </DashboardDisclosure>
