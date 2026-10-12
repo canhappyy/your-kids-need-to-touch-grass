@@ -150,7 +150,7 @@ function BadgeFace({
  * 1. **Collection Summary Banner:** Shows overall unlock progress (e.g., "5/12 Earned") with an animated progress bar.
  * 2. **Earned Section:** Badges that the child has earned, styled with gradient frames and a check mark.
  *    Clicking an earned badge opens `BadgeDetailDialog` with full artwork and celebratory backstory.
- * 3. **Next Challenges Section:** Badges that remain locked, rendered with dashed borders, subtle lock icons,
+ * 3. **Next Up Section:** Badges that remain locked, rendered with dashed borders, subtle lock icons,
  *    and clear requirements so families know what mission or streak to aim for next.
  *
  * @param props - Component configuration including unlocked badge IDs and display options.
@@ -164,7 +164,7 @@ export function RewardsGallery({
   // Convert unlocked IDs into a fast lookup Set
   const unlocked = new Set(unlockedBadgeIds);
 
-  // Partition badges into earned vs. next challenges
+  // Partition badges into earned vs. next up
   const earnedBadges = badges.filter((badge) =>
     isBadgeUnlocked(badge, unlocked),
   );
@@ -271,7 +271,7 @@ export function RewardsGallery({
           <div className="mb-2 flex items-center gap-2">
             <Target aria-hidden="true" className="size-4 text-[#728A46]" />
             <h3 className="text-sm font-bold uppercase tracking-wide text-zinc-700">
-              Next challenges
+              Next up
             </h3>
           </div>
           <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
