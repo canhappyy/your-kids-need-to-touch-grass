@@ -22,14 +22,12 @@ describe("dashboard presentation preferences", () => {
     expect(readDashboardSections()).toEqual({
       rewardBadges: false,
       favouriteActivities: false,
-      nationalGuidelines: false,
     });
     expect(readSeenBadgeIds()).toEqual([]);
     expect(() =>
       writeDashboardSections({
         rewardBadges: false,
         favouriteActivities: false,
-        nationalGuidelines: false,
       }),
     ).not.toThrow();
     expect(() => writeSeenBadgeIds([])).not.toThrow();
@@ -39,7 +37,6 @@ describe("dashboard presentation preferences", () => {
     expect(readDashboardSections(memoryStore())).toEqual({
       rewardBadges: false,
       favouriteActivities: false,
-      nationalGuidelines: false,
     });
   });
 
@@ -48,7 +45,6 @@ describe("dashboard presentation preferences", () => {
     const state = {
       rewardBadges: true,
       favouriteActivities: false,
-      nationalGuidelines: true,
     };
 
     writeDashboardSections(state, store);
@@ -63,7 +59,6 @@ describe("dashboard presentation preferences", () => {
     expect(readDashboardSections(store)).toEqual({
       rewardBadges: false,
       favouriteActivities: false,
-      nationalGuidelines: false,
     });
   });
 

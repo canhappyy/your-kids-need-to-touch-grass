@@ -1,10 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { CompletedMission } from "@/types/completed-mission";
-import {
-  buildDashboardStats,
-  calculatePercentileBand,
-} from "./dashboard-stats";
+import { buildDashboardStats } from "./dashboard-stats";
 
 function completedMission(
   id: string,
@@ -44,7 +41,6 @@ describe("dashboard activity statistics", () => {
       activityCount: 0,
       averageMinutesPerDay: 0,
       averageWalkingKmPerDay: 0,
-      percentileBand: null,
     });
   });
 
@@ -93,8 +89,6 @@ describe("dashboard activity statistics", () => {
       { name: "Exploration", count: 2 },
       { name: "Creativity", count: 1 },
     ]);
-    expect(stats.referenceAgeLabel).toBe("Ages 5–7");
-    expect(stats.nationalAverageMinutes).toBe(105);
   });
 
   it("keeps all-time metrics stable when a new week begins without a completion", () => {
@@ -111,18 +105,6 @@ describe("dashboard activity statistics", () => {
     expect(monday.averageMinutesPerDay).toBe(sunday.averageMinutesPerDay);
   });
 
-  it("weights national averages across overlapping ABS age bands", () => {
-    const stats = buildDashboardStats(
-      [completedMission("age", new Date(2026, 9, 5, 9), 60, { childAgeRange: [8, 9] })],
-      new Date(2026, 9, 5, 12),
-    );
-
-    expect(stats.referenceAgeLabel).toBe("Ages 8–9");
-    expect(stats.nationalAverageMinutes).toBe(100);
-    expect(stats.previousWeekAverageMinutes).toBeNull();
-    expect(stats.percentileBand).toBeNull();
-  });
-
   it("uses the overall reference for legacy records and ignores future records", () => {
     const stats = buildDashboardStats(
       [
@@ -133,18 +115,7 @@ describe("dashboard activity statistics", () => {
     );
 
     expect(stats.activityCount).toBe(1);
-    expect(stats.referenceAgeLabel).toBe("Ages 5–17");
-    expect(stats.nationalAverageMinutes).toBe(85);
     expect(stats.previousWeekAverageMinutes).toBeNull();
-  });
-
-  it("normalizes distribution bins into a neutral percentile range", () => {
-    expect(calculatePercentileBand(45, [10, 20, 30, 20, 10, 5, 3, 2])).toBe(
-      "30th–60th percentile",
-    );
-    expect(calculatePercentileBand(0, [10, 20, 30, 20, 10, 5, 3, 2])).toBe(
-      "0th–10th percentile",
-    );
   });
 
   it("groups records by local calendar date across midnight and DST", () => {

@@ -1,7 +1,3 @@
-import {
-  NATIONAL_ACTIVITY_BANDS,
-  OVERALL_NATIONAL_ACTIVITY_REFERENCE,
-} from "@/data/australian-activity-reference";
 import type { CompletedMission } from "@/types/completed-mission";
 import type {
   DashboardDay,
@@ -105,130 +101,6 @@ function inclusiveCalendarDays(first: Date, last: Date): number {
  * @param value - Integer number to format.
  * @returns Formatted ordinal string.
  */
-function ordinal(value: number): string {
-  const remainder100 = value % 100;
-  const remainder10 = value % 10;
-  const suffix =
-    remainder100 >= 11 && remainder100 <= 13
-      ? "th"
-      : remainder10 === 1
-        ? "st"
-        : remainder10 === 2
-          ? "nd"
-          : remainder10 === 3
-            ? "rd"
-            : "th";
-  return `${value}${suffix}`;
-}
-
-/**
- * Maps an average daily active play minute value to a normalized Australian Bureau of Statistics (ABS) percentile band.
- *
- * Categorizes activity minutes into 30-minute intervals and sums the population distribution percentages
- * to present parents with an encouraging, benchmarked comparative range (e.g. "45th–60th percentile").
- *
- * @param averageMinutes - Child's average daily active play minutes.
- * @param distribution - Population distribution frequencies across 30-minute bins.
- * @returns A descriptive percentile range string, or "0th–0th percentile" if distribution is empty.
- */
-export function calculatePercentileBand(
-  averageMinutes: number,
-  distribution: readonly number[],
-): string {
-  // Determine which 30-minute bracket the child's average falls into
-  const binIndex =
-    averageMinutes <= 0
-      ? 0
-      : averageMinutes < 30
-        ? 1
-        : averageMinutes < 60
-          ? 2
-          : averageMinutes < 90
-            ? 3
-            : averageMinutes < 120
-              ? 4
-              : averageMinutes < 150
-                ? 5
-                : averageMinutes < 180
-                  ? 6
-                  : 7;
-
-  const total = distribution.reduce((sum, value) => sum + value, 0);
-  if (total <= 0) return "0th–0th percentile";
-
-  // Cumulative distribution up to the lower boundary of the bracket
-  const lower = distribution
-    .slice(0, binIndex)
-    .reduce((sum, value) => sum + value, 0);
-  // Upper boundary including the current bracket
-  const upper = lower + (distribution[binIndex] ?? 0);
-
-  return `${ordinal(Math.round((lower / total) * 100))}–${ordinal(
-    Math.round((upper / total) * 100),
-  )} percentile`;
-}
-
-/**
- * Builds the weighted national activity reference dataset matching the child's specific age range.
- *
- * When an age range overlaps multiple national survey brackets (e.g. 5–12 spanning 5–8 and 9–11),
- * this function computes a weighted blend of average minutes and distribution curves proportional to
- * the number of overlapping years.
- *
- * @param ageRange - Tuple of [minAge, maxAge], or null if unspecified.
- * @returns An object with benchmark averageMinutes, distribution curve, and age label.
- */
-function buildNationalReference(ageRange: [number, number] | null): {
-  averageMinutes: number;
-  distribution: number[];
-  label: string;
-} {
-  // Default to broader national 5–17 benchmark if no specific age is provided
-  if (!ageRange || ageRange[0] > ageRange[1]) {
-    return {
-      averageMinutes: OVERALL_NATIONAL_ACTIVITY_REFERENCE.averageMinutes,
-      distribution: [...OVERALL_NATIONAL_ACTIVITY_REFERENCE.distribution],
-      label: "Ages 5–17",
-    };
-  }
-
-  // Calculate year overlap weights with standard survey bands
-  const overlaps = NATIONAL_ACTIVITY_BANDS.map((band) => ({
-    band,
-    weight: Math.max(
-      0,
-      Math.min(ageRange[1], band.maxAge) -
-        Math.max(ageRange[0], band.minAge) +
-        1,
-    ),
-  })).filter(({ weight }) => weight > 0);
-
-  const totalWeight = overlaps.reduce((sum, item) => sum + item.weight, 0);
-  if (totalWeight === 0) return buildNationalReference(null);
-
-  // Compute weighted average distribution across the 8 activity time bins
-  const distribution = Array.from({ length: 8 }, (_, index) =>
-    overlaps.reduce(
-      (sum, item) => sum + (item.band.distribution[index] ?? 0) * item.weight,
-      0,
-    ) / totalWeight,
-  );
-
-  // Compute weighted average daily active minutes
-  const averageMinutes = Math.round(
-    overlaps.reduce(
-      (sum, item) => sum + item.band.averageMinutes * item.weight,
-      0,
-    ) / totalWeight,
-  );
-
-  return {
-    averageMinutes,
-    distribution,
-    label: `Ages ${ageRange[0]}–${ageRange[1]}`,
-  };
-}
-
 /**
  * Aggregates frequency counts of completed activities grouped by developmental variety tags.
  *
@@ -248,15 +120,14 @@ function countVarietyTags(records: CompletedMission[]): VarietyTagCount[] {
 }
 
 /**
- * Aggregates device-local completed mission records into comprehensive dashboard metrics and national comparisons.
+ * Aggregates device-local completed mission records into dashboard metrics.
  *
  * Calculations performed:
  * 1. Filters and validates timestamps to include only valid records occurring on or before `now`.
  * 2. Compiles daily active minutes across Monday through Sunday of the active week.
  * 3. Evaluates daily goal attainment (60 minutes) for each day.
  * 4. Derives current-week and previous-week daily averages, plus all-time activity counts and walking distances.
- * 5. Correlates child age bounds with Australian Bureau of Statistics (ABS) benchmark curves.
- * 6. Categorizes play diversity via variety tag frequency counts.
+ * 5. Categorizes play diversity via variety tag frequency counts.
  *
  * @param records - Array of completed mission records stored locally.
  * @param now - Reference timestamp (defaults to current system time).
@@ -335,13 +206,6 @@ export function buildDashboardStats(
     ? Math.round(previousWeekMinutes / WEEK_DAY_COUNT)
     : null;
 
-  // Find most recently selected child age range to benchmark against
-  const referenceAgeRange =
-    [...completedRecords]
-      .reverse()
-      .find((record) => record.childAgeRange)?.childAgeRange ?? null;
-  const reference = buildNationalReference(referenceAgeRange);
-
   const averageMinutesPerDay = observedDays
     ? Math.round(totalMinutes / observedDays)
     : 0;
@@ -368,15 +232,5 @@ export function buildDashboardStats(
       ? Math.round((totalWalkingKm / observedDays) * 10) / 10
       : 0,
     varietyTagCounts: countVarietyTags(completedRecords),
-    referenceAgeRange,
-    referenceAgeLabel: reference.label,
-    nationalAverageMinutes: reference.averageMinutes,
-    percentileBand:
-      hasPreviousWeekActivity && previousWeekAverageMinutes !== null
-        ? calculatePercentileBand(
-            previousWeekAverageMinutes,
-            reference.distribution,
-          )
-        : null,
   };
 }

@@ -6,7 +6,7 @@ import type { DashboardStats } from "@/types/dashboard";
  * Properties for the `DashboardMetrics` component.
  */
 type DashboardMetricsProps = {
-  /** Aggregated dashboard statistics containing daily averages, total counts, and national percentile. */
+  /** Aggregated dashboard statistics containing daily averages, total counts. */
   stats: DashboardStats;
 };
 
@@ -18,13 +18,11 @@ function ActivityTimeCard({
   label,
   totalMinutes,
   averageMinutes,
-  comparison,
   icon: Icon,
 }: {
   label: string;
   totalMinutes: number | null;
   averageMinutes: number | null;
-  comparison?: string;
   icon: typeof Activity;
 }) {
   return (
@@ -48,9 +46,6 @@ function ActivityTimeCard({
             <p className="text-[11px] text-zinc-500">avg/day</p>
           </div>
         </div>
-        {comparison ? (
-          <p className="mt-1 text-[11px] text-zinc-500">{comparison}</p>
-        ) : null}
       </CardContent>
     </Card>
   );
@@ -63,7 +58,7 @@ function ActivityTimeCard({
  * 1. **Activity Time:** Current-week-to-date total and daily average active minutes.
  * 2. **Walking:** Estimated daily walking distance in kilometers based on park visits and missions.
  * 3. **Activities Logged:** Total count of completed missions stored on device.
- * 4. **Activity Time Last Week:** Previous full week's total and daily average, with benchmark context.
+ * 4. **Activity Time Last Week:** Previous full week's total and daily average.
  *
  * @param props - Component properties containing aggregated stats.
  * @returns The rendered 2x2 metric cards grid.
@@ -97,9 +92,6 @@ export function DashboardMetrics({ stats }: DashboardMetricsProps) {
       />
       <ActivityTimeCard
         averageMinutes={stats.previousWeekAverageMinutes}
-        comparison={
-          stats.percentileBand ? `Benchmark: ${stats.percentileBand}` : undefined
-        }
         icon={Gauge}
         label="Activity time last week"
         totalMinutes={

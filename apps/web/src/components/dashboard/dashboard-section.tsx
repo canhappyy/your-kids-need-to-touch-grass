@@ -15,7 +15,6 @@ import { DailyGoalCard } from "./daily-goal-card";
 import { DashboardDisclosure } from "./dashboard-disclosure";
 import { DashboardMetrics } from "./dashboard-metrics";
 import { FavouriteActivities } from "./favourite-activities";
-import { NationalGuidelines } from "./national-guidelines";
 import { RewardsGallery } from "./rewards-gallery";
 import { WeeklyActivityChart } from "./weekly-activity-chart";
 
@@ -49,7 +48,7 @@ function DashboardLoadingState() {
  *   2. Determines active calendar reference date via `useDashboardDate`.
  *   3. Queries wildlife badge catalog from PostgreSQL via `useSpeciesBadges`.
  *   4. Evaluates streaks and unlocks via `useRewards`.
- *   5. Aggregates weekly chart days, percentiles, and stats via `buildDashboardStats`.
+ *   5. Aggregates weekly chart days and stats via `buildDashboardStats`.
  *   6. Tracks accordion disclosure expansion and "NEW" badge notification via `useDashboardDisclosures`.
  * - **Graceful Loading & Error Recovery:** Presents skeleton placeholders while loading and an
  *   accessible retry alert if data fails to initialize.
@@ -74,7 +73,7 @@ export function DashboardSection() {
     error: rewardsError,
     refresh: refreshRewards,
   } = useRewards(records, currentDate, badges);
-  // Aggregate statistics for daily goals, 7-day chart, and ABS guidelines
+  // Aggregate statistics for daily goals and the 7-day chart
   const stats = useMemo(
     () => buildDashboardStats(records, currentDate),
     [records, currentDate],
