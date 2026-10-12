@@ -21,12 +21,12 @@ export function LandingCta() {
             Enter your suburb and child&apos;s interests to discover great outdoor and indoor play ideas in less than 30 seconds.
           </p>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+          <div className="mt-8 flex flex-col gap-3.5 sm:flex-row sm:justify-center">
             <Link
               href="/search"
               className={cn(
-                buttonVariants({ size: "lg" }),
-                "h-12 rounded-full bg-white text-base font-bold text-[#556933] shadow-sm hover:bg-zinc-100 active:scale-[0.98] transition-all gap-2 px-6",
+                buttonVariants(),
+                "h-14 min-h-14 w-full sm:w-auto rounded-full bg-white px-8 text-base font-bold text-[#556933] shadow-sm hover:bg-zinc-100 active:scale-[0.98] transition-all gap-2",
               )}
             >
               <Compass className="size-5" />
@@ -35,8 +35,8 @@ export function LandingCta() {
             <Link
               href="/planner"
               className={cn(
-                buttonVariants({ variant: "outline", size: "lg" }),
-                "h-12 rounded-full border-white/40 bg-white/10 text-base font-semibold text-white shadow-2xs hover:bg-white/20 active:scale-[0.98] transition-all gap-2 px-6",
+                buttonVariants({ variant: "outline" }),
+                "h-14 min-h-14 w-full sm:w-auto rounded-full border-white/40 bg-white/10 px-8 text-base font-semibold text-white shadow-2xs hover:bg-white/20 active:scale-[0.98] transition-all gap-2",
               )}
             >
               <CalendarDays className="size-5" />
