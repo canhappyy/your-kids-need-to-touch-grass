@@ -100,17 +100,13 @@ export function LocationInputField({
           maxLength={50}
           name="location"
           onChange={(event) => onLocationChange(event.target.value)}
-          placeholder="Enter a location"
+          placeholder="Enter a suburb or postcode"
           ref={inputRef}
           required
           type="text"
           value={location}
         />
       </div>
-
-      <p id="location-hint" className="mt-2 text-xs text-zinc-500">
-        Address, suburb, or postcode
-      </p>
 
       {locationError && (
         <p
