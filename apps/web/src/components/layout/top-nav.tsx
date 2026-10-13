@@ -105,13 +105,14 @@ export function TopNav({
             title={isHistoryOpen ? "Close history" : "History"}
             aria-expanded={isHistoryOpen}
             className={cn(
-              "fixed top-4 right-4 flex size-11 items-center justify-center rounded-full border border-black/5 text-zinc-700 shadow-xs backdrop-blur-md transition-colors hover:bg-white/70 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63] sm:top-6 sm:right-6",
+              "fixed top-4 right-4 flex h-11 items-center justify-center gap-1.5 rounded-full border border-black/5 px-3 text-xs font-semibold text-zinc-700 shadow-xs backdrop-blur-md transition-colors hover:bg-white/70 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63] sm:top-6 sm:right-6",
               isHistoryOpen
                 ? "z-50 bg-black/10 text-zinc-900 hover:bg-black/15"
                 : "z-30 bg-white/40",
             )}
           >
-            <History className="size-6" />
+            <History className="size-5" />
+            <span>Backlog</span>
           </button>
           <HistoryOverlay open={isHistoryOpen} onClose={() => setOpen(false)} />
         </>
@@ -121,4 +122,3 @@ export function TopNav({
 }
 
 export type { TopNavProps };
-

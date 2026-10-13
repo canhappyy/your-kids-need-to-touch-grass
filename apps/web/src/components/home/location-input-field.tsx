@@ -109,7 +109,7 @@ export function LocationInputField({
       </div>
 
       <p id="location-hint" className="mt-2 text-xs text-zinc-500">
-        Address, suburb, or postcode
+        Suburb or postcode
       </p>
 
       {locationError && (
