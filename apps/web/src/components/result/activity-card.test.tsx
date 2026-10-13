@@ -57,6 +57,7 @@ describe("ActivityCard", () => {
     expect(markup).toContain("25 mins activity");
     expect(markup).toContain("Clear and sunny");
     expect(markup).toContain("How to Play");
+    expect(markup.match(/Mark complete/g)).toHaveLength(2);
 
     expect(markup).toContain("perspective-1000");
     expect(markup).toContain("transform-style-3d");
@@ -83,6 +84,8 @@ describe("ActivityCard", () => {
     expect(markup).toContain("Search for 3 different leaves.");
     expect(markup).toContain("Celebrate your finds!");
     expect(markup).toContain("Details");
+    expect(markup).toContain("Save");
+    expect(markup).toContain("Mark complete");
   });
 
   it("handles activities with no equipment needed", () => {

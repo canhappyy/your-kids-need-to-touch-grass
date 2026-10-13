@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Bookmark, FlipHorizontal } from "lucide-react";
+import { Bookmark, CheckCircle2, FlipHorizontal } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSaveActivity } from "@/hooks/use-save-activity";
+import { useCompleteActivity } from "@/hooks/use-complete-activity";
 import { calculateDailyGoalProgress } from "@/lib/activity";
 import { getEquipmentList, getMissionSteps } from "@/lib/mission-instructions";
 import { cn } from "@/lib/utils";
@@ -59,6 +60,11 @@ export function ActivityCard({
     false,
     childAgeRange,
   );
+  const {
+    complete: markComplete,
+    completed: isCompleted,
+    error: completionError,
+  } = useCompleteActivity(recommendation, false, childAgeRange);
 
   const isSaved = isBacklogSaved || isPlannedSaved;
 
@@ -170,6 +176,30 @@ export function ActivityCard({
                     progressValue={activeProgressValue}
                   />
                 </div>
+                <div
+                  className="mt-4 border-t border-zinc-200/60 pt-3"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    type="button"
+                    aria-label={
+                      isCompleted
+                        ? "Activity completed"
+                        : "Mark activity complete"
+                    }
+                    className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-full bg-[#93AB63] px-3 text-xs font-semibold text-white transition-colors hover:bg-[#819953] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63]/40 disabled:cursor-default disabled:opacity-70"
+                    disabled={isCompleted}
+                    onClick={markComplete}
+                  >
+                    <CheckCircle2 aria-hidden="true" className="size-4" />
+                    {isCompleted ? "Completed" : "Mark complete"}
+                  </button>
+                  {completionError && (
+                    <p className="mt-2 text-xs text-red-700" role="alert">
+                      {completionError}
+                    </p>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -206,7 +236,7 @@ export function ActivityCard({
               </div>
 
               <div
-                className="flex-1 overflow-y-auto overscroll-contain space-y-4 py-2 pr-1 text-left text-zinc-800"
+                className="min-h-0 flex-1 overflow-y-auto overscroll-contain space-y-4 py-2 pr-1 text-left text-zinc-800"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="space-y-1.5">
@@ -254,6 +284,36 @@ export function ActivityCard({
                   )}
                 </div>
               </div>
+              <div
+                className="mt-2 grid grid-cols-2 gap-2 border-t border-zinc-200/80 pt-3"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button
+                  type="button"
+                  aria-label={isBacklogSaved ? "Saved to backlog" : "Save activity"}
+                  className="inline-flex h-10 items-center justify-center gap-1.5 rounded-full border border-[#93AB63] bg-white px-3 text-xs font-semibold text-[#728A46] transition-colors hover:bg-[#F4F7E9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63]/40 disabled:cursor-default disabled:opacity-70"
+                  disabled={isBacklogSaved}
+                  onClick={() => setShowSaveOptions(true)}
+                >
+                  <Bookmark aria-hidden="true" className="size-4" />
+                  {isBacklogSaved ? "Saved" : "Save"}
+                </button>
+                <button
+                  type="button"
+                  aria-label={isCompleted ? "Activity completed" : "Mark activity complete"}
+                  className="inline-flex h-10 items-center justify-center gap-1.5 rounded-full bg-[#93AB63] px-3 text-xs font-semibold text-white transition-colors hover:bg-[#819953] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93AB63]/40 disabled:cursor-default disabled:opacity-70"
+                  disabled={isCompleted}
+                  onClick={markComplete}
+                >
+                  <CheckCircle2 aria-hidden="true" className="size-4" />
+                  {isCompleted ? "Completed" : "Mark complete"}
+                </button>
+              </div>
+              {completionError && (
+                <p className="mt-2 text-xs text-red-700" role="alert">
+                  {completionError}
+                </p>
+              )}
             </CardContent>
           </Card>
         </div>
