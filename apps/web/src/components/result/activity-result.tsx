@@ -5,7 +5,6 @@ import type { ActivityResultProps } from "@/types/activity";
 
 import { ActivityActions } from "./activity-actions";
 import { ActivityCard } from "./activity-card";
-import { ActivityHeader } from "./activity-header";
 
 /**
  * Renders the single recommended activity result view, displaying flippable activity details,
@@ -19,15 +18,12 @@ function ActivityResult({
   onTryAnother,
 }: ActivityResultProps) {
   const {
-    dailyGoalPercentage,
     directionsUrl,
     formattedDuration,
     formattedTotalDuration,
     formattedCommuteDuration,
-    goalAriaText,
     isHomeBased,
     locationLabel,
-    progressValue,
   } = useActivityResult(recommendation);
 
   return (
@@ -44,19 +40,14 @@ function ActivityResult({
         </div>
       )}
 
-      <ActivityHeader title={recommendation.title} />
-
       <ActivityCard
         childAgeRange={childAgeRange}
-        dailyGoalPercentage={dailyGoalPercentage}
         formattedCommuteDuration={formattedCommuteDuration}
         formattedDuration={formattedDuration}
         formattedTotalDuration={formattedTotalDuration}
-        goalAriaText={goalAriaText}
         isHomeBased={isHomeBased}
         locationLabel={locationLabel}
         planDate={planDate}
-        progressValue={progressValue}
         recommendation={recommendation}
       />
 

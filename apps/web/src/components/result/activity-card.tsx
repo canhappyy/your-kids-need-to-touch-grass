@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSaveActivity } from "@/hooks/use-save-activity";
 import { useCompleteActivity } from "@/hooks/use-complete-activity";
-import { calculateDailyGoalProgress } from "@/lib/activity";
+import { useCompletedMissions } from "@/hooks/use-completed-missions";
 import { getEquipmentList, getMissionSteps } from "@/lib/mission-instructions";
 import { cn } from "@/lib/utils";
 import type { Recommendation } from "@/types/recommendation";
@@ -25,9 +25,6 @@ export type ActivityCardProps = {
   formattedCommuteDuration: string | null;
   locationLabel: string;
   isHomeBased: boolean;
-  dailyGoalPercentage?: number;
-  goalAriaText?: string;
-  progressValue?: number;
   planDate?: string;
   childAgeRange?: [number, number];
 };
@@ -44,9 +41,6 @@ export function ActivityCard({
   formattedCommuteDuration,
   locationLabel,
   isHomeBased,
-  dailyGoalPercentage,
-  goalAriaText,
-  progressValue,
   planDate,
   childAgeRange,
 }: ActivityCardProps) {
@@ -68,13 +62,14 @@ export function ActivityCard({
 
   const isSaved = isBacklogSaved || isPlannedSaved;
 
-  const fallbackProgress = calculateDailyGoalProgress(
-    recommendation.durationMinutes,
-  );
-  const activeDailyGoalPercentage =
-    dailyGoalPercentage ?? fallbackProgress.dailyGoalPercentage;
-  const activeGoalAriaText = goalAriaText ?? fallbackProgress.label;
-  const activeProgressValue = progressValue ?? fallbackProgress.progressValue;
+  const { records } = useCompletedMissions();
+  const todayKey = new Date().toLocaleDateString("en-CA");
+  const completedMinutesToday = records
+    .filter(
+      (record) =>
+        new Date(record.completedAt).toLocaleDateString("en-CA") === todayKey,
+    )
+    .reduce((total, record) => total + record.durationMinutes, 0);
 
   const steps = getMissionSteps(recommendation.instructionText);
   const equipmentItems = getEquipmentList(recommendation.equipmentNeeded);
@@ -121,6 +116,9 @@ export function ActivityCard({
           <Card className="min-h-[380px] sm:min-h-[400px] flex flex-col justify-between border border-[#93AB63]/60 bg-white/70 shadow-sm ring-0 transition-all group-hover:border-[#93AB63] group-hover:shadow-md">
             <CardContent className="flex flex-1 flex-col justify-between p-5 sm:p-6">
               <div>
+                <h1 className="mb-4 text-center text-2xl font-bold tracking-tight text-zinc-900">
+                  {recommendation.title}
+                </h1>
                 <div className="mb-2 flex items-center justify-between">
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-[#93AB63]/40 bg-[#F4F7E9] px-2.5 py-0.5 text-xs font-semibold text-[#728A46] shadow-2xs">
                     <FlipHorizontal
@@ -171,9 +169,8 @@ export function ActivityCard({
 
                 <div className="mt-4 pt-3 border-t border-zinc-200/60">
                   <ActivityProgress
-                    dailyGoalPercentage={activeDailyGoalPercentage}
-                    goalAriaText={activeGoalAriaText}
-                    progressValue={activeProgressValue}
+                    activityMinutes={recommendation.durationMinutes}
+                    completedMinutesToday={completedMinutesToday}
                   />
                 </div>
                 <div

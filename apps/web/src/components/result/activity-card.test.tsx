@@ -150,15 +150,11 @@ describe("ActivityCard", () => {
         formattedCommuteDuration: "10 mins",
         locationLabel: "Gardners Creek Reserve",
         isHomeBased: false,
-        dailyGoalPercentage: 42,
-        goalAriaText: "42% of daily outdoor play goal",
-        progressValue: 42,
       }),
     );
 
-    expect(markup).toContain("42% of the 60-minute daily goal");
-    expect(markup).toContain('aria-valuetext="42% of daily outdoor play goal"');
-    expect(markup).toContain('data-slot="progress"');
+    expect(markup).toContain("Daily activity goal");
+    expect(markup).toContain("This activity · +42%");
   });
 
   it("calculates fallback progress bar values when props are omitted", () => {
@@ -173,9 +169,9 @@ describe("ActivityCard", () => {
       }),
     );
 
-    // 25 mins out of 60 mins is 42%
-    expect(markup).toContain("42% of the 60-minute daily goal");
-    expect(markup).toContain('data-slot="progress"');
+    // 25 mins out of 60 mins rounds to a 42% projected contribution.
+    expect(markup).toContain("0% → 42%");
+    expect(markup).toContain('role="progressbar"');
   });
 
   it("renders flip icon on How to Play and Details badges instead of reload icon", () => {
