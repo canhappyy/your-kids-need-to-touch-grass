@@ -127,7 +127,7 @@ export function ActivityDetails({
                   href="https://open-meteo.com/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="relative z-20 text-xs text-zinc-500 underline underline-offset-4 hover:text-zinc-700"
+                  className="backface-hidden text-xs text-zinc-500 underline underline-offset-4 hover:text-zinc-700"
                   onClick={(e) => e.stopPropagation()}
                 >
                   Weather data by Open-Meteo

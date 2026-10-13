@@ -112,7 +112,7 @@ export function ActivityCard({
         )}
       >
         {/* Front Face: Activity Details */}
-        <div className="w-full backface-hidden">
+        <div className={cn("w-full backface-hidden", isFlipped ? "z-0" : "z-10")}>
           <Card className="min-h-[380px] sm:min-h-[400px] flex flex-col justify-between border border-[#93AB63]/60 bg-white/70 shadow-sm ring-0 transition-all group-hover:border-[#93AB63] group-hover:shadow-md">
             <CardContent className="flex flex-1 flex-col justify-between p-5 sm:p-6">
               <div>
@@ -203,7 +203,12 @@ export function ActivityCard({
         </div>
 
         {/* Back Face: Activity Instructions */}
-        <div className="absolute inset-0 h-full w-full backface-hidden rotate-y-180">
+        <div
+          className={cn(
+            "absolute inset-0 h-full w-full backface-hidden rotate-y-180",
+            isFlipped ? "z-10" : "z-0",
+          )}
+        >
           <Card className="h-full flex flex-col border border-[#93AB63]/60 bg-[#FDF6EA] shadow-sm ring-0 transition-all group-hover:border-[#93AB63] group-hover:shadow-md">
             <CardContent className="flex h-full flex-col p-5 sm:p-6 overflow-hidden">
               <div className="flex items-center justify-between gap-3 border-b border-zinc-200/80 pb-3">
