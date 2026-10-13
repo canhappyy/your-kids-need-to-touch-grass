@@ -38,6 +38,7 @@ describe("TopNav", () => {
 
     expect(markup).toContain('aria-label="Completed missions history"');
     expect(markup).toContain('title="History"');
+    expect(markup).toContain("Backlog");
     expect(markup).toContain('aria-expanded="false"');
     expect(markup).toContain("fixed top-4 right-4");
     expect(markup).toContain("backdrop-blur-md");

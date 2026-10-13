@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { LandingSection } from "@/components/landing";
+import { LorikeetLoader } from "@/components/ui/lorikeet-loader";
 
 /**
  * Page metadata for the main landing page view.
@@ -23,10 +24,16 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <main className="relative min-h-svh bg-[#FDF6EA] px-4 pt-16 pb-24 text-zinc-900 sm:px-6 md:px-8 sm:pt-20">
-      <Suspense fallback={<div className="text-zinc-500">Loading...</div>}>
+      <Suspense
+        fallback={
+          <div className="flex flex-col items-center gap-2 text-zinc-500">
+            <LorikeetLoader />
+            <span>Loading...</span>
+          </div>
+        }
+      >
         <LandingSection />
       </Suspense>
     </main>
   );
 }
-

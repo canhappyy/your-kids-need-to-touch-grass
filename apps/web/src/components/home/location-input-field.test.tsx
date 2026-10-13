@@ -23,7 +23,7 @@ describe("LocationInputField", () => {
     expect(markup).toContain('aria-label="Use my location"');
     expect(markup).toContain("or");
     expect(markup).toContain('placeholder="Enter a location"');
-    expect(markup).toContain("Address, suburb, or postcode");
+    expect(markup).toContain("Suburb or postcode");
     expect(markup).toContain('value="Clayton"');
   });
 
