@@ -189,4 +189,22 @@ describe("ActivityCard", () => {
     expect(markup).not.toContain("lucide-rotate-cw");
     expect(markup).toContain("lucide-square-centerline-dashed-horizontal");
   });
+
+  it("ensures weather link does not escape 3D backface hiding with positive z-index", () => {
+    const markup = renderToStaticMarkup(
+      createElement(ActivityCard, {
+        recommendation: mockRecommendation,
+        formattedDuration: "25 mins",
+        formattedTotalDuration: "35 mins",
+        formattedCommuteDuration: "10 mins",
+        locationLabel: "Gardners Creek Reserve",
+        isHomeBased: false,
+      }),
+    );
+
+    // Weather link should include backface-hidden and never relative z-20 which bleeds through
+    expect(markup).toContain("Weather data by Open-Meteo");
+    expect(markup).toContain("backface-hidden text-xs text-zinc-500");
+    expect(markup).not.toContain("relative z-20 text-xs");
+  });
 });
