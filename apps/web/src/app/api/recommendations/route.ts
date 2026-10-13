@@ -2,7 +2,10 @@ import { getMissionWeather } from "@/server/services/weather.service";
 import { NextResponse } from "next/server";
 
 import { LocationResolutionError } from "@/server/services/location.service";
-import { recommendationQuerySchema } from "@/server/schemas/recommendation.schema";
+import {
+  recommendationBodySchema,
+  recommendationQuerySchema,
+} from "@/server/schemas/recommendation.schema";
 import { getRecommendation } from "@/server/services/recommendation.service";
 import type { RecommendationInput } from "@/types/recommendation";
 
@@ -95,21 +98,16 @@ function parseRecommendationQuery(
  * GET /api/recommendations?ageMin=6&ageMax=9&durationMinutes=45&locationMode=nearby&location=3168
  * ```
  */
-export async function GET(request: Request) {
+async function recommendationResponse(input: RecommendationInput | null) {
+  if (!input) {
+    return errorResponse(
+      400,
+      "INVALID_INPUT",
+      "Enter a valid location, age range, and duration.",
+    );
+  }
+
   try {
-    const { searchParams } = new URL(request.url);
-
-    // Validate input query parameters
-    const input = parseRecommendationQuery(searchParams);
-
-    if (!input) {
-      return errorResponse(
-        400,
-        "INVALID_INPUT",
-        "Enter a valid location, age range, and duration.",
-      );
-    }
-
     // Generate preliminary recommendation based on parent's criteria
     let recommendation = await getRecommendation(input);
     let weatherNotice: string | undefined;
@@ -135,6 +133,7 @@ export async function GET(request: Request) {
         canSupervise: input.canSupervise,
         excludeMissionIds: input.excludeMissionIds,
         missionId: input.missionId,
+        interests: input.interests,
         locationMode: "home",
         homeBasedOnly: true,
       });
@@ -163,7 +162,9 @@ export async function GET(request: Request) {
       return errorResponse(error.status, error.code, error.message, "location");
     }
 
-    console.error("Failed to generate recommendations:", error);
+    console.error("Failed to generate recommendations.", {
+      errorClass: error instanceof Error ? error.name : "UnknownError",
+    });
 
     // Return 500 error on unexpected failures
     return errorResponse(
@@ -174,3 +175,23 @@ export async function GET(request: Request) {
   }
 }
 
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  return recommendationResponse(parseRecommendationQuery(searchParams));
+}
+
+export async function POST(request: Request) {
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return errorResponse(
+      400,
+      "INVALID_INPUT",
+      "Enter a valid location, age range, and duration.",
+    );
+  }
+
+  const parsed = recommendationBodySchema.safeParse(body);
+  return recommendationResponse(parsed.success ? parsed.data : null);
+}

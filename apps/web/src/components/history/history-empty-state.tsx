@@ -17,7 +17,7 @@ export function HistoryEmptyState({ onClose }: HistoryEmptyStateProps = {}) {
         <p>No missions completed yet</p>
         <Link
           className="mt-3 inline-flex min-h-11 items-center underline"
-          href="/"
+          href="/search"
           onClick={onClose}
         >
           Find a mission

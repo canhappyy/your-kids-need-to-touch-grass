@@ -133,18 +133,18 @@ function mapAgeBands(row: Record<string, unknown>): AgeBand[] {
  *    Because an activity might match dozens of nearby parks, `DISTINCT ON (a.mission_id)` paired with
  *    `ORDER BY a.mission_id, os.distance_km` retains only the single closest venue for each eligible activity.
  *
- * 5. Soft Exclusion & Randomisation (`ORDER BY CASE ... random() LIMIT 1`):
+ * 5. Soft Exclusion & Randomisation (`ORDER BY CASE ... random()`):
  *    - Soft-excludes previously seen missions (`excludeMissionIds`, `$6`) by placing them last,
  *      ensuring users still get results even if all eligible activities have been seen.
  *    - Uses `random()` to select unpredictably among eligible candidates for varied recommendations.
- *    - `LIMIT 1` returns the single chosen recommendation candidate.
+ *    - Returns every valid candidate so the service can rank them.
  *
  * @param input - The recommendation search criteria including coordinates, age bounds, duration, play style, and supervision availability.
- * @returns A promise resolving to the closest matching `RecommendationCandidate`, or `null` if none found.
+ * @returns A promise resolving to all matching candidates in randomized soft-exclusion order.
  */
-export async function findLocationBasedRecommendation(
+export async function findLocationBasedRecommendations(
   input: RecommendationQuery,
-): Promise<RecommendationCandidate | null> {
+): Promise<RecommendationCandidate[]> {
   const result = await pool.query(
     `
     WITH open_space_distances AS MATERIALIZED (
@@ -224,7 +224,6 @@ export async function findLocationBasedRecommendation(
     ORDER BY
       CASE WHEN mission_id = ANY($6::text[]) THEN 1 ELSE 0 END,
       random()
-    LIMIT 1;
     `,
     [
       input.latitude,
@@ -243,7 +242,7 @@ export async function findLocationBasedRecommendation(
     ],
   );
 
-  return result.rows[0] ? mapLocationCandidate(result.rows[0]) : null;
+  return result.rows.map(mapLocationCandidate);
 }
 
 /**
@@ -267,21 +266,21 @@ export async function findLocationBasedRecommendation(
  *    - Age Band Overlap: Verifies the child's age range (`[$1, $2]`) intersects with at least
  *      one enabled age band (`age_5_7`, `age_8_9`, or `age_10_12`).
  *
- * 3. Soft Exclusion & Randomisation (`ORDER BY CASE ... random() LIMIT 1`):
+ * 3. Soft Exclusion & Randomisation (`ORDER BY CASE ... random()`):
  *    - Soft-excludes previously seen missions (`excludeMissionIds`, `$4`) by placing them last,
  *      guaranteeing users still receive a suggestion if all eligible activities have been seen.
  *    - Uses `random()` to pick unpredictably among top candidates for recommendation variety.
- *    - `LIMIT 1` returns the single winning candidate.
+ *    - Returns every valid candidate so the service can rank them.
  *
  * 4. Data Mapping (`mapFallbackCandidate`):
  *    Transforms the database row into a `RecommendationCandidate` with `venue: null`.
  *
  * @param input - Fallback recommendation search criteria including age bounds, duration, play style, and supervision level.
- * @returns A promise resolving to a matching `RecommendationCandidate`, or `null` if none found.
+ * @returns A promise resolving to all matching candidates in randomized soft-exclusion order.
  */
-export async function findFallbackRecommendation(
+export async function findFallbackRecommendations(
   input: FallbackRecommendationQuery,
-): Promise<RecommendationCandidate | null> {
+): Promise<RecommendationCandidate[]> {
   const result = await pool.query(
     `
     SELECT
@@ -320,7 +319,6 @@ export async function findFallbackRecommendation(
     ORDER BY
       CASE WHEN mission_id = ANY($4::text[]) THEN 1 ELSE 0 END,
       random()
-    LIMIT 1;
     `,
     [
       input.ageMin,
@@ -337,5 +335,5 @@ export async function findFallbackRecommendation(
     ],
   );
 
-  return result.rows[0] ? mapFallbackCandidate(result.rows[0]) : null;
+  return result.rows.map(mapFallbackCandidate);
 }

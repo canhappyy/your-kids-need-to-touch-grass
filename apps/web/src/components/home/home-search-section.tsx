@@ -12,6 +12,7 @@ import {
   getInitialBuckets,
   minuteOptions,
 } from "@/lib/home-search";
+import { writeStoredInterests } from "@/lib/interests-storage";
 import type { AgeBucketId } from "@/types/home-search";
 import { readPlannableDateParam } from "@/lib/planner-dates";
 import {
@@ -20,13 +21,20 @@ import {
   type LocationMode,
 } from "./home-search-form";
 
+type HomeSearchSectionProps = {
+  /** Optional back destination. Defaults to "/" to return to the landing page. */
+  backHref?: string;
+};
+
 /**
  * Top-level container component for the home search page.
  *
  * Reads initial URL query parameters to pre-populate form fields, handles GPS coordinates,
  * and navigates to the result page with serialized search parameters upon form submission.
  */
-export function HomeSearchSection() {
+export function HomeSearchSection({
+  backHref = "/",
+}: HomeSearchSectionProps = {}) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -76,7 +84,7 @@ export function HomeSearchSection() {
 
   const initialValues: HomeSearchValues = {
     ...readPlayPreferences(searchParams),
-    interests: searchParams.get("interests") || "",
+    interests: "",
     locationMode:
       searchParams.get("locationMode") === "home"
         ? "home"
@@ -116,16 +124,14 @@ export function HomeSearchSection() {
     }
     params.set("hours", (values.hours ?? 0).toString());
     params.set("minutes", values.minutes.toString());
-    if (values.interests) {
-      params.set("interests", values.interests);
-    }
+    writeStoredInterests(window.sessionStorage, values.interests ?? "");
     if (planDate) params.set("planDate", planDate);
     router.push(`/result?${params.toString()}`);
   };
 
   return (
     <>
-      <TopNav showHistory />
+      <TopNav backHref={backHref} backAriaLabel="Back to Home" showHistory />
 
       <header className="flex justify-center">
         <h1>

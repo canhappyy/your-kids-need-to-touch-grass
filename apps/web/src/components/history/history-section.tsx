@@ -129,7 +129,7 @@ export function HistorySection({
                     <p>No to do/doing activities yet.</p>
                     <Link
                       className="mt-2 inline-flex min-h-11 items-center font-medium text-[#93AB63] underline"
-                      href="/"
+                      href="/search"
                       onClick={onClose}
                     >
                       Find an activity to do
@@ -188,7 +188,9 @@ export function HistorySection({
               onConfirmClear={handleClear}
               onOpenChange={setConfirmOpen}
               open={confirmOpen}
-              showTrigger={completedRecords.length > 0 || Boolean(completedError)}
+              showTrigger={
+                completedRecords.length > 0 || Boolean(completedError)
+              }
             />
           </>
         )}
@@ -199,9 +201,7 @@ export function HistorySection({
           if (!open) setNewBadges((current) => current.slice(1));
         }}
       >
-        {newBadges[0] ? (
-          <BadgeDetailDialog badge={newBadges[0]} />
-        ) : null}
+        {newBadges[0] ? <BadgeDetailDialog badge={newBadges[0]} /> : null}
       </Dialog>
     </>
   );
