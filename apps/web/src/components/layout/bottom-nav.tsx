@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarDays, Compass, LayoutDashboard } from "lucide-react";
+import { CalendarDays, Compass, Home, LayoutDashboard } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type NavItem = {
@@ -18,16 +18,23 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   {
+    label: "Home",
+    href: "/",
+    icon: Home,
+    isActive: (pathname) => pathname === "/",
+  },
+  {
+    label: "Find Activity",
+    href: "/search",
+    icon: Compass,
+    isActive: (pathname) =>
+      pathname === "/search" || pathname.startsWith("/result"),
+  },
+  {
     label: "Planner",
     href: "/planner",
     icon: CalendarDays,
     isActive: (pathname) => pathname.startsWith("/planner"),
-  },
-  {
-    label: "Get Activity",
-    href: "/",
-    icon: Compass,
-    isActive: (pathname) => pathname === "/" || pathname.startsWith("/result"),
   },
   {
     label: "Dashboard",
@@ -38,7 +45,7 @@ const navItems: NavItem[] = [
 ];
 
 /**
- * Bottom navigation bar providing primary tab switching across Planner, Get Activity, and Dashboard.
+ * Bottom navigation bar providing primary tab switching across Home, Find Activity, Planner, and Dashboard.
  *
  * Fixed at the bottom of the viewport with mobile safe area support and active tab highlighting.
  */
@@ -50,7 +57,7 @@ export function BottomNav() {
       aria-label="Bottom Navigation"
       className="fixed bottom-0 inset-x-0 z-30 border-t border-zinc-200/80 bg-white/90 pb-[max(0.25rem,env(safe-area-inset-bottom))] shadow-[0_-2px_10px_rgba(0,0,0,0.03)] backdrop-blur-md"
     >
-      <div className="mx-auto flex h-16 w-full max-w-md items-center justify-around px-4">
+      <div className="mx-auto flex h-16 w-full max-w-md items-center justify-around px-2 sm:px-4">
         {navItems.map((item) => {
           const Icon = item.icon;
           const active = item.isActive(pathname);
@@ -70,7 +77,7 @@ export function BottomNav() {
             >
               <div
                 className={cn(
-                  "flex items-center justify-center rounded-full px-3 py-1 transition-all duration-200",
+                  "flex items-center justify-center rounded-full px-2.5 py-1 transition-all duration-200",
                   active
                     ? "bg-[#93AB63]/15 text-[#728A46]"
                     : "text-zinc-400 group-hover:bg-black/5 group-hover:text-zinc-600",
@@ -84,7 +91,7 @@ export function BottomNav() {
                   )}
                 />
               </div>
-              <span className="text-[11px] leading-tight tracking-tight sm:text-xs">
+              <span className="text-[10px] sm:text-xs leading-tight tracking-tight">
                 {item.label}
               </span>
             </Link>
